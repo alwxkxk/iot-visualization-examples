@@ -1,7 +1,17 @@
 const path = require('path');
+const CopyPlugin = require('copy-webpack-plugin');
 
 module.exports = {
-  entry: './src/index.ts',
+  entry: {
+    index:'./src/index.ts',
+    t2:'./src/t2.ts'
+  },
+  plugins: [
+    new CopyPlugin([{
+      from: './src/*.html',
+      to: "[name].[ext]",
+    }])
+  ],
   mode:"development",//production or development
   module: {
     rules: [
@@ -16,7 +26,7 @@ module.exports = {
     extensions: [ '.tsx', '.ts', '.js' ]
   },
   output: {
-    filename: 'bundle.js',
+    filename: '[name].js',
     path: path.resolve(__dirname, 'dist')
   }
 };

@@ -9,7 +9,7 @@
       "sourceMap": false
   },
   "include": [
-      "src/*"
+      "src/**/*"
   ],
   "exclude": [
       "node_modules",
