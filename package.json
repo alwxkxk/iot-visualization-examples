@@ -1,0 +1,34 @@
+{
+  "name": "iot-visualization-examples",
+  "version": "0.0.20190419",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "webpack --config webpack.config.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/alwxkxk/iot-visualization-examples.git"
+  },
+  "keywords": [
+    "iot",
+    "visualization"
+  ],
+  "author": "alwxkxk",
+  "license": "GPL-3.0",
+  "bugs": {
+    "url": "https://github.com/alwxkxk/iot-visualization-examples/issues"
+  },
+  "homepage": "https://github.com/alwxkxk/iot-visualization-examples#readme",
+  "dependencies": {
+    "jquery": "^3.4.0"
+  },
+  "devDependencies": {
+    "@types/jquery": "^3.3.29",
+    "ts-loader": "^5.3.3",
+    "typescript": "^3.4.4",
+    "webpack": "^4.30.0",
+    "webpack-cli": "^3.3.0"
+  }
+}
