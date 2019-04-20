@@ -22,7 +22,8 @@
   },
   "homepage": "https://github.com/alwxkxk/iot-visualization-examples#readme",
   "dependencies": {
-    "jquery": "^3.4.0"
+    "jquery": "^3.4.0",
+    "three": "^0.103.0"
   },
   "devDependencies": {
     "@types/jquery": "^3.3.29",

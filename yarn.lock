@@ -2652,6 +2652,11 @@ terser@^3.16.1:
     source-map "~0.6.1"
     source-map-support "~0.5.10"
 
+three@^0.103.0:
+  version "0.103.0"
+  resolved "http://registry.npm.taobao.org/three/download/three-0.103.0.tgz#63b3dbccc861caad93269618061a73dadebae71b"
+  integrity sha1-Y7PbzMhhyq2TJpYYBhpz2t665xs=
+
 through2@^2.0.0:
   version "2.0.5"
   resolved "http://clcdata.com:4873/through2/-/through2-2.0.5.tgz#01c1e39eb31d07cb7d03a96a70823260b23132cd"
