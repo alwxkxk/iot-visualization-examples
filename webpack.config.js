@@ -35,5 +35,10 @@ module.exports = {
   output: {
     filename: '[name].js',
     path: path.resolve(__dirname, 'dist')
+  },
+  watchOptions:{
+    poll:1000,
+    aggregateTimeout:1000,
+    ignored:/node_modules/,
   }
 };

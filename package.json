@@ -5,8 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "build": "webpack --config webpack.config.js",
-    "server":"http-server ./dist -p 8000"
+    "build": "webpack --config webpack.config.js --watch",
+    "server":"http-server ./dist -p 8001"
   },
   "repository": {
     "type": "git",
