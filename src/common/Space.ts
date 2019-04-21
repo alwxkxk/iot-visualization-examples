@@ -33,14 +33,32 @@ class Space {
 		this.innerHeight =  e.clientHeight;
 		renderer.setSize(e.clientWidth, e.clientHeight );
 		e.appendChild(renderer.domElement);
+
+		this.animateActionMap = new Map();
 	}
 
+	animateActionMap:Map<string,ICallback>;
+	addAnimateAction(key:string,func:ICallback):Space{
+		const map = this.animateActionMap;
+		if(map.has(key)){
+			console.warn(`${key} already existed in animateActionMap,and replace by new function.`);
+		}
+		map.set(key,func);
+		return this;
+	}
+	removeAnimateAction(key:string):Space{
+		this.animateActionMap.delete(key);
+		return this;
+	}
 	animate(){
 		requestAnimationFrame( this.animate.bind(this) );
 		this.renderer.render( this.scene, this.camera );
+		this.animateActionMap.forEach((func:ICallback)=>{
+			func(null);
+		})
 	}
 
-	setPerspectiveCamera(camera:any,data:any){
+	setPerspectiveCamera(camera:any,data:any):Space{
 		camera.fov = data.fov;
 		camera.position.set(data.x||0,data.y||0,data.z||0)
 		camera.rotation.set(data.rx*Math.PI/180||0,data.ry*Math.PI/180||0,data.rz*Math.PI/180||0)
@@ -48,6 +66,7 @@ class Space {
 		if(this.orbitControl){
 			this.orbitControl.update()
 		}
+		return this;
 	}
 
 	load(file:string):Promise<any> {

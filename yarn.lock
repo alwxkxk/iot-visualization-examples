@@ -17,6 +17,11 @@
   dependencies:
     "@types/sizzle" "*"
 
+"@types/node@^11.13.6":
+  version "11.13.6"
+  resolved "http://registry.npm.taobao.org/@types/node/download/@types/node-11.13.6.tgz#37ec75690830acb0d74ce3c6c43caab787081e85"
+  integrity sha1-N+x1aQgwrLDXTOPGxDyqt4cIHoU=
+
 "@types/sizzle@*":
   version "2.3.2"
   resolved "http://clcdata.com:4873/@types%2fsizzle/-/sizzle-2.3.2.tgz#a811b8c18e2babab7d542b3365887ae2e4d9de47"
