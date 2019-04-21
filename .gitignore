@@ -1,3 +1,5 @@
 node_modules
 dist
+
 static/3d/*
+!static/3d/sample-scene.glb

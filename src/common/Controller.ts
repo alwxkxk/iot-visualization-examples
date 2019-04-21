@@ -1,0 +1,1 @@
+const THREE = window.THREE;
