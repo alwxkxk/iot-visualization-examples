@@ -1,9 +1,5 @@
-
-interface Window { 
-  $: any; 
-  jquery:any;
-  THREE:any;
-  Stats: StatsInterface; 
+interface ICallback {
+  ( error: Error, result?: number ) : void;
 }
 
 // https://github.com/mrdoob/stats.js/blob/master/src/Stats.js
@@ -13,6 +9,13 @@ interface StatsInterface{
   update():any;
 }
 
-interface ICallback {
-  ( error: Error, result?: number ) : void;
+interface Window { 
+  $: any; 
+  jquery:any;
+  THREE:any;
+  Stats: StatsInterface; 
 }
+
+
+
+
