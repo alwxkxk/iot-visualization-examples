@@ -15,8 +15,12 @@ class Space {
 	animateActionMap:Map<string,Function>;
 	camera:any;
 	readonly element:Element;
-	innerHeight:Number;
-	innerWidth:Number;
+	innerHeight:number;
+	innerWidth:number;
+	offset:{
+		top:number;
+		left:number;
+	};
 	readonly options:options;
 	orbit:any;
 	renderer:any;
@@ -39,32 +43,37 @@ class Space {
 		return this;
 	}
 
-	animate(){
+	animate():Space{
 		requestAnimationFrame( this.animate.bind(this) );
 		this.renderer.render( this.scene, this.camera );
 		this.animateActionMap.forEach((func:Function)=>{
 			func();
 		})
+		return this;
 	}
 
-	init(){
+	init():Space{
 		const e = this.element;
 		const options = this.options || {};
 		const renderer = this.renderer = new THREE.WebGLRenderer();
 		this.innerWidth =  e.clientWidth;
 		this.innerHeight =  e.clientHeight;
+		this.animateActionMap = new Map();
+		this.offset = $(e).offset();
+
 		renderer.setSize(e.clientWidth, e.clientHeight );
 		e.appendChild(renderer.domElement);
-		this.animateActionMap = new Map();
 
 		if(options.inspector){
 			const inspector = new Inspector(e);
 			this.addAnimateAction("inspector",inspector.animateAction);
 		}
 
+		window.addEventListener('resize', this.resize.bind(this));
+		return this;
 	}
 
-	initOrbit(){
+	initOrbit():Space{
 		const options = this.options || {};
 		if(options.orbit){
 			const orbit = this.orbit = new THREE.OrbitControls(this.camera,this.renderer.domElement);
@@ -72,6 +81,7 @@ class Space {
 				orbit.update();
 			});
 		}
+		return this;
 	}
 
 	load(file:string):Promise<any> {
@@ -103,6 +113,26 @@ class Space {
 
 	removeAnimateAction(key:string):Space{
 		this.animateActionMap.delete(key);
+		return this;
+	}
+
+	resize():Space{
+		const camera = this.camera;
+		const e = this.element;
+		this.offset = $(e).offset(); 
+		if(e.clientWidth === 0 || e.clientHeight === 0){
+			console.error("resize error:element width and height is error.",e.clientWidth,e.clientHeight);
+			return this;
+		}
+
+		// console.log(camera,offset);
+
+		if(camera.type === "PerspectiveCamera"){
+			camera.aspect = e.clientWidth / e.clientHeight;
+			camera.updateProjectionMatrix();
+		}
+
+		this.renderer.setSize(e.clientWidth, e.clientHeight);
 		return this;
 	}
 

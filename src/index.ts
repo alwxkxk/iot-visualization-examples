@@ -6,4 +6,6 @@ const space = new Space(element,{
   orbit:true
 });
 space.load("./static/3d/sample-scene.glb");
+// @ts-ignore
+window.debugSpace=space;
 
