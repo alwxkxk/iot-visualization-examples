@@ -5,7 +5,10 @@ const space = new Space(element,{
   inspector:true,
   orbit:true
 });
-space.load("./static/3d/sample-scene.glb");
+space.load("./static/3d/sample-scene.glb")
+.then(()=>{
+  space.autoRotate(true);
+})
 // @ts-ignore
 window.debugSpace=space;
 

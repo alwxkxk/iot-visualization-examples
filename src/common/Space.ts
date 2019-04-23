@@ -52,6 +52,24 @@ class Space {
 		return this;
 	}
 
+	autoRotate(flag:boolean,speed?:number){
+		const orbit = this.orbit
+		if(!orbit){
+			return console.warn("autoRotate need orbit control");
+		}
+		orbit.autoRotate = flag;
+
+		if(flag){
+			orbit.autoRotateSpeed = speed || 2;			
+			this.addAnimateAction('autoRotate',()=>{
+				orbit.update();
+			})
+		}
+		else{
+			this.removeAnimateAction('autoRotate');
+		}
+	}
+	
 	init():Space{
 		const e = this.element;
 		const options = this.options || {};
@@ -69,18 +87,20 @@ class Space {
 			this.addAnimateAction("inspector",inspector.animateAction);
 		}
 
+
+
 		window.addEventListener('resize', this.resize.bind(this));
 		return this;
 	}
 
 	initOrbit():Space{
 		const options = this.options || {};
+
 		if(options.orbit){
 			const orbit = this.orbit = new THREE.OrbitControls(this.camera,this.renderer.domElement);
-			this.addAnimateAction("orbit",()=>{
-				orbit.update();
-			});
+			orbit.update();
 		}
+
 		return this;
 	}
 
@@ -137,9 +157,10 @@ class Space {
 	}
 
 	setPerspectiveCamera(camera:any,data:any):Space{
+		const degToRad  = THREE.Math.degToRad ;
 		camera.fov = data.fov;
 		camera.position.set(data.x||0,data.y||0,data.z||0)
-		camera.rotation.set(data.rx*Math.PI/180||0,data.ry*Math.PI/180||0,data.rz*Math.PI/180||0)
+		camera.rotation.set(degToRad(data.rx||0),degToRad(data.ry||0),degToRad(data.rz||0))
 		camera.updateProjectionMatrix();
 		this.initOrbit();
 		return this;
