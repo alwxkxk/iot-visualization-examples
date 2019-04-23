@@ -1,9 +1,9 @@
 import Space from "./common/Space";
-import Inspector from "./common/Inspector";
 
 const element = $("#3d-space")[0];
-const space = new Space(element);
-const inspector = new Inspector(element);
+const space = new Space(element,{
+  inspector:true,
+  orbit:true
+});
 space.load("./static/3d/sample-scene.glb");
-space.addAnimateAction("inspector",inspector.animateAction);
 

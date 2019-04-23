@@ -1,8 +1,13 @@
 import "THREE/examples/js/loaders/GLTFLoader.js";
+import "THREE/examples/js/controls/OrbitControls.js"
+import Inspector from "./Inspector";
+
 const THREE = window.THREE;
 
 interface options{
-	renderder:any;
+	renderder?:any;
+	inspector?:boolean;
+	orbit?:boolean;
 }
 
 class Space {
@@ -13,7 +18,7 @@ class Space {
 	innerHeight:Number;
 	innerWidth:Number;
 	readonly options:options;
-	orbitControl:any;
+	orbit:any;
 	renderer:any;
 	scene:any;
 
@@ -42,16 +47,31 @@ class Space {
 		})
 	}
 
-
-
 	init(){
 		const e = this.element;
-		let renderer = this.renderer = new THREE.WebGLRenderer();
+		const options = this.options || {};
+		const renderer = this.renderer = new THREE.WebGLRenderer();
 		this.innerWidth =  e.clientWidth;
 		this.innerHeight =  e.clientHeight;
 		renderer.setSize(e.clientWidth, e.clientHeight );
 		e.appendChild(renderer.domElement);
 		this.animateActionMap = new Map();
+
+		if(options.inspector){
+			const inspector = new Inspector(e);
+			this.addAnimateAction("inspector",inspector.animateAction);
+		}
+
+	}
+
+	initOrbit(){
+		const options = this.options || {};
+		if(options.orbit){
+			const orbit = this.orbit = new THREE.OrbitControls(this.camera,this.renderer.domElement);
+			this.addAnimateAction("orbit",()=>{
+				orbit.update();
+			});
+		}
 	}
 
 	load(file:string):Promise<any> {
@@ -90,10 +110,8 @@ class Space {
 		camera.fov = data.fov;
 		camera.position.set(data.x||0,data.y||0,data.z||0)
 		camera.rotation.set(data.rx*Math.PI/180||0,data.ry*Math.PI/180||0,data.rz*Math.PI/180||0)
-		camera.updateProjectionMatrix()
-		if(this.orbitControl){
-			this.orbitControl.update()
-		}
+		camera.updateProjectionMatrix();
+		this.initOrbit();
 		return this;
 	}
 
