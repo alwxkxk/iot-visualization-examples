@@ -15,14 +15,19 @@ class Space {
 	animateActionMap:Map<string,Function>;
 	camera:any;
 	readonly element:Element;
+	eventList:any;
 	innerHeight:number;
 	innerWidth:number;
+	mouse:any;
 	offset:{
 		top:number;
 		left:number;
 	};
 	readonly options:options;
 	orbit:any;
+	raycaster:any;
+	raycasterObjects:any[];
+	raycasterRecursive:boolean;
 	renderer:any;
 	scene:any;
 
@@ -55,7 +60,7 @@ class Space {
 	autoRotate(flag:boolean,speed?:number){
 		const orbit = this.orbit
 		if(!orbit){
-			return console.warn("autoRotate need orbit control");
+			return console.error("autoRotate need orbit control");
 		}
 		orbit.autoRotate = flag;
 
@@ -69,11 +74,29 @@ class Space {
 			this.removeAnimateAction('autoRotate');
 		}
 	}
+
+	dispose(){
+		const e = this.element;
+		// TODO: dispose Materials,Geometries,Textures,Render Targets
+		this.scene.dispose();
+
+		window.removeEventListener('resize', this.eventList.resize);
+		e.removeEventListener('click', this.eventList.updateMouse);
+		e.removeEventListener("dblclick",this.eventList.updateMouse);
+		e.removeEventListener("mousemove",this.eventList.updateMouse);
+		this.eventList = null;
+	}
 	
 	init():Space{
 		const e = this.element;
 		const options = this.options || {};
-		const renderer = this.renderer = new THREE.WebGLRenderer();
+		const renderer = this.renderer = new THREE.WebGLRenderer({alpha:true});
+
+		if(e.clientWidth === 0 || e.clientHeight === 0){
+			console.error("element should had width and height before init.");
+			return this;
+		}
+
 		this.innerWidth =  e.clientWidth;
 		this.innerHeight =  e.clientHeight;
 		this.animateActionMap = new Map();
@@ -82,14 +105,21 @@ class Space {
 		renderer.setSize(e.clientWidth, e.clientHeight );
 		e.appendChild(renderer.domElement);
 
+		this.raycaster = new THREE.Raycaster();
+		this.mouse = new THREE.Vector2();
+
 		if(options.inspector){
 			const inspector = new Inspector(e);
 			this.addAnimateAction("inspector",inspector.animateAction);
 		}
 
+		this.eventList={
+			resize:this.resize.bind(this),
+			updateMouse:this.updateMouse.bind(this)
+		}
 
+		window.addEventListener('resize', this.eventList.resize);
 
-		window.addEventListener('resize', this.resize.bind(this));
 		return this;
 	}
 
@@ -111,13 +141,23 @@ class Space {
 			const loader = new THREE.GLTFLoader();
 			loader.load(file,
 				function loaded(gltf:any) {
-					// console.log(gltf);
+					console.log(gltf);
 					let e = scope.element;
 					let scene = scope.scene = gltf.scene;
 					let camera = scope.camera = new THREE.PerspectiveCamera( 20, e.clientWidth/e.clientHeight, 0.1, 1000 );
 					scope.setPerspectiveCamera(camera,scene.userData);
 					scene.add(camera);
 					scene.add( new THREE.HemisphereLight( 0xffffff, 0xcccccc, 1 ) );
+
+					// all object is raycaster by default.
+					scope.raycasterObjects=[];
+					scene.traverse((object3d)=>{
+						scope.raycasterObjects.push(object3d);
+					});
+
+					e.addEventListener('click', scope.eventList.updateMouse);
+					e.addEventListener("dblclick",scope.eventList.updateMouse);
+					e.addEventListener("mousemove",scope.eventList.updateMouse);
 					scope.animate();
 					resolve();
 				},
@@ -156,6 +196,21 @@ class Space {
 		return this;
 	}
 
+	raycasterAction():Space{
+		const raycaster = this.raycaster;
+		let intersects;
+		raycaster.setFromCamera(this.mouse, this.camera);
+		intersects = raycaster.intersectObjects(this.raycasterObjects, this.raycasterRecursive);
+
+		if(intersects.length === 0){
+			return this;
+		}
+		// TODO: callback by event.type
+		console.log(intersects);
+
+		return this;
+	}
+
 	setPerspectiveCamera(camera:any,data:any):Space{
 		const degToRad  = THREE.Math.degToRad ;
 		camera.fov = data.fov;
@@ -165,6 +220,34 @@ class Space {
 		this.initOrbit();
 		return this;
 	}
+
+	updateMouse(event:MouseEvent):Space{
+		const mouse = this.mouse;
+		switch (event.type) {
+			case 'click':
+				mouse.eventType = 'click'
+				break;
+
+			case 'dblclick':
+				mouse.eventType = 'dblclick'
+				break;
+
+			case 'mousemove':
+				mouse.eventType = 'mousemove'
+				break;
+		
+			default:
+				console.error("updateMouse eventType error:",event);
+				return this;
+		}
+		// serialize value to -1 ~ +1
+		mouse.x = (event.clientX - (this.offset.left)) / this.innerWidth * 2 - 1
+		mouse.y = -((event.clientY - (this.offset.top)) / this.innerHeight) * 2 + 1
+		this.raycasterAction();
+		return this;
+	}
+
+
 
 }
 
