@@ -1,6 +1,14 @@
-import "THREE/examples/js/loaders/GLTFLoader.js";
-import "THREE/examples/js/controls/OrbitControls.js"
 import Inspector from "./Inspector";
+import "THREE/examples/js/controls/OrbitControls.js"
+import "THREE/examples/js/loaders/GLTFLoader.js";
+
+// outline
+import "THREE/examples/js/shaders/CopyShader.js";
+import "THREE/examples/js/shaders/FXAAShader.js";
+import "THREE/examples/js/postprocessing/EffectComposer.js";
+import "THREE/examples/js/postprocessing/RenderPass.js";
+import "THREE/examples/js/postprocessing/ShaderPass.js";
+import "./outlinepass.js";
 
 const THREE = window.THREE;
 
@@ -14,6 +22,7 @@ class Space {
 
 	animateActionMap:Map<string,Function>;
 	camera:any;
+	composer:any;
 	readonly element:Element;
 	eventList:any;
 	innerHeight:number;
@@ -25,6 +34,7 @@ class Space {
 	};
 	readonly options:options;
 	orbit:any;
+	outlinePass:any;
 	raycaster:any;
 	raycasterObjects:any[];
 	raycasterRecursive:boolean;
@@ -49,11 +59,19 @@ class Space {
 	}
 
 	animate():Space{
-		requestAnimationFrame( this.animate.bind(this) );
-		this.renderer.render( this.scene, this.camera );
+
 		this.animateActionMap.forEach((func:Function)=>{
 			func();
 		})
+
+		if(this.composer){
+			this.composer.render();
+		}
+		else{
+			this.renderer.render( this.scene, this.camera );
+		}
+
+		requestAnimationFrame( this.animate.bind(this) );
 		return this;
 	}
 
@@ -134,6 +152,29 @@ class Space {
 		return this;
 	}
 
+	initOutline():Space{
+		const composer = new THREE.EffectComposer( this.renderer );
+		this.composer = composer;
+
+		const  renderPass = new THREE.RenderPass( this.scene, this.camera);
+		composer.addPass( renderPass );
+
+		const outlinePass = new THREE.OutlinePass( new THREE.Vector2( this.innerWidth, this.innerHeight ), this.scene, this.camera );
+		composer.addPass( outlinePass );
+		this.outlinePass = outlinePass;
+		outlinePass.edgeStrength = 5
+		outlinePass.edgeGlow = 1
+		outlinePass.pulsePeriod = 2
+		outlinePass.visibleEdgeColor.set('#35f2d1')
+		outlinePass.hiddenEdgeColor.set('#30a0de')
+
+		const effectFXAA = new THREE.ShaderPass( THREE.FXAAShader );
+		effectFXAA.uniforms[ 'resolution' ].value.set( 1 / this.innerWidth, 1 / this.innerHeight );
+		effectFXAA.renderToScreen = true;
+		composer.addPass( effectFXAA );
+		return this;
+	}
+
 	load(file:string):Promise<any> {
 		const scope = this;
 		return new Promise((resolve,reject)=>{
@@ -151,13 +192,14 @@ class Space {
 
 					// all object is raycaster by default.
 					scope.raycasterObjects=[];
-					scene.traverse((object3d)=>{
+					scene.traverse((object3d:any)=>{
 						scope.raycasterObjects.push(object3d);
 					});
 
 					e.addEventListener('click', scope.eventList.updateMouse);
 					e.addEventListener("dblclick",scope.eventList.updateMouse);
-					e.addEventListener("mousemove",scope.eventList.updateMouse);
+					// e.addEventListener("mousemove",scope.eventList.updateMouse);
+					scope.initOutline();
 					scope.animate();
 					resolve();
 				},
@@ -207,8 +249,15 @@ class Space {
 		}
 		// TODO: callback by event.type
 		console.log(intersects);
+		this.setOutline([intersects[0].object]);
 
 		return this;
+	}
+
+	setOutline(array:any[]){
+		if(this.outlinePass){
+			this.outlinePass.selectedObjects = array;
+		}
 	}
 
 	setPerspectiveCamera(camera:any,data:any):Space{
