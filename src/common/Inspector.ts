@@ -1,13 +1,16 @@
 // @ts-ignore
 import Stats from "./stats.js"; //can not import Stats from "THREE/examples/js/libs/stats.min.js"
+import Space from "./Space.js";
 
 class Inspector{
   stats:StatsInterface;
   animateAction:Function;
   raycasterEvent:any;
-  constructor(element:Element){
+  space:Space;
+  constructor(space:Space){
+    this.space = space;
     const stats = this.stats = new Stats();
-    element.appendChild(stats.dom);
+    space.element.appendChild(stats.dom);
     this.animateAction = this._animateAction()
 
     this.raycasterEvent={
@@ -15,7 +18,9 @@ class Inspector{
         if(intersects.length === 0){
           return ;
         }
-        console.log(intersects[0].object,intersects)
+        console.log(intersects[0].object,intersects);
+        space.setOutline([intersects[0].object])
+        
       }
     };
     return this;

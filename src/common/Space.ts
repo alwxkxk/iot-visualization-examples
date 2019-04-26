@@ -158,7 +158,7 @@ class Space {
 		this.mouse = new THREE.Vector2();
 
 		if(options.inspector){
-			const inspector = new Inspector(e);
+			const inspector = new Inspector(this);
 			this.addAnimateAction("inspector",inspector.animateAction);
 			this.setraycasterEventMap(inspector.raycasterEvent);
 		}
