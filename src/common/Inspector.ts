@@ -4,11 +4,20 @@ import Stats from "./stats.js"; //can not import Stats from "THREE/examples/js/l
 class Inspector{
   stats:StatsInterface;
   animateAction:Function;
+  raycasterEvent:any;
   constructor(element:Element){
     const stats = this.stats = new Stats();
     element.appendChild(stats.dom);
     this.animateAction = this._animateAction()
 
+    this.raycasterEvent={
+      click:(intersects:any[])=>{
+        if(intersects.length === 0){
+          return ;
+        }
+        console.log(intersects[0].object,intersects)
+      }
+    };
     return this;
   }
 
@@ -18,6 +27,9 @@ class Inspector{
       stats.update();
     }
   }
+
+
+
 }
 
 export default Inspector;

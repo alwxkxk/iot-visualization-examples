@@ -10,6 +10,13 @@ import "THREE/examples/js/postprocessing/RenderPass.js";
 import "THREE/examples/js/postprocessing/ShaderPass.js";
 import "./outlinepass.js";
 
+import { 
+	WebGLRenderer, 
+	Raycaster,
+	Scene,
+	Object3D
+} from "THREE";
+
 const THREE = window.THREE;
 
 interface options{
@@ -19,12 +26,10 @@ interface options{
 }
 
 class Space {
-
 	animateActionMap:Map<string,Function>;
 	camera:any;
 	composer:any;
 	readonly element:Element;
-	eventList:any;
 	innerHeight:number;
 	innerWidth:number;
 	mouse:any;
@@ -35,11 +40,13 @@ class Space {
 	readonly options:options;
 	orbit:any;
 	outlinePass:any;
-	raycaster:any;
-	raycasterObjects:any[];
+	raycaster:Raycaster;
+	raycasterEventMap:Map<string,Function>;
+	raycasterObjects:Object3D[];
 	raycasterRecursive:boolean;
-	renderer:any;
-	scene:any;
+	renderer:WebGLRenderer;
+	scene:Scene;
+	private _eventList:any;
 
 	constructor(element:Element,options?:options){
 		this.element = element;
@@ -58,6 +65,28 @@ class Space {
 		return this;
 	}
 
+	afterLoaded():Space{
+		const e = this.element;
+		// all object is raycaster by default.
+		this.raycasterObjects=[];
+		this.scene.traverse((object3d:Object3D)=>{
+			this.raycasterObjects.push(object3d);
+		});
+		// click: outline the object by default.
+		if(!this.raycasterEventMap){
+			this.setraycasterEventMap({
+				click:(intersects:any)=>{
+					this.setOutline([intersects[0].object]);
+				}
+			});
+		}
+		e.addEventListener('click', this._eventList.updateMouse);
+		e.addEventListener("dblclick",this._eventList.updateMouse);
+		e.addEventListener("mousemove",this._eventList.updateMouse);
+		this.initOutline();
+		this.animate();
+		return this;
+	}
 	animate():Space{
 
 		this.animateActionMap.forEach((func:Function)=>{
@@ -96,13 +125,15 @@ class Space {
 	dispose(){
 		const e = this.element;
 		// TODO: dispose Materials,Geometries,Textures,Render Targets
+
+		// @ts-ignore : scene has dispose method.
 		this.scene.dispose();
 
-		window.removeEventListener('resize', this.eventList.resize);
-		e.removeEventListener('click', this.eventList.updateMouse);
-		e.removeEventListener("dblclick",this.eventList.updateMouse);
-		e.removeEventListener("mousemove",this.eventList.updateMouse);
-		this.eventList = null;
+		window.removeEventListener('resize', this._eventList.resize);
+		e.removeEventListener('click', this._eventList.updateMouse);
+		e.removeEventListener("dblclick",this._eventList.updateMouse);
+		e.removeEventListener("mousemove",this._eventList.updateMouse);
+		this._eventList = null;
 	}
 	
 	init():Space{
@@ -129,14 +160,15 @@ class Space {
 		if(options.inspector){
 			const inspector = new Inspector(e);
 			this.addAnimateAction("inspector",inspector.animateAction);
+			this.setraycasterEventMap(inspector.raycasterEvent);
 		}
 
-		this.eventList={
+		this._eventList={
 			resize:this.resize.bind(this),
 			updateMouse:this.updateMouse.bind(this)
 		}
 
-		window.addEventListener('resize', this.eventList.resize);
+		window.addEventListener('resize', this._eventList.resize);
 
 		return this;
 	}
@@ -189,29 +221,20 @@ class Space {
 					scope.setPerspectiveCamera(camera,scene.userData);
 					scene.add(camera);
 					scene.add( new THREE.HemisphereLight( 0xffffff, 0xcccccc, 1 ) );
-
-					// all object is raycaster by default.
-					scope.raycasterObjects=[];
-					scene.traverse((object3d:any)=>{
-						scope.raycasterObjects.push(object3d);
-					});
-
-					e.addEventListener('click', scope.eventList.updateMouse);
-					e.addEventListener("dblclick",scope.eventList.updateMouse);
-					// e.addEventListener("mousemove",scope.eventList.updateMouse);
-					scope.initOutline();
-					scope.animate();
 					resolve();
+					scope.afterLoaded();
 				},
-				function loaddingProgressing(xhr:any) {
+				function progressing(xhr:any) {
 					console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
 					// TODO: show progressing in html
 				},
-				function loadingError(error:Error) {
+				function loadedError(error:Error) {
 					reject(error);
 				})
 		});
 	}
+
+
 
 	removeAnimateAction(key:string):Space{
 		this.animateActionMap.delete(key);
@@ -239,22 +262,35 @@ class Space {
 	}
 
 	raycasterAction():Space{
+
+		if(this.raycasterEventMap.size === 0){
+			return this;
+		}
+
 		const raycaster = this.raycaster;
+		const mouse = this.mouse;
+		const eventMap = this.raycasterEventMap;
 		let intersects;
-		raycaster.setFromCamera(this.mouse, this.camera);
+		raycaster.setFromCamera(mouse, this.camera);
 		intersects = raycaster.intersectObjects(this.raycasterObjects, this.raycasterRecursive);
 
 		if(intersects.length === 0){
 			return this;
 		}
-		// TODO: callback by event.type
-		console.log(intersects);
-		this.setOutline([intersects[0].object]);
+
+		// raycasterEventMap callback
+		if(eventMap.has(mouse.eventType)){
+			let func = eventMap.get(mouse.eventType);
+			if(func){
+				func(intersects);
+			}
+		}
+		// console.log(intersects);
 
 		return this;
 	}
 
-	setOutline(array:any[]){
+	setOutline(array:Object3D[]){
 		if(this.outlinePass){
 			this.outlinePass.selectedObjects = array;
 		}
@@ -267,6 +303,18 @@ class Space {
 		camera.rotation.set(degToRad(data.rx||0),degToRad(data.ry||0),degToRad(data.rz||0))
 		camera.updateProjectionMatrix();
 		this.initOrbit();
+		return this;
+	}
+
+	setraycasterEventMap(eventList:any):Space{
+		let eventMap = this.raycasterEventMap;
+		if(!eventMap){
+			eventMap = this.raycasterEventMap = new Map();
+		}
+
+		eventMap.set("click",eventList.click);
+		eventMap.set("dblclick",eventList.dblclick);
+		eventMap.set("mousemove",eventList.mousemove);
 		return this;
 	}
 
