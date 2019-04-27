@@ -13,11 +13,10 @@ import "./outlinepass.js";
 import { 
 	WebGLRenderer, 
 	Raycaster,
-	Scene,
-	Object3D
+	Scene
 } from "THREE";
 
-const THREE = window.THREE;
+const THREE = (<windowEx>window).THREE;
 
 interface options{
 	renderder?:any;
@@ -42,7 +41,7 @@ class Space {
 	outlinePass:any;
 	raycaster:Raycaster;
 	raycasterEventMap:Map<string,Function>;
-	raycasterObjects:Object3D[];
+	raycasterObjects:Object3dEx[];
 	raycasterRecursive:boolean;
 	renderer:WebGLRenderer;
 	scene:Scene;
@@ -69,7 +68,7 @@ class Space {
 		const e = this.element;
 		// all object is raycaster by default.
 		this.raycasterObjects=[];
-		this.scene.traverse((object3d:Object3D)=>{
+		this.scene.traverse((object3d:Object3dEx)=>{
 			this.raycasterObjects.push(object3d);
 		});
 		// click: outline the object by default.
@@ -290,7 +289,7 @@ class Space {
 		return this;
 	}
 
-	setOutline(array:Object3D[]){
+	setOutline(array:Object3dEx[]){
 		if(this.outlinePass){
 			this.outlinePass.selectedObjects = array;
 		}

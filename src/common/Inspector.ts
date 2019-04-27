@@ -2,6 +2,13 @@
 import Stats from "./stats.js"; //can not import Stats from "THREE/examples/js/libs/stats.min.js"
 import Space from "./Space.js";
 
+// https://github.com/mrdoob/stats.js/blob/master/src/Stats.js
+interface StatsInterface{
+  dom:Element;
+  new():any;
+  update():any;
+}
+
 class Inspector{
   stats:StatsInterface;
   animateAction:Function;
