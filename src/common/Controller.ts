@@ -4,9 +4,9 @@ import { Vector3, Euler, Group } from "three";
 const THREE = (<windowEx>window).THREE;
 
 class Controller {
-  lineModel:Group;
+  lineObject3d:GroupEx;
   name:string;
-  object3d:meshOrObject3d;
+  object3d:Objects;
   originalPosition:Vector3;
   originalRotation:Euler;
   originalScale:Vector3;
@@ -14,9 +14,11 @@ class Controller {
   rotation:Euler;
   userData:any;
   scale:Vector3;
+  showingObject3d:Objects;
+  showingModel:string;
   space:Space;
 
-  constructor(space:Space,object3d:meshOrObject3d,options?:any) {
+  constructor(space:Space,object3d:Objects,options?:any) {
     this.space = space;
     this.object3d = object3d;
     object3d.$controller = this;
@@ -33,15 +35,16 @@ class Controller {
     this.originalPosition = this.position = object3d.position.clone();
     this.originalRotation = this.rotation = object3d.rotation.clone();
     this.originalScale = this.scale = object3d.scale.clone();
-    
+
+    this.showingModel = "normal";
+    this.showingObject3d = object3d;
+
     return this;
   }
 
   initLineModel(color?:any):Controller{
     const object3d = this.object3d;
-    const group = this.lineModel = new THREE.Group();
-    const lineGroup = new THREE.Group();
-    const outsideGroup = new THREE.Group();
+    const group = this.lineObject3d = new THREE.Group();
     const lineMaterial = new THREE.LineBasicMaterial({color:color||0x00FFFF});
     const boxMaterial = new THREE.LineBasicMaterial({
       depthWrite: false,
@@ -50,25 +53,94 @@ class Controller {
       opacity: 0 , 
       depthTest: false
     });
-    group.name = this.name + "_lineModel";
+    group.name = this.name + "_lineObject3d";
     group.$controller = this;
 
-    lineGroup.name = group.name + "_line";
-    outsideGroup.name = group.name + "_box";
-    // object3d or mesh. 
     object3d.traverse((v:MeshEx)=>{
-      // group is instance of object3d.Only mesh is valuable.
-      if(v.isMesh){
+      // group don't have geometry
+      if(!this.isGroup(v)){
         let geo = new THREE.EdgesGeometry(v.geometry);
         let line = new THREE.LineSegments( geo ,lineMaterial);
-        let box = new THREE.Mesh(geo,boxMaterial);
-        lineGroup.add(line);
         // add transparent box to avoid picking difficult by raycaster.
-        outsideGroup.add(box);
+        let box = new THREE.Mesh(geo,boxMaterial);
+
+        this
+        .copyCoordinate(v,line)
+        .copyCoordinate(v,box);
+
+        group
+        .add(line)
+        .add(box); 
+        
       }
     })
-    group.add(lineGroup);
-    group.add(outsideGroup);
+    this.lineObject3d = group;
+    return this;
+  }
+
+  isGroup(obj:Objects):boolean{
+    // @ts-ignore
+    return !!obj.isGroup;
+  }
+
+  changeShowingModel(model:string):Controller{
+    switch (model) {
+      case "line":
+        this.changeToLineModel();
+        break;
+      case "normal":
+        this.changeToNormalModel();
+        break;
+    
+      default:
+        console.error("cann't changet to this model :",model)
+        return this;
+    }
+    this.showingModel = model;
+    return this;
+  }
+
+  changeToNormalModel():Controller{
+    this.updateShowingObject3d(this.object3d);
+    return this;
+  }
+
+  changeToLineModel():Controller{
+    if(!this.lineObject3d){
+      this.initLineModel();
+    }
+
+    this.updateShowingObject3d(this.lineObject3d);
+    return this;
+  }
+
+  copyCoordinate(from:Objects,to:Objects):Controller{
+    to.position.copy(from.position.clone());
+    to.scale.copy(from.scale.clone());
+    to.rotation.copy(from.rotation.clone());
+    return this;
+  }
+
+  updateShowingObject3d(newShowingObject3d:Objects):Controller{
+    // move children(group) to new showingObject3d(exclude other objects that have been change to newModel.)
+    const showingObject3d = this.showingObject3d;
+    const children = Array.from(showingObject3d.children);
+    children.forEach((obj:GroupEx)=>{
+      if(this.isGroup(obj)){
+        newShowingObject3d.add(obj);
+      }
+    });
+
+
+    const parent = showingObject3d.parent;
+    if(parent){
+      // appened to parent
+      // remove old shoingObject3d from parent 
+      parent
+      .add(newShowingObject3d)
+      .remove(showingObject3d)
+    }
+    this.showingObject3d = newShowingObject3d;
     return this;
   }
 

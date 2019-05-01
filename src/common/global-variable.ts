@@ -4,7 +4,7 @@ import 'popper.js';
 import 'bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
-import { Object3D, Mesh } from "three";
+import { Object3D, Mesh, Group } from "three";
 import Controller from "./Controller";
 
 // ts type global declare 
@@ -17,16 +17,19 @@ declare global {
     $: any; 
     jquery:any;
     THREE:any;
-  }
-  interface Object3dEx extends Object3D{
-    $controller:Controller;
+    selectedThing:Objects;// for Inspector debug selec thing.
   }
 
-  interface MeshEx extends Mesh{
+  interface $controller{
     $controller:Controller;
   }
+  interface Object3dEx extends Object3D,$controller{}
+
+  interface MeshEx extends Mesh,$controller{}
+
+  interface GroupEx extends Group,$controller{}
   
-  type meshOrObject3d = MeshEx | Object3dEx;
+  type Objects = MeshEx | Object3dEx | GroupEx;
 }
 
 (<windowEx>window).$ = (<windowEx>window).jquery = $;

@@ -1,5 +1,6 @@
+import Controller from "./Controller";
 import Inspector from "./Inspector";
-import "three/examples/js/controls/OrbitControls.js"
+import "three/examples/js/controls/OrbitControls.js";
 import "three/examples/js/loaders/GLTFLoader.js";
 
 // outline
@@ -70,6 +71,8 @@ class Space {
 		this.raycasterObjects=[];
 		this.scene.traverse((object3d:Object3dEx)=>{
 			this.raycasterObjects.push(object3d);
+			new Controller(this,object3d);
+
 		});
 		// click: outline the object by default.
 		if(!this.raycasterEventMap){
