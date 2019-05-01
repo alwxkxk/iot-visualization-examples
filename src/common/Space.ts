@@ -1,20 +1,20 @@
 import Inspector from "./Inspector";
-import "THREE/examples/js/controls/OrbitControls.js"
-import "THREE/examples/js/loaders/GLTFLoader.js";
+import "three/examples/js/controls/OrbitControls.js"
+import "three/examples/js/loaders/GLTFLoader.js";
 
 // outline
-import "THREE/examples/js/shaders/CopyShader.js";
-import "THREE/examples/js/shaders/FXAAShader.js";
-import "THREE/examples/js/postprocessing/EffectComposer.js";
-import "THREE/examples/js/postprocessing/RenderPass.js";
-import "THREE/examples/js/postprocessing/ShaderPass.js";
+import "three/examples/js/shaders/CopyShader.js";
+import "three/examples/js/shaders/FXAAShader.js";
+import "three/examples/js/postprocessing/EffectComposer.js";
+import "three/examples/js/postprocessing/RenderPass.js";
+import "three/examples/js/postprocessing/ShaderPass.js";
 import "./outlinepass.js";
 
 import { 
 	WebGLRenderer, 
 	Raycaster,
 	Scene
-} from "THREE";
+} from "three";
 
 const THREE = (<windowEx>window).THREE;
 

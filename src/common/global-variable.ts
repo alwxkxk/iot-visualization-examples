@@ -1,10 +1,10 @@
 import * as $ from "jquery";
-import * as THREE from "THREE";
+import * as THREE from "three";
 import 'popper.js';
 import 'bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
-import { Object3D, Mesh } from "THREE";
+import { Object3D, Mesh } from "three";
 import Controller from "./Controller";
 
 // ts type global declare 

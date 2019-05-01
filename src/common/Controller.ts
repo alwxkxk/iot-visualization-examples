@@ -1,5 +1,5 @@
 import Space from "./Space";
-import { Vector3, Euler, Group } from "THREE";
+import { Vector3, Euler, Group } from "three";
 
 const THREE = (<windowEx>window).THREE;
 
