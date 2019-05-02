@@ -1,4 +1,5 @@
 import Controller from "./Controller";
+import IndexedDB from "./IndexedDB";
 import Inspector from "./Inspector";
 import "three/examples/js/controls/OrbitControls.js";
 import "three/examples/js/loaders/GLTFLoader.js";
@@ -65,8 +66,15 @@ class Space {
 		return this;
 	}
 
-	afterLoaded():Space{
+	afterLoaded(gltf:any):Space{
 		const e = this.element;
+
+		const scene = this.scene = gltf.scene;
+		const camera = this.camera = new THREE.PerspectiveCamera( 20, e.clientWidth/e.clientHeight, 0.1, 1000 );
+		this.setPerspectiveCamera(camera,scene.userData);
+		scene.add(camera);
+		scene.add( new THREE.HemisphereLight( 0xffffff, 0xcccccc, 1 ) );
+
 		// all object is raycaster by default.
 		this.raycasterObjects=[];
 		this.scene.traverse((object3d:Object3dEx)=>{
@@ -209,22 +217,36 @@ class Space {
 		return this;
 	}
 
-	load(file:string):Promise<any> {
+
+	private loadFromFile(file:string):Promise<any> {
 		const scope = this;
 		return new Promise((resolve,reject)=>{
 			// TODO: set and get data first from indexDB
-			const loader = new THREE.GLTFLoader();
+			const gltfLoader = new THREE.GLTFLoader();
+			const loader = new THREE.FileLoader( THREE.DefaultLoadingManager );
+			loader.setResponseType( 'arraybuffer' );
 			loader.load(file,
-				function loaded(gltf:any) {
-					console.log(gltf);
-					let e = scope.element;
-					let scene = scope.scene = gltf.scene;
-					let camera = scope.camera = new THREE.PerspectiveCamera( 20, e.clientWidth/e.clientHeight, 0.1, 1000 );
-					scope.setPerspectiveCamera(camera,scene.userData);
-					scene.add(camera);
-					scene.add( new THREE.HemisphereLight( 0xffffff, 0xcccccc, 1 ) );
-					resolve();
-					scope.afterLoaded();
+				function loaded(data:any) {
+					const db = new IndexedDB();
+					const resourcePath = THREE.LoaderUtils.extractUrlBase( file );
+					gltfLoader.parse(data,resourcePath,
+						(gltf:any)=>{
+							console.log(gltf);
+							resolve();
+							scope.afterLoaded(gltf);	
+						},
+						(error:any)=>{
+							reject(error);
+						}
+					)
+
+					db
+					.init()
+					.then(()=>{
+						db.setCache(file,data);
+					});
+
+					
 				},
 				function progressing(xhr:any) {
 					console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
@@ -236,6 +258,34 @@ class Space {
 		});
 	}
 
+	async load(file:string):Promise<any>{
+		const db = new IndexedDB();
+		const loader = new THREE.GLTFLoader();
+		const scope = this;
+
+		await db.init()
+		return await db.getCache(file).then((result)=>{
+			if(result){// load from cache first
+				return new Promise((resolve,reject)=>{
+					loader.parse(result.data,null,
+						(gltf:any)=>{
+							console.log(gltf);
+							resolve();
+							scope.afterLoaded(gltf);
+						},
+						()=>{
+							reject("loadFromCache error");
+						}	
+					)
+				})
+			}
+			else{// if not cache then load from file.
+				return scope.loadFromFile(file);
+			}
+		})
+
+		
+	}
 
 
 	removeAnimateAction(key:string):Space{
