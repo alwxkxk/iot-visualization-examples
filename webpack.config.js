@@ -3,9 +3,10 @@ const CopyPlugin = require('copy-webpack-plugin');
 
 module.exports = {
   entry: {
-    "global-variable":'./src/common/global-variable.ts',
+    "global_setting":'./src/common/global_setting.ts',
     index:'./src/index.ts',
-    t2:'./src/t2.ts',
+    components:'./src/components.ts',
+    test:'./src/test.ts',
   },
   plugins: [
     new CopyPlugin([{

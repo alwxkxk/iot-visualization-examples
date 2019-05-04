@@ -1,6 +1,7 @@
 import Controller from "./Controller";
 import IndexedDB from "./IndexedDB";
 import Inspector from "./Inspector";
+import ProgressBar from "./components/ProgressBar";
 import "three/examples/js/controls/OrbitControls.js";
 import "three/examples/js/loaders/GLTFLoader.js";
 
@@ -41,6 +42,7 @@ class Space {
 	readonly options:options;
 	orbit:any;
 	outlinePass:any;
+	progressBar:ProgressBar;
 	raycaster:Raycaster;
 	raycasterEventMap:Map<string,Function>;
 	raycasterObjects:Object3dEx[];
@@ -220,18 +222,25 @@ class Space {
 
 	private loadFromFile(file:string):Promise<any> {
 		const scope = this;
+		const progressBar = this.progressBar;
+
 		return new Promise((resolve,reject)=>{
 			// TODO: set and get data first from indexDB
 			const gltfLoader = new THREE.GLTFLoader();
 			const loader = new THREE.FileLoader( THREE.DefaultLoadingManager );
 			loader.setResponseType( 'arraybuffer' );
+			progressBar.start();
 			loader.load(file,
 				function loaded(data:any) {
 					const db = new IndexedDB();
 					const resourcePath = THREE.LoaderUtils.extractUrlBase( file );
+					const beginTime = performance.now();
+					progressBar.parse();
 					gltfLoader.parse(data,resourcePath,
 						(gltf:any)=>{
+							console.log("parse spent:",performance.now() - beginTime);
 							console.log(gltf);
+							progressBar.dispose();
 							resolve();
 							scope.afterLoaded(gltf);	
 						},
@@ -249,8 +258,8 @@ class Space {
 					
 				},
 				function progressing(xhr:any) {
-					console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
-					// TODO: show progressing in html
+					progressBar.progress( xhr.loaded / xhr.total * 100);
+					// console.log( ( xhr.loaded / xhr.total * 100 ) + '% loaded' );
 				},
 				function loadedError(error:Error) {
 					reject(error);
@@ -262,18 +271,25 @@ class Space {
 		const db = new IndexedDB();
 		const loader = new THREE.GLTFLoader();
 		const scope = this;
+		const progressBar = this.progressBar = new ProgressBar(this.element);
 
+		progressBar.setText("CHECK CACHE");
 		await db.init()
 		return await db.getCache(file).then((result)=>{
 			if(result){// load from cache first
 				return new Promise((resolve,reject)=>{
+					const beginTime = performance.now();
+					progressBar.parse();
 					loader.parse(result.data,null,
 						(gltf:any)=>{
+							console.log("parse spent:",performance.now() - beginTime);
 							console.log(gltf);
 							resolve();
+							progressBar.dispose();
 							scope.afterLoaded(gltf);
 						},
 						()=>{
+							progressBar.error();
 							reject("loadFromCache error");
 						}	
 					)

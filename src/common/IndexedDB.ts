@@ -50,8 +50,7 @@ class IndexedDB {
       }
       request.onsuccess=()=>{
         resolve(request.result);
-        const time =  performance.now();
-        console.log("get cache thme:",time - beginTime);
+        console.log("get cache spent:",performance.now() - beginTime);
       }
     });
   }
