@@ -147,7 +147,22 @@ class Space {
 		e.removeEventListener("mousemove",this._eventList.updateMouse);
 		this._eventList = null;
 	}
-	
+	createEmptyScene(){
+		const gltf:any = {};
+		gltf.scene = new THREE.Scene();
+		// orbit will abnormal when camera position null.
+		gltf.scene.userData = {
+			"fov":20,
+			"x":-10,
+			"y":7,
+			"z":6,
+			"rx":-50,
+			"ry":-54,
+			"rz":-44
+		};
+		this.afterLoaded(gltf);
+	}
+
 	init():Space{
 		const e = this.element;
 		const options = this.options || {};
