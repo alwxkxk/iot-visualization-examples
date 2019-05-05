@@ -75,7 +75,7 @@ class Space {
 		const camera = this.camera = new THREE.PerspectiveCamera( 20, e.clientWidth/e.clientHeight, 0.1, 1000 );
 		this.setPerspectiveCamera(camera,scene.userData);
 		scene.add(camera);
-		scene.add( new THREE.HemisphereLight( 0xffffff, 0xcccccc, 1 ) );
+		scene.add( new THREE.HemisphereLight( 0xffffff, 0xffffff, 1 ) );
 
 		// all object is raycaster by default.
 		this.raycasterObjects=[];
@@ -166,7 +166,7 @@ class Space {
 	init():Space{
 		const e = this.element;
 		const options = this.options || {};
-		const renderer = this.renderer = new THREE.WebGLRenderer({alpha:true});
+		const renderer = this.renderer = new THREE.WebGLRenderer({alpha:true,antialias:true});
 
 		if(e.clientWidth === 0 || e.clientHeight === 0){
 			console.error("element should had width and height before init.");
@@ -227,10 +227,12 @@ class Space {
 		outlinePass.visibleEdgeColor.set('#35f2d1')
 		outlinePass.hiddenEdgeColor.set('#30a0de')
 
-		const effectFXAA = new THREE.ShaderPass( THREE.FXAAShader );
-		effectFXAA.uniforms[ 'resolution' ].value.set( 1 / this.innerWidth, 1 / this.innerHeight );
-		effectFXAA.renderToScreen = true;
-		composer.addPass( effectFXAA );
+		// BUG: this make object3d having a few px black border.
+		// const effectFXAA = new THREE.ShaderPass( THREE.FXAAShader );
+		// const pixelRatio = this.renderer.getPixelRatio();
+		// effectFXAA.material.uniforms[ 'resolution' ].value.x = 1 / ( window.innerWidth * pixelRatio );
+		// effectFXAA.material.uniforms[ 'resolution' ].value.y = 1 / ( window.innerHeight * pixelRatio );
+		// composer.addPass( effectFXAA );
 		return this;
 	}
 
