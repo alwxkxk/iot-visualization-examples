@@ -16,8 +16,10 @@ import "./outlinepass.js";
 import { 
 	WebGLRenderer, 
 	Raycaster,
-	Scene
+	Scene,
+	Vector3
 } from "three";
+import Curve from "./components/Curve";
 
 const THREE = (<windowEx>window).THREE;
 
@@ -41,7 +43,8 @@ class Space {
 	};
 	readonly options:options;
 	orbit:any;
-	outlinePass:any;
+	// outlinePass:any;
+	outlinePassMap:Map<string,any>;
 	progressBar:ProgressBar;
 	raycaster:Raycaster;
 	raycasterEventMap:Map<string,Function>;
@@ -67,6 +70,10 @@ class Space {
 		map.set(key,func);
 		return this;
 	}
+
+
+
+	
 
 	afterLoaded(gltf:any):Space{
 		const e = this.element;
@@ -134,19 +141,7 @@ class Space {
 		}
 	}
 
-	dispose(){
-		const e = this.element;
-		// TODO: dispose Materials,Geometries,Textures,Render Targets
 
-		// @ts-ignore : scene has dispose method.
-		this.scene.dispose();
-
-		window.removeEventListener('resize', this._eventList.resize);
-		e.removeEventListener('click', this._eventList.updateMouse);
-		e.removeEventListener("dblclick",this._eventList.updateMouse);
-		e.removeEventListener("mousemove",this._eventList.updateMouse);
-		this._eventList = null;
-	}
 	createEmptyScene(){
 		const gltf:any = {};
 		gltf.scene = new THREE.Scene();
@@ -161,6 +156,33 @@ class Space {
 			"rz":-44
 		};
 		this.afterLoaded(gltf);
+	}
+
+	curveConnect(startPoint:Vector3,endPoint:Vector3,options?:any){
+		const curve = new Curve(this,startPoint,endPoint,options);
+		return this;
+	}
+
+	dispose(){
+		const e = this.element;
+		// TODO: dispose Materials,Geometries,Textures,Render Targets
+
+		// @ts-ignore : scene has dispose method.
+		this.scene.dispose();
+
+		window.removeEventListener('resize', this._eventList.resize);
+		e.removeEventListener('click', this._eventList.updateMouse);
+		e.removeEventListener("dblclick",this._eventList.updateMouse);
+		e.removeEventListener("mousemove",this._eventList.updateMouse);
+		this._eventList = null;
+	}
+
+	deleteOutlinePass(key:string){
+		this.outlinePassMap.delete(key);
+	}
+
+	getOutlineArray(key:string){
+		return this.outlinePassMap.get(key).selectedObjects || [];
 	}
 
 	init():Space{
@@ -218,15 +240,8 @@ class Space {
 		const  renderPass = new THREE.RenderPass( this.scene, this.camera);
 		composer.addPass( renderPass );
 
-		const outlinePass = new THREE.OutlinePass( new THREE.Vector2( this.innerWidth, this.innerHeight ), this.scene, this.camera );
-		composer.addPass( outlinePass );
-		this.outlinePass = outlinePass;
-		outlinePass.edgeStrength = 5
-		outlinePass.edgeGlow = 1
-		// outlinePass.pulsePeriod = 2
-		// outlinePass.visibleEdgeColor.set('#35f2d1')
-		outlinePass.hiddenEdgeColor.set('#ffffff')
-		outlinePass.visibleEdgeColor.set('#C71585')
+		this.outlinePassMap = new Map();
+		this.setOutlinePass("space");
 
 		// BUG: this make object3d having a few px black border.
 		// const effectFXAA = new THREE.ShaderPass( THREE.FXAAShader );
@@ -376,10 +391,24 @@ class Space {
 		return this;
 	}
 
-	setOutline(array:Object3dEx[]){
-		if(this.outlinePass){
-			this.outlinePass.selectedObjects = array;
+	setOutline(array:Object3dEx[],key?:string){
+		const outlinePass = this.outlinePassMap.get(key || 'space');
+		if(outlinePass){
+			outlinePass.selectedObjects = array;
 		}
+	}
+
+	setOutlinePass(key:string,options?:any){
+		const outlinePass = new THREE.OutlinePass( new THREE.Vector2( this.innerWidth, this.innerHeight ), this.scene, this.camera );
+		this.composer.addPass( outlinePass );
+		const opt = options || {}
+		outlinePass.edgeStrength = opt.edgeStrength || 5
+		outlinePass.edgeGlow = opt.edgeGlow || 1
+		outlinePass.pulsePeriod = opt.pulsePeriod || 2
+		outlinePass.visibleEdgeColor.set(opt.visibleEdgeColor || '#35f2d1')
+		outlinePass.hiddenEdgeColor.set(opt.hiddenEdgeColor || '#00ffff')
+		this.outlinePassMap.set(key,outlinePass);
+
 	}
 
 	setPerspectiveCamera(camera:any,data:any):Space{

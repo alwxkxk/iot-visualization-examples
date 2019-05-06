@@ -1,4 +1,5 @@
-import { Vector3, Color } from "three";
+import { Vector3, CubicBezierCurve3 } from "three";
+import Space from "../Space";
 
 const THREE = (<windowEx>window).THREE;
 
@@ -11,16 +12,19 @@ class Curve{
   startPoint:Vector3;
   color:any;
   controlPoint:Vector3;
+  curve:CubicBezierCurve3;
   endPoint:Vector3;
   object3d:MeshEx;
   points:Vector3[];
+  space:Space;
 
-  constructor(startPoint:Vector3,endPoint:Vector3,options?:curveOptions){
+  constructor(space:Space,startPoint:Vector3,endPoint:Vector3,options?:curveOptions){
     const opt = options || {};
     this.startPoint = startPoint;
     this.endPoint = endPoint;
     this.controlPoint = opt.controlPoint || this.calculateControlPoint();
     this.color = opt.color || 0xC71585;
+    this.space = space;
     this.init();
     // console.log(this.controlPoint);
   }
@@ -29,14 +33,12 @@ class Curve{
     const result = new THREE.Vector3(0,0,0);
     result.addVectors(this.startPoint,this.endPoint);
     result.multiplyScalar(0.9);
-    if(result.z === 0){
-      result.z = this.endPoint.distanceTo(this.startPoint)
-    }
+    result.y = this.endPoint.distanceTo(this.startPoint);
     return result;
   }
 
   init():Curve{
-    const curve = new THREE.QuadraticBezierCurve3(
+    const curve = this.curve = new THREE.QuadraticBezierCurve3(
       this.startPoint,
       this.controlPoint,
       this.endPoint
@@ -46,8 +48,35 @@ class Curve{
     const curveObject = new THREE.Mesh( geometry, material );
     this.points = curve.getPoints( 60 );
     this.object3d = curveObject;
+    this.initOutline()
     return this;
   }
+
+  initOutline(){
+    const space = this.space;
+    if(!space.outlinePassMap.has('curve')){
+      space.setOutlinePass('curve',{
+        edgeStrength:5,
+        edgeGlow:1,
+        pulsePeriod: 2,
+        visibleEdgeColor:0xffffff,
+        hiddenEdgeColor:0xffffff
+      });
+    }
+    let outlineArray = space.getOutlineArray('curve');
+    outlineArray.push(this.object3d)
+  }
+
+  getPoint(t:number){
+    // t : [0-1]
+    if(t>1 || t<0){
+      console.error("t should between 0 and 1.But t is ",t);
+      return null;
+    }
+    return this.points[t*60];
+  }
+
+
 
 }
 

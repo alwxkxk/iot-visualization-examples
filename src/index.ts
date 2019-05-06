@@ -16,6 +16,14 @@ const space = new Space(element,{
 // })
 
 space.createEmptyScene();
+space.curveConnect(new THREE.Vector3( -10, 0, 0 ),new THREE.Vector3( 10, 0, 0 ));
+
+var geometry2 = new THREE.SphereGeometry( 0.08, 12, 12 );
+var material2 = new THREE.LineBasicMaterial({ color: 0xffffff});
+var sphere = new THREE.Mesh( geometry2, material2 );
+space.scene.add(sphere);
+space.setOutline([sphere]);
+
 // var curve = new THREE.QuadraticBezierCurve3(
 // 	new THREE.Vector3( -10, 0, 0 ),
 // 	new THREE.Vector3( 20, 15, 0 ),
@@ -30,27 +38,12 @@ space.createEmptyScene();
 
 // // Create the final object to add to the scene
 // var curveObject = new THREE.Mesh( geometry, material );
-let a = new Curve(new THREE.Vector3( 0, 0, 0 ),new THREE.Vector3( 10, 0, 0 ));
-let curveObject = a.object3d
-space.scene.add(curveObject);
-
-var geometry2 = new THREE.SphereGeometry( 0.08, 12, 12 );
-var material2 = new THREE.LineBasicMaterial({ color: 0xffffff});
-var sphere = new THREE.Mesh( geometry2, material2 );
-// sphere.position.copy(points[0]);
-console.log(sphere);
-space.scene.add(sphere);
-space.setOutline([curveObject,sphere])
+// let a = new Curve(space,new THREE.Vector3( 0, 0, 0 ),new THREE.Vector3( 10, 0, 0 ));
+// let curveObject = a.object3d
+// space.scene.add(curveObject);
 
 
-
-let interpolate = 0;
-let interpolatesAdd=0.02;
-let i = 0;
-var color1 = new THREE.Color( 0x10EBF4 );
-var color2 = new THREE.Color( 0xffffff );
-
-space.addAnimateAction("test",()=>{
+// space.addAnimateAction("test",()=>{
   // if(interpolate <= 0){
   //   interpolatesAdd = 0.02;
   // }
@@ -58,16 +51,16 @@ space.addAnimateAction("test",()=>{
   //   interpolatesAdd = -0.02;
   // }
 
-  if(i>=100){
-    i=0;
-  }
+  // if(i>=100){
+  //   i=0;
+  // }
 
   // interpolate+=interpolatesAdd;
   // sphere.position.copy(points[i++]);
   // let color = color1.clone()
   // sphere.material.color = color.lerp(color2,interpolate);
 
-})
+// })
 
 // console.log(points);
 
