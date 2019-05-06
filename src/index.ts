@@ -1,5 +1,6 @@
 import Space from "./common/Space";
 import { Scene } from "three";
+import Curve from "./common/components/Curve";
 
 const THREE = (<windowEx>window).THREE;
 const element = $("#3d-space")[0];
@@ -15,57 +16,56 @@ const space = new Space(element,{
 // })
 
 space.createEmptyScene();
-var curve = new THREE.QuadraticBezierCurve3(
-	new THREE.Vector3( -10, 0, 0 ),
-	new THREE.Vector3( 20, 15, 0 ),
-	new THREE.Vector3( 10, 0, 0 )
-);
+// var curve = new THREE.QuadraticBezierCurve3(
+// 	new THREE.Vector3( -10, 0, 0 ),
+// 	new THREE.Vector3( 20, 15, 0 ),
+// 	new THREE.Vector3( 10, 0, 0 )
+// );
 
-var points = curve.getPoints( 50 );
-var geometry = new THREE.BufferGeometry().setFromPoints( points );
 
-var material = new THREE.LineBasicMaterial( { color : 0xff0000 } );
+// var points = curve.getPoints( 100 );
+// var geometry = new THREE.TubeGeometry(curve,64,0.03);
 
-// Create the final object to add to the scene
-var curveObject = new THREE.Line( geometry, material );
+// var material = new THREE.MeshBasicMaterial({ color :0xC71585} );
+
+// // Create the final object to add to the scene
+// var curveObject = new THREE.Mesh( geometry, material );
+let a = new Curve(new THREE.Vector3( 0, 0, 0 ),new THREE.Vector3( 10, 0, 0 ));
+let curveObject = a.object3d
 space.scene.add(curveObject);
 
-var geometry = new THREE.SphereGeometry( 1, 32, 32 );
-var material = new THREE.LineBasicMaterial({ color: 0xffffff });
-var sphere = new THREE.Mesh( geometry, material );
+var geometry2 = new THREE.SphereGeometry( 0.08, 12, 12 );
+var material2 = new THREE.LineBasicMaterial({ color: 0xffffff});
+var sphere = new THREE.Mesh( geometry2, material2 );
+// sphere.position.copy(points[0]);
+console.log(sphere);
 space.scene.add(sphere);
-
-
-var geometry2 = new THREE.Geometry();
-
-geometry2.vertices.push(
-  curve.getPoint(0),
-  curve.getPoint(0.2),
-  curve.getPoint(0.5),
-  curve.getPoint(0.7),
-  curve.getPoint(1)
-);
-var pointsObject=new THREE.Points(geometry2,new THREE.PointsMaterial( { color: 0xffffff } ))
-pointsObject.material.size=10
-space.scene.add(pointsObject);
+space.setOutline([curveObject,sphere])
 
 
 
 let interpolate = 0;
 let interpolatesAdd=0.02;
-var color1 = new THREE.Color( 0xff0000 );
+let i = 0;
+var color1 = new THREE.Color( 0x10EBF4 );
 var color2 = new THREE.Color( 0xffffff );
 
 space.addAnimateAction("test",()=>{
-  if(interpolate <= 0){
-    interpolatesAdd = 0.02;
+  // if(interpolate <= 0){
+  //   interpolatesAdd = 0.02;
+  // }
+  // else if(interpolate >=1){
+  //   interpolatesAdd = -0.02;
+  // }
+
+  if(i>=100){
+    i=0;
   }
-  else if(interpolate >=1){
-    interpolatesAdd = -0.02;
-  }
-  interpolate+=interpolatesAdd;
-  let color = color1.clone()
-  pointsObject.material.color = color.lerp(color2,interpolate);
+
+  // interpolate+=interpolatesAdd;
+  // sphere.position.copy(points[i++]);
+  // let color = color1.clone()
+  // sphere.material.color = color.lerp(color2,interpolate);
 
 })
 

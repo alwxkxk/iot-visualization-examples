@@ -223,9 +223,10 @@ class Space {
 		this.outlinePass = outlinePass;
 		outlinePass.edgeStrength = 5
 		outlinePass.edgeGlow = 1
-		outlinePass.pulsePeriod = 2
-		outlinePass.visibleEdgeColor.set('#35f2d1')
-		outlinePass.hiddenEdgeColor.set('#30a0de')
+		// outlinePass.pulsePeriod = 2
+		// outlinePass.visibleEdgeColor.set('#35f2d1')
+		outlinePass.hiddenEdgeColor.set('#ffffff')
+		outlinePass.visibleEdgeColor.set('#C71585')
 
 		// BUG: this make object3d having a few px black border.
 		// const effectFXAA = new THREE.ShaderPass( THREE.FXAAShader );
