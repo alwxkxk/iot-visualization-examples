@@ -1,4 +1,6 @@
 import { Vector3, CubicBezierCurve3 } from "three";
+import "d3-transition";
+import * as Selection from "d3-selection";
 import Space from "../Space";
 
 const THREE = (<windowEx>window).THREE;
@@ -48,7 +50,7 @@ class Curve{
     const curveObject = new THREE.Mesh( geometry, material );
     this.points = curve.getPoints( 60 );
     this.object3d = curveObject;
-    this.initOutline()
+    this.initOutline();
     return this;
   }
 
@@ -73,7 +75,28 @@ class Curve{
       console.error("t should between 0 and 1.But t is ",t);
       return null;
     }
-    return this.points[t*60];
+    let num = Number((t*60).toFixed(0));
+    return this.points[num];
+  }
+
+  addPointEasing(){
+    const scope = this;
+    // select a empty object to avoid running multiple transitions concurrently on the same elements
+    // @ts-ignore
+    Selection.select({}).transition().duration(1500).tween("point-easing",()=>{
+      const geo = new THREE.SphereGeometry( 0.08, 12, 12 );
+      const mat = new THREE.LineBasicMaterial({ color: 0xffffff});
+      const sphere = new THREE.Mesh( geo, mat );
+      this.space.scene.add(sphere);
+
+      return (t:any)=>{
+        let position = scope.getPoint(t);
+        sphere.position.copy(position);
+        if(t >= 1){
+          scope.space.scene.remove(sphere);
+        }
+      }
+    })
   }
 
 

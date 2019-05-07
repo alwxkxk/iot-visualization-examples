@@ -19,7 +19,7 @@ import {
 	Scene,
 	Vector3
 } from "three";
-import Curve from "./components/Curve";
+import Curve from "./base/Curve";
 
 const THREE = (<windowEx>window).THREE;
 
@@ -160,6 +160,17 @@ class Space {
 
 	curveConnect(startPoint:Vector3,endPoint:Vector3,options?:any){
 		const curve = new Curve(this,startPoint,endPoint,options);
+		this.scene.add(curve.object3d);
+		// test add points concurrently.
+		setTimeout(() => {
+			curve.addPointEasing();
+		}, 1000);
+		setTimeout(() => {
+			curve.addPointEasing();
+		}, 1500);
+		setTimeout(() => {
+			curve.addPointEasing();
+		}, 2000);
 		return this;
 	}
 
