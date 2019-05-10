@@ -1,42 +1,36 @@
 import ProgressBar from "./common/components/ProgressBar";
 
-
-
 function mockProgressBar() {
-  const e = $("#progressing-bar")[0];
-  const progressBar = new ProgressBar(e);
-  let i = 0;
-  const data = [4, 8, 15, 16, 23, 42,80,99,100];
+	const e = $("#progressing-bar")[0];
+	const progressBar = new ProgressBar(e);
+	let i = 0;
+	const data = [4, 8, 15, 16, 23, 42, 80, 99, 100];
 
-  let s = setInterval(()=>{
-    let d = data[i++]
+	let s = setInterval(()=>{
+		let d = data[i++]
 
-    if(i > data.length +2){
-      clearInterval(s);
-      progressBar.dispose();
-      return ;
-    }
+		if(i > data.length +2){
+			clearInterval(s);
+			progressBar.dispose();
+			return ;
+		}
 
-    if(d){
-      progressBar.progress(d);
-    }
-    else{
-      progressBar.parse();
-    }
-    
-  },1000);
+		if(d){
+			progressBar.progress(d);
+		}
+		else{
+			progressBar.parse();
+		}
+
+	}, 1000);
 }
-$("#progressing-bar-start").on("click",()=>{
-  mockProgressBar();
+$("#progressing-bar-start").on("click", ()=>{
+	mockProgressBar();
 })
 
 $.when($.ready).then(()=>{
-  mockProgressBar();
+	mockProgressBar();
 })
-
-
-
-
 
 // let i = 0;
 // let s = setInterval(()=>{
@@ -58,7 +52,6 @@ $.when($.ready).then(()=>{
 //   })
 // },5000);
 
-
 // d3.select("#progressing-bar")
 //     .style("color", "black")
 //     .style("background-color", "red");
@@ -75,4 +68,4 @@ $.when($.ready).then(()=>{
 //       .text(function(d) { return d; });
 // console.log($("#progressing-bar")[0],d3.select($("#progressing-bar")[0]))
 // console.log(d3.select("#progressing-bar"),    d3.select("#progressing-bar").selectAll("div"))
-    // .selectAll("div")
+		// .selectAll("div")

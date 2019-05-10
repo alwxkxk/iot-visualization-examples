@@ -12,32 +12,30 @@ if('serviceWorker' in navigator) {
 	navigator.serviceWorker.register('/sw.js');
 }
 
-// ts type global declare 
+// ts type global declare
 declare global {
-  interface ICallback {
-    ( error: Error, result?: number ) : void;
-  }
-  
-  interface windowEx extends Window{ 
-    $: any; 
-    jquery:any;
-    THREE:any;
-    selectedThing:Objects;// for Inspector debug selec thing.
-  }
+	interface ICallback {
+		( error: Error, result?: number ) : void;
+	}
 
-  interface $controller{
-    $controller:Controller;
-  }
-  interface Object3dEx extends Object3D,$controller{}
+	interface windowEx extends Window{
+		$: any;
+		jquery:any;
+		THREE:any;
+		selectedThing:Objects;// for Inspector debug select thing.
+	}
 
-  interface MeshEx extends Mesh,$controller{}
+	interface $controller{
+		$controller:Controller;
+	}
+	interface Object3dEx extends Object3D, $controller{}
 
-  interface GroupEx extends Group,$controller{}
-  
-  type Objects = MeshEx | Object3dEx | GroupEx;
+	interface MeshEx extends Mesh, $controller{}
+
+	interface GroupEx extends Group, $controller{}
+
+	type Objects = MeshEx | Object3dEx | GroupEx;
 }
 
-(<windowEx>window).$ = (<windowEx>window).jquery = $;
-(<windowEx>window).THREE = THREE;
-
-
+(< windowEx>window).$ = (< windowEx>window).jquery = $;
+(< windowEx>window).THREE = THREE;

@@ -2,3 +2,5 @@ node_modules
 dist
 
 static/3d/*
+
+!.vscode/settings.json
