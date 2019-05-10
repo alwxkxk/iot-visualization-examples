@@ -7,6 +7,11 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import { Object3D, Mesh, Group } from "three";
 import Controller from "./Controller";
 
+// PWA
+if('serviceWorker' in navigator) {
+	navigator.serviceWorker.register('/sw.js');
+}
+
 // ts type global declare 
 declare global {
   interface ICallback {
@@ -34,3 +39,5 @@ declare global {
 
 (<windowEx>window).$ = (<windowEx>window).jquery = $;
 (<windowEx>window).THREE = THREE;
+
+

@@ -1,5 +1,4 @@
 import Controller from "./Controller";
-import IndexedDB from "./IndexedDB";
 import Inspector from "./Inspector";
 import ProgressBar from "./components/ProgressBar";
 import "three/examples/js/controls/OrbitControls.js";
@@ -20,6 +19,8 @@ import {
 	Vector3
 } from "three";
 import Curve from "./base/Curve";
+
+
 
 const THREE = (<windowEx>window).THREE;
 
@@ -71,9 +72,6 @@ class Space {
 		return this;
 	}
 
-
-
-	
 
 	afterLoaded(gltf:any):Space{
 		const e = this.element;
@@ -264,10 +262,9 @@ class Space {
 	}
 
 
-	private loadFromFile(file:string):Promise<any> {
+	load(file:string):Promise<any> {
 		const scope = this;
-		const progressBar = this.progressBar;
-
+		const progressBar =this.progressBar = new ProgressBar(this.element);
 		return new Promise((resolve,reject)=>{
 			// TODO: set and get data first from indexDB
 			const gltfLoader = new THREE.GLTFLoader();
@@ -276,7 +273,6 @@ class Space {
 			progressBar.start();
 			loader.load(file,
 				function loaded(data:any) {
-					const db = new IndexedDB();
 					const resourcePath = THREE.LoaderUtils.extractUrlBase( file );
 					const beginTime = performance.now();
 					progressBar.parse();
@@ -291,15 +287,7 @@ class Space {
 						(error:any)=>{
 							reject(error);
 						}
-					)
-
-					db
-					.init()
-					.then(()=>{
-						db.setCache(file,data);
-					});
-
-					
+					)			
 				},
 				function progressing(xhr:any) {
 					progressBar.progress( xhr.loaded / xhr.total * 100);
@@ -309,42 +297,6 @@ class Space {
 					reject(error);
 				})
 		});
-	}
-
-	async load(file:string):Promise<any>{
-		const db = new IndexedDB();
-		const loader = new THREE.GLTFLoader();
-		const scope = this;
-		const progressBar = this.progressBar = new ProgressBar(this.element);
-
-		progressBar.setText("CHECK CACHE");
-		await db.init()
-		return await db.getCache(file).then((result)=>{
-			if(result){// load from cache first
-				return new Promise((resolve,reject)=>{
-					const beginTime = performance.now();
-					progressBar.parse();
-					loader.parse(result.data,null,
-						(gltf:any)=>{
-							console.log("parse spent:",performance.now() - beginTime);
-							console.log(gltf);
-							resolve();
-							progressBar.dispose();
-							scope.afterLoaded(gltf);
-						},
-						()=>{
-							progressBar.error();
-							reject("loadFromCache error");
-						}	
-					)
-				})
-			}
-			else{// if not cache then load from file.
-				return scope.loadFromFile(file);
-			}
-		})
-
-		
 	}
 
 

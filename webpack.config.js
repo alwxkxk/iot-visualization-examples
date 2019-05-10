@@ -6,6 +6,7 @@ module.exports = {
     "global_setting":'./src/common/global_setting.ts',
     index:'./src/index.ts',
     components:'./src/components.ts',
+    sw:'./src/common/sw/sw.ts',
     test:'./src/test.ts',
   },
   plugins: [

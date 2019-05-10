@@ -10,14 +10,14 @@ const space = new Space(element,{
 });
 
 
-// space.load("./static/3d/simple_scene.glb")
-// .then(()=>{
-//   space.autoRotate(true);
+space.load("./static/3d/simple_scene.glb")
+.then(()=>{
+  space.autoRotate(true);
 
-// })
+})
 
-space.createEmptyScene();
-space.curveConnect(new THREE.Vector3( -1, 0, 0 ),new THREE.Vector3( 1, 0, 0 ));
+// space.createEmptyScene();
+// space.curveConnect(new THREE.Vector3( -1, 0, 0 ),new THREE.Vector3( 1, 0, 0 ));
 
 
 
