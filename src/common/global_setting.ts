@@ -8,33 +8,33 @@ import { Object3D, Mesh, Group } from "three";
 import Controller from "./Controller";
 
 // PWA
-if('serviceWorker' in navigator) {
-	navigator.serviceWorker.register('/sw.js');
-}
+// if('serviceWorker' in navigator) {
+// 	navigator.serviceWorker.register('/sw.js');
+// }
 
 // ts type global declare
 declare global {
-	interface ICallback {
-		( error: Error, result?: number ) : void;
-	}
+  interface ICallback {
+    ( error: Error, result?: number ) : void;
+  }
 
-	interface windowEx extends Window{
-		$: any;
-		jquery:any;
-		THREE:any;
-		selectedThing:Objects;// for Inspector debug select thing.
-	}
+  interface windowEx extends Window{
+    $: any;
+    jquery:any;
+    THREE:any;
+    selectedThing:Objects;// for Inspector debug select thing.
+  }
 
-	interface $controller{
-		$controller:Controller;
-	}
-	interface Object3dEx extends Object3D, $controller{}
+  interface $controller{
+    $controller:Controller;
+  }
+  interface Object3dEx extends Object3D, $controller{}
 
-	interface MeshEx extends Mesh, $controller{}
+  interface MeshEx extends Mesh, $controller{}
 
-	interface GroupEx extends Group, $controller{}
+  interface GroupEx extends Group, $controller{}
 
-	type Objects = MeshEx | Object3dEx | GroupEx;
+  type Objects = MeshEx | Object3dEx | GroupEx;
 }
 
 (< windowEx>window).$ = (< windowEx>window).jquery = $;

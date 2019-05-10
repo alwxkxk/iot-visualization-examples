@@ -7,7 +7,7 @@
     "rules": {
         "no-console": false,
         "only-arrow-functions": false,
-        "indent": [true, "tabs", 2]
+        "indent": [true, "spaces", 2]
     },
     "rulesDirectory": []
 }

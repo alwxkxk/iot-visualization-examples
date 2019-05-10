@@ -4,43 +4,43 @@ import Space from "../Space.js";
 
 // https://github.com/mrdoob/stats.js/blob/master/src/Stats.js
 interface StatsInterface{
-	dom:Element;
-	new():any;
-	update():any;
+  dom:Element;
+  new():any;
+  update():any;
 }
 
 class Inspector{
-	stats:StatsInterface;
-	animateAction:Function;
-	raycasterEvent:any;
-	space:Space;
-	constructor(space:Space){
-		this .space = space;
-		const stats = this .stats = new Stats();
-		space.element.appendChild(stats.dom);
-		this .animateAction = this ._animateAction()
+  stats:StatsInterface;
+  animateAction:Function;
+  raycasterEvent:any;
+  space:Space;
+  constructor(space:Space){
+    this .space = space;
+    const stats = this .stats = new Stats();
+    space.element.appendChild(stats.dom);
+    this .animateAction = this ._animateAction()
 
-		this .raycasterEvent={
-			click:(intersects:any[])=>{
-				if(intersects.length === 0){
-					return ;
-				}
-				const obj = intersects[0].object;
-				(< windowEx>window).selectedThing = obj;
-				console.log(obj);
-				space.setOutline([obj])
+    this .raycasterEvent={
+      click:(intersects:any[])=>{
+        if(intersects.length === 0){
+          return ;
+        }
+        const obj = intersects[0].object;
+        (< windowEx>window).selectedThing = obj;
+        console.log(obj);
+        space.setOutline([obj])
 
-			}
-		};
-		return this ;
-	}
+      }
+    };
+    return this ;
+  }
 
-	private _animateAction():Function{
-		const stats = this .stats;
-		return ()=>{
-			stats.update();
-		}
-	}
+  private _animateAction():Function{
+    const stats = this .stats;
+    return ()=>{
+      stats.update();
+    }
+  }
 
 }
 
