@@ -57,8 +57,7 @@ class Controller {
     group.$controller = this ;
 
     object3d.traverse((v: MeshEx) => {
-      // group don't have geometry
-      if (!this .isGroup(v)) {
+      if (this .hasGeometry(v)) {
         const geo = new THREE.EdgesGeometry(v.geometry);
         const line = new THREE.LineSegments( geo , lineMaterial);
         // add transparent box to avoid picking difficult by raycaster.
@@ -78,9 +77,9 @@ class Controller {
     return this ;
   }
 
-  isGroup(obj: Objects): boolean {
+  hasGeometry(obj: Objects): boolean {
     // @ts-ignore
-    return !!obj.isGroup;
+    return !!obj.geometry;
   }
 
   changeShowingModel(model: string): Controller {
@@ -101,11 +100,18 @@ class Controller {
   }
 
   changeToNormalModel(): Controller {
+    if(this .showingModel === "normal"){
+      return;
+    }
     this .updateShowingObject3d(this .object3d);
     return this ;
   }
 
   changeToLineModel(): Controller {
+    if(this .showingModel === "line"){
+      return;
+    }
+
     if (!this .lineObject3d) {
       this .initLineModel();
     }
@@ -122,11 +128,11 @@ class Controller {
   }
 
   updateShowingObject3d(newShowingObject3d: Objects): Controller {
-    // move children(group) to new showingObject3d(exclude other objects that have been change to newModel.)
+    // move children(group) to new showingObject3d(exclude other objects without geometry.)
     const showingObject3d = this .showingObject3d;
     const children = Array.from(showingObject3d.children);
     children.forEach((obj: GroupEx) => {
-      if (this .isGroup(obj)) {
+      if (!this .hasGeometry(obj)) {
         newShowingObject3d.add(obj);
       }
     });
