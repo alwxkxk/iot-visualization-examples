@@ -27,30 +27,32 @@ interface Ioptions {
   inspector?: boolean;
   orbit?: boolean;
 }
-
 class Space {
-  public animateActionMap: Map< string, Function>;
-  public camera: any;
-  public composer: any;
-  public readonly element: Element;
-  public innerHeight: number;
-  public innerWidth: number;
-  public mouse: any;
-  public offset: {
+  animateActionMap: Map< string, Function>;
+  box3: any;
+  camera: any;
+  composer: any;
+  readonly element: Element;
+  innerHeight: number;
+  innerWidth: number;
+  inspector:Inspector;
+  mouse: any;
+  offset: {
     top: number;
     left: number;
   };
-  public readonly options: Ioptions;
-  public orbit: any;
+  readonly options: Ioptions;
+  orbit: any;
   // outlinePass:any;
-  public outlinePassMap: Map< string, any>;
-  public progressBar: ProgressBar;
-  public raycaster: Raycaster;
-  public raycasterEventMap: Map< string, Function>;
-  public raycasterObjects: Object3dEx[];
-  public raycasterRecursive: boolean;
-  public renderer: WebGLRenderer;
-  public scene: Scene;
+  outlinePassMap: Map< string, any>;
+  progressBar: ProgressBar;
+  raycaster: Raycaster;
+  raycasterEventMap: Map< string, Function>;
+  raycasterObjects: Object3dEx[];
+  raycasterRecursive: boolean;
+  renderer: WebGLRenderer;
+  scene: Scene;
+
   private _eventList: any;
 
   constructor(element: Element, options?: Ioptions) {
@@ -60,7 +62,25 @@ class Space {
     return this ;
   }
 
-  public addAnimateAction(key: string, func: Function): Space {
+  private getBox(){
+    // set the firstr objects as global.
+    this .box3 = (new THREE.Box3()).setFromObject(this .scene.children[0]);
+  }
+
+  getPositionByPercent(x:number, y:number, z:number):Vector3{
+    if(!this .box3){
+      this .getBox();
+    }
+    const max = this .box3.max;
+    const min = this .box3.min;
+    return new THREE.Vector3(
+      (max.x - min.x) * x/100 + min.x,
+      (max.y - min.y) * y/100 + min.y,
+      (max.z - min.z) * z/100 + min.z
+    );
+  }
+
+  addAnimateAction(key: string, func: Function): Space {
     const map = this .animateActionMap;
     if (map.has(key)) {
       console.warn(`${key} already existed in animateActionMap,and replace by new function.`);
@@ -69,7 +89,7 @@ class Space {
     return this ;
   }
 
-  public afterLoaded(gltf: any): Space {
+  afterLoaded(gltf: any): Space {
     const e = this .element;
 
     const scene = this .scene = gltf.scene;
@@ -100,7 +120,7 @@ class Space {
     this .animate();
     return this ;
   }
-  public animate(): Space {
+  animate(): Space {
 
     this .animateActionMap.forEach((func: Function) => {
       func();
@@ -116,7 +136,7 @@ class Space {
     return this ;
   }
 
-  public autoRotate(flag: boolean, speed?: number) {
+  autoRotate(flag: boolean, speed?: number) {
     const orbit = this .orbit;
     if (!orbit) {
       return console.error("autoRotate need orbit control");
@@ -133,7 +153,7 @@ class Space {
     }
   }
 
-  public createEmptyScene() {
+  createEmptyScene() {
     const gltf: any = {};
     gltf.scene = new THREE.Scene();
     // orbit will abnormal when camera position null.
@@ -149,7 +169,7 @@ class Space {
     this .afterLoaded(gltf);
   }
 
-  public curveConnect(startPoint: Vector3, endPoint: Vector3, options?: any) {
+  curveConnect(startPoint: Vector3, endPoint: Vector3, options?: any) {
     const curve = new Curve(this , startPoint, endPoint, options);
     this .scene.add(curve.object3d);
     // test add points concurrently.
@@ -165,7 +185,7 @@ class Space {
     return this ;
   }
 
-  public dispose() {
+  dispose() {
     const e = this .element;
     // TODO: dispose Materials,Geometries,Textures,Render Targets
 
@@ -179,15 +199,15 @@ class Space {
     this ._eventList = null;
   }
 
-  public deleteOutlinePass(key: string) {
+  deleteOutlinePass(key: string) {
     this .outlinePassMap.delete(key);
   }
 
-  public getOutlineArray(key: string) {
+  getOutlineArray(key: string) {
     return this .outlinePassMap.get(key).selectedObjects || [];
   }
 
-  public init(): Space {
+  init(): Space {
     const e = this .element;
     const options = this .options || {};
     const renderer = this .renderer = new THREE.WebGLRenderer({alpha: true, antialias: true});
@@ -209,7 +229,7 @@ class Space {
     this .mouse = new THREE.Vector2();
 
     if (options.inspector) {
-      const inspector = new Inspector(this );
+      const inspector = this .inspector = new Inspector(this );
       this .addAnimateAction("inspector", inspector.animateAction);
       this .setRaycasterEventMap(inspector.raycasterEvent);
     }
@@ -224,7 +244,7 @@ class Space {
     return this ;
   }
 
-  public initOrbit(): Space {
+  initOrbit(): Space {
     const options = this .options || {};
 
     if (options.orbit) {
@@ -235,7 +255,7 @@ class Space {
     return this ;
   }
 
-  public initOutline(): Space {
+  initOutline(): Space {
     const composer = new THREE.EffectComposer( this .renderer );
     this .composer = composer;
 
@@ -254,7 +274,7 @@ class Space {
     return this ;
   }
 
-  public load(file: string): Promise< any> {
+  load(file: string): Promise< any> {
     const scope = this ;
     const progressBar = this .progressBar = new ProgressBar(this .element);
     return new Promise((resolve, reject) => {
@@ -291,12 +311,12 @@ class Space {
     });
   }
 
-  public removeAnimateAction(key: string): Space {
+  removeAnimateAction(key: string): Space {
     this .animateActionMap.delete(key);
     return this ;
   }
 
-  public resize(): Space {
+  resize(): Space {
     const camera = this .camera;
     const e = this .element;
     this .offset = $(e).offset();
@@ -316,7 +336,7 @@ class Space {
     return this ;
   }
 
-  public raycasterAction(): Space {
+  raycasterAction(): Space {
 
     if (this .raycasterEventMap.size === 0) {
       return this ;
@@ -345,14 +365,14 @@ class Space {
     return this ;
   }
 
-  public setOutline(array: Object3dEx[], key?: string) {
+  setOutline(array: Object3dEx[], key?: string) {
     const outlinePass = this .outlinePassMap.get(key || "space");
     if (outlinePass) {
       outlinePass.selectedObjects = array;
     }
   }
 
-  public setOutlinePass(key: string, options?: any) {
+  setOutlinePass(key: string, options?: any) {
     const outlinePass = new THREE.OutlinePass(
       new THREE.Vector2( this .innerWidth, this .innerHeight ), this .scene, this .camera,
     );
@@ -367,7 +387,7 @@ class Space {
 
   }
 
-  public setPerspectiveCamera(camera: any, data: any): Space {
+  setPerspectiveCamera(camera: any, data: any): Space {
     const degToRad  = THREE.Math.degToRad ;
     camera.fov = data.fov;
     camera.position.set(data.x || 0, data.y || 0, data.z || 0);
@@ -377,7 +397,7 @@ class Space {
     return this ;
   }
 
-  public setRaycasterEventMap(eventList: any): Space {
+  setRaycasterEventMap(eventList: any): Space {
     let eventMap = this .raycasterEventMap;
     if (!eventMap) {
       eventMap = this .raycasterEventMap = new Map();
@@ -389,7 +409,7 @@ class Space {
     return this ;
   }
 
-  public updateMouse(event: MouseEvent): Space {
+  updateMouse(event: MouseEvent): Space {
     const mouse = this .mouse;
     switch (event.type) {
       case "click":

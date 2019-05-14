@@ -4,19 +4,19 @@ import Space from "./Space";
 const THREE = (window as windowEx).THREE;
 
 class Controller {
-  public lineObject3d: GroupEx;
-  public name: string;
-  public object3d: Objects;
-  public originalPosition: Vector3;
-  public originalRotation: Euler;
-  public originalScale: Vector3;
-  public position: Vector3;
-  public rotation: Euler;
-  public userData: any;
-  public scale: Vector3;
-  public showingObject3d: Objects;
-  public showingModel: string;
-  public space: Space;
+  lineObject3d: GroupEx;
+  name: string;
+  object3d: Objects;
+  originalPosition: Vector3;
+  originalRotation: Euler;
+  originalScale: Vector3;
+  position: Vector3;
+  rotation: Euler;
+  userData: any;
+  scale: Vector3;
+  showingObject3d: Objects;
+  showingModel: string;
+  space: Space;
 
   constructor(space: Space, object3d: Objects, options?: any) {
     this .space = space;
@@ -26,7 +26,7 @@ class Controller {
     this .init();
   }
 
-  public init(): Controller {
+  init(): Controller {
     const object3d = this .object3d;
 
     this .name = object3d.name;
@@ -42,7 +42,7 @@ class Controller {
     return this ;
   }
 
-  public initLineModel(color?: any): Controller {
+  initLineModel(color?: any): Controller {
     const object3d = this .object3d;
     const group = this .lineObject3d = new THREE.Group();
     const lineMaterial = new THREE.LineBasicMaterial({color: color || 0x00FFFF});
@@ -78,12 +78,12 @@ class Controller {
     return this ;
   }
 
-  public isGroup(obj: Objects): boolean {
+  isGroup(obj: Objects): boolean {
     // @ts-ignore
     return !!obj.isGroup;
   }
 
-  public changeShowingModel(model: string): Controller {
+  changeShowingModel(model: string): Controller {
     switch (model) {
       case "line":
         this .changeToLineModel();
@@ -100,12 +100,12 @@ class Controller {
     return this ;
   }
 
-  public changeToNormalModel(): Controller {
+  changeToNormalModel(): Controller {
     this .updateShowingObject3d(this .object3d);
     return this ;
   }
 
-  public changeToLineModel(): Controller {
+  changeToLineModel(): Controller {
     if (!this .lineObject3d) {
       this .initLineModel();
     }
@@ -114,14 +114,14 @@ class Controller {
     return this ;
   }
 
-  public copyCoordinate(from: Objects, to: Objects): Controller {
+  copyCoordinate(from: Objects, to: Objects): Controller {
     to.position.copy(from.position.clone());
     to.scale.copy(from.scale.clone());
     to.rotation.copy(from.rotation.clone());
     return this ;
   }
 
-  public updateShowingObject3d(newShowingObject3d: Objects): Controller {
+  updateShowingObject3d(newShowingObject3d: Objects): Controller {
     // move children(group) to new showingObject3d(exclude other objects that have been change to newModel.)
     const showingObject3d = this .showingObject3d;
     const children = Array.from(showingObject3d.children);

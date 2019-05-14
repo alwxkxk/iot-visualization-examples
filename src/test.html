@@ -7,10 +7,16 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <!-- <script src="https://browser.sentry-cdn.com/5.1.0/bundle.min.js" crossorigin="anonymous"></script>
   <script>Sentry.init({ dsn: 'https://4ab883bdc9724536b9089ab2c3b4a2e4@sentry.io/1442492'});</script> -->
-  <script src="./global_setting.js"></script>
+  <script>
+      // PWA
+      if('serviceWorker' in navigator) {
+        navigator.serviceWorker.register("<%= htmlWebpackPlugin.files.chunks['sw'].entry %>");
+      }
+    </script>
+  <script src="<%= htmlWebpackPlugin.files.chunks['global_setting'].entry %>"></script>
 </head>
 <body>
   <div id="3d-space" style="height:90vh;width:100vw;"></div>
-  <script src="./test.js"></script>
+  <script src="<%= htmlWebpackPlugin.files.chunks['test'].entry %>"></script>
 </body>
 </html>

@@ -1,5 +1,6 @@
 const path = require('path');
 const CopyPlugin = require('copy-webpack-plugin');
+const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 module.exports = {
   entry: {
@@ -11,11 +12,26 @@ module.exports = {
   },
   plugins: [
     new CopyPlugin([{
-      from: './src/*.html',
-      to: "[name].[ext]",
-    },{
       from:'./static/**/*'
-    }])
+    }]),
+    new HtmlWebpackPlugin({
+      filename:"index.html",
+      template:'./src/index.html',
+      inject:false,
+      chunks:["global_setting","sw","index"]
+    }),
+    new HtmlWebpackPlugin({
+      filename:"test.html",
+      template:'./src/test.html',
+      inject:false,
+      chunks:["global_setting","sw","test"]
+    }),
+    new HtmlWebpackPlugin({
+      filename:"components.html",
+      template:'./src/components.html',
+      inject:false,
+      chunks:["global_setting","sw","components"]
+    })
   ],
   mode:"development",//production or development
   module: {
@@ -35,7 +51,7 @@ module.exports = {
     extensions: [ '.tsx', '.ts', '.js' ]
   },
   output: {
-    filename: '[name].js',
+    filename: '[name].[contenthash].js',
     path: path.resolve(__dirname, 'dist')
   },
   watchOptions:{

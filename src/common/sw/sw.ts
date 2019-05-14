@@ -1,6 +1,6 @@
 // TODO: add type definition for service worker.
 // console.log("sw start.");
-const CACHE_NAME = "my-site-cache-v1";
+const CACHE_NAME = "v20190514";
 
 self.addEventListener("activate", function (event) {
   console.log("sw activate.");
@@ -38,12 +38,12 @@ self.addEventListener("fetch", function (event) {
             // as well as the cache consuming the response, we need
             // to clone it so we have two streams.
 
-            // const responseToCache = res.clone();
+            const responseToCache = res.clone();
 
             caches.open(CACHE_NAME)
               .then(function (cache) {
                 // @ts-ignore
-                cache.put(event.request, resToCache);
+                cache.put(event.request, responseToCache);
               });
 
             return res;
