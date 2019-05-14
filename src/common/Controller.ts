@@ -56,7 +56,8 @@ class Controller {
     group.name = this .name + "_lineObject3d";
     group.$controller = this ;
 
-    object3d.traverse((v: MeshEx) => {
+    const children = Array.from(object3d.children);
+    children.forEach((v: MeshEx) => {
       if (this .hasGeometry(v)) {
         const geo = new THREE.EdgesGeometry(v.geometry);
         const line = new THREE.LineSegments( geo , lineMaterial);
@@ -131,7 +132,7 @@ class Controller {
     // move children(group) to new showingObject3d(exclude other objects without geometry.)
     const showingObject3d = this .showingObject3d;
     const children = Array.from(showingObject3d.children);
-    children.forEach((obj: GroupEx) => {
+    children.forEach((obj: Objects) => {
       if (!this .hasGeometry(obj)) {
         newShowingObject3d.add(obj);
       }
