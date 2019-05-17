@@ -2,30 +2,30 @@ import { Vector3, CubicBezierCurve3 } from "three";
 import "d3-transition";
 import * as Selection from "d3-selection";
 import Space from "../Space";
+import { interpolateHsl, easeExpInOut, interpolateNumber } from "d3";
 
-const THREE = (< windowEx>window).THREE;
+const THREE = (< IWindow>window).THREE;
 
-interface curveOptions{
-  controlPoint?:Vector3;
-  color?:any;
+interface ICurveOptions{
+  line?:boolean; // true: make curve become straight line
+  controlPoint?:Vector3; // undefined: auto calculate controlPoint
 }
 
 class Curve{
   startPoint:Vector3;
-  color:any;
   controlPoint:Vector3;
   curve:CubicBezierCurve3;
   endPoint:Vector3;
-  object3d:MeshEx;
+  object3d:any;
+  options:any;
   points:Vector3[];
   space:Space;
 
-  constructor(space:Space, startPoint:Vector3, endPoint:Vector3, options?:curveOptions){
-    const opt = options || {};
+  constructor(space:Space, startPoint:Vector3, endPoint:Vector3, options?:ICurveOptions){
+    const opt = this .options = options || {};
     this .startPoint = startPoint;
     this .endPoint = endPoint;
     this .controlPoint = opt.controlPoint || this .calculateControlPoint();
-    this .color = opt.color || 0xC71585;
     this .space = space;
     this .init();
     // console.log(this.controlPoint);
@@ -35,7 +35,9 @@ class Curve{
     const result = new THREE.Vector3(0, 0, 0);
     result.addVectors(this .startPoint, this .endPoint);
     result.multiplyScalar(0.9);
-    result.y = this .endPoint.distanceTo(this .startPoint);
+    if(!this .options.line){
+      result.y = this .endPoint.distanceTo(this .startPoint);
+    }
     return result;
   }
 
@@ -45,16 +47,26 @@ class Curve{
       this .controlPoint,
       this .endPoint
     );
-    const geometry = new THREE.TubeGeometry(curve, 64, 0.03);
-    const material = new THREE.MeshBasicMaterial({ color :this .color} );
-    const curveObject = new THREE.Mesh( geometry, material );
     this .points = curve.getPoints( 60 );
+    let vertices:number[] = [];
+    this .points.forEach( (vector3:Vector3) => {
+      vertices.push(vector3.x)
+      vertices.push(vector3.y)
+      vertices.push(vector3.z)
+    });
+    const geometry = new THREE.BufferGeometry();
+    geometry.addAttribute( 'position', new THREE.BufferAttribute( new Float32Array(vertices), 3 ) );
+    // const geometry = new THREE.TubeGeometry(curve, 64, 0.03);
+    const material = new THREE.MeshBasicMaterial({ vertexColors: THREE.VertexColors} );
+    const curveObject = new THREE.Line( geometry, material );
     this .object3d = curveObject;
-    this .initOutline();
+    this .space.scene.add(curveObject);
+    // this .initOutline();
     return this ;
   }
 
   initOutline(){
+    // line can not set outline.
     const space = this .space;
     if(!space.outlinePassMap.has('curve')){
       space.setOutlinePass('curve', {
@@ -95,6 +107,53 @@ class Curve{
         if(t >= 1){
           scope.space.scene.remove(sphere);
         }
+      }
+    })
+  }
+
+  colorEasing(color1?:string, color2?:string, easeFunction?:Function){
+    let colorArray:number[]=[];
+    let len = this .object3d.geometry.attributes.position.array.length /3
+    let easeFun = easeFunction || easeExpInOut;
+    for(let i = 0;i < len;i++){
+      let v ;
+      if(i>len/2){
+        v = 2-2*i/len;
+      }
+      else{
+        v = 2*i/len
+      }
+      let rgb = interpolateHsl(color1 || "#aaaaaa", color2 || "#00ffff")( easeFun(v));
+      let rgbValue = rgb.match(/\d+/g);
+      // console.log(rgb, i, len, v)
+      colorArray[3*i] =  Number(rgbValue[0])/255;
+      colorArray[3*i +1] =  Number(rgbValue[1])/255;
+      colorArray[3*i +2] =  Number(rgbValue[2])/255;
+    }
+    this .object3d.geometry.addAttribute( 'color', new THREE.Float32BufferAttribute( colorArray, 3 ) );
+    // @ts-ignore
+    Selection.select({}).transition().duration(2000).tween("color-easing", ()=>{
+      return (t:number)=>{
+        let anchor = Number((t * len).toFixed(0));
+        let newColorArray:number[]=[].concat(colorArray.slice(anchor * 3), colorArray.slice(0, anchor * 3)) ;
+        this .object3d.geometry.addAttribute( 'color', new THREE.Float32BufferAttribute( newColorArray, 3 ) );
+      }
+
+    })
+  }
+
+  positionEasing(start:Vector3, end:Vector3){
+    // @ts-ignore
+    Selection.select({}).transition().duration(2000).tween("color-easing", ()=>{
+      const interpolateX = interpolateNumber(start.x, end.x);
+      const interpolateY = interpolateNumber(start.y, end.y);
+      const interpolateZ = interpolateNumber(start.z, end.z);
+      return (t:number)=>{
+        this .object3d.position.set(
+          interpolateX(t),
+          interpolateY(t),
+          interpolateZ(t),
+          );
       }
     })
   }
