@@ -29,7 +29,7 @@ class Inspector{
           return ;
         }
         const obj = intersects[0].object;
-        (< windowEx>window).selectedThing = obj;
+        (< IWindow>window).selectedThing = obj;
         console.log(obj);
         space.setOutline([obj])
 

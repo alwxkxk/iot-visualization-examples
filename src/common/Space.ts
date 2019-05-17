@@ -18,11 +18,10 @@ import {
   Vector3,
   WebGLRenderer,
 } from "three";
-import Curve from "./base/Curve";
 
-const THREE = (window as windowEx).THREE;
+const THREE = (window as IWindow).THREE;
 
-interface Ioptions {
+interface ISpaceOptions {
   renderer?: any;
   inspector?: boolean;
   orbit?: boolean;
@@ -41,21 +40,22 @@ class Space {
     top: number;
     left: number;
   };
-  readonly options: Ioptions;
+  readonly options: ISpaceOptions;
   orbit: any;
   // outlinePass:any;
   outlinePassMap: Map< string, any>;
   progressBar: ProgressBar;
   raycaster: Raycaster;
   raycasterEventMap: Map< string, Function>;
-  raycasterObjects: Object3dEx[];
+  raycasterObjects: IObject3d[];
   raycasterRecursive: boolean;
   renderer: WebGLRenderer;
   scene: Scene;
+  stopComposer:boolean; // antialias : renderer > composer with FXAAShader > composer without FXAAShader
 
   private _eventList: any;
 
-  constructor(element: Element, options?: Ioptions) {
+  constructor(element: Element, options?: ISpaceOptions) {
     this .element = element;
     this .options = options;
     this .init();
@@ -63,7 +63,7 @@ class Space {
   }
 
   private getBox(){
-    // set the firstr objects as global.
+    // set the first objects as global.
     this .box3 = (new THREE.Box3()).setFromObject(this .scene.children[0]);
   }
 
@@ -100,7 +100,7 @@ class Space {
 
     // all object is raycaster by default.
     this .raycasterObjects = [];
-    this .scene.traverse((object3d: Object3dEx) => {
+    this .scene.traverse((object3d: IObject3d) => {
       this .raycasterObjects.push(object3d);
       new Controller(this , object3d);
 
@@ -126,7 +126,7 @@ class Space {
       func();
     });
 
-    if (this .composer) {
+    if (this .composer && !this .stopComposer) {
       this .composer.render();
     } else {
       this .renderer.render( this .scene, this .camera );
@@ -167,22 +167,6 @@ class Space {
       rz: -44,
     };
     this .afterLoaded(gltf);
-  }
-
-  curveConnect(startPoint: Vector3, endPoint: Vector3, options?: any) {
-    const curve = new Curve(this , startPoint, endPoint, options);
-    this .scene.add(curve.object3d);
-    // test add points concurrently.
-    setTimeout(() => {
-      curve.addPointEasing();
-    }, 1000);
-    setTimeout(() => {
-      curve.addPointEasing();
-    }, 1500);
-    setTimeout(() => {
-      curve.addPointEasing();
-    }, 2000);
-    return this ;
   }
 
   dispose() {
@@ -266,11 +250,11 @@ class Space {
     this .setOutlinePass("space");
 
     // BUG: this make object3d having a few px black border.
-    // const effectFXAA = new THREE.ShaderPass( THREE.FXAAShader );
-    // const pixelRatio = this.renderer.getPixelRatio();
-    // effectFXAA.material.uniforms[ 'resolution' ].value.x = 1 / ( window.innerWidth * pixelRatio );
-    // effectFXAA.material.uniforms[ 'resolution' ].value.y = 1 / ( window.innerHeight * pixelRatio );
-    // composer.addPass( effectFXAA );
+    const effectFXAA = new THREE.ShaderPass( THREE.FXAAShader );
+    const pixelRatio = this .renderer.getPixelRatio();
+    effectFXAA.material.uniforms[ 'resolution' ].value.x = 1 / ( window.innerWidth * pixelRatio );
+    effectFXAA.material.uniforms[ 'resolution' ].value.y = 1 / ( window.innerHeight * pixelRatio );
+    composer.addPass( effectFXAA );
     return this ;
   }
 
@@ -365,7 +349,7 @@ class Space {
     return this ;
   }
 
-  setOutline(array: Object3dEx[], key?: string) {
+  setOutline(array: IObject3d[], key?: string) {
     const outlinePass = this .outlinePassMap.get(key || "space");
     if (outlinePass) {
       outlinePass.selectedObjects = array;

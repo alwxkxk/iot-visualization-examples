@@ -1,10 +1,10 @@
 import { Euler, Group, Vector3 } from "three";
 import Space from "./Space";
 
-const THREE = (window as windowEx).THREE;
+const THREE = (window as IWindow).THREE;
 
 class Controller {
-  lineObject3d: GroupEx;
+  lineObject3d: IGroup;
   name: string;
   object3d: Objects;
   originalPosition: Vector3;
@@ -57,7 +57,7 @@ class Controller {
     group.$controller = this ;
 
     const children = Array.from(object3d.children);
-    children.forEach((v: MeshEx) => {
+    children.forEach((v: IMesh) => {
       if (this .hasGeometry(v)) {
         const geo = new THREE.EdgesGeometry(v.geometry);
         const line = new THREE.LineSegments( geo , lineMaterial);

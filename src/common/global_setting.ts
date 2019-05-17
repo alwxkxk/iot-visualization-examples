@@ -13,24 +13,24 @@ declare global {
     ( error: Error, result?: number ) : void;
   }
 
-  interface windowEx extends Window{
+  interface IWindow extends Window{
     $: any;
     jquery:any;
     THREE:any;
     selectedThing:Objects;// for Inspector debug select thing.
   }
 
-  interface $controller{
+  interface IController{
     $controller:Controller;
   }
-  interface Object3dEx extends Object3D, $controller{}
+  interface IObject3d extends Object3D, IController{}
 
-  interface MeshEx extends Mesh, $controller{}
+  interface IMesh extends Mesh, IController{}
 
-  interface GroupEx extends Group, $controller{}
+  interface IGroup extends Group, IController{}
 
-  type Objects = MeshEx | Object3dEx | GroupEx;
+  type Objects = IMesh | IObject3d | IGroup;
 }
 
-(< windowEx>window).$ = (< windowEx>window).jquery = $;
-(< windowEx>window).THREE = THREE;
+(< IWindow>window).$ = (< IWindow>window).jquery = $;
+(< IWindow>window).THREE = THREE;
