@@ -12,6 +12,10 @@ import "three/examples/js/shaders/CopyShader.js";
 import "three/examples/js/shaders/FXAAShader.js";
 import "./base/outlinepass.js";
 
+// bloom
+import "three/examples/js/shaders/LuminosityHighPassShader.js";
+import "./base/UnrealBloomPass.js";
+
 import {
   Raycaster,
   Scene,
@@ -25,9 +29,11 @@ interface ISpaceOptions {
   renderer?: any;
   inspector?: boolean;
   orbit?: boolean;
+  outline?:boolean; // true: initOutline
 }
 class Space {
   animateActionMap: Map< string, Function>;
+  bloomPass: any;
   box3: any;
   camera: any;
   composer: any;
@@ -116,7 +122,9 @@ class Space {
     e.addEventListener("click", this ._eventList.updateMouse);
     e.addEventListener("dblclick", this ._eventList.updateMouse);
     e.addEventListener("mousemove", this ._eventList.updateMouse);
-    this .initOutline();
+    if(this .options.outline){
+      this .initOutline();
+    }
     this .animate();
     return this ;
   }
@@ -128,6 +136,13 @@ class Space {
 
     if (this .composer && !this .stopComposer) {
       this .composer.render();
+      // this .renderer.autoClear = false;
+      // this .renderer.clear();
+      // this .camera.layers.set(1);
+      // this .composer.render();
+      // this .renderer.clearDepth();
+      // this .camera.layers.set(0);
+      // this .renderer.render(this .scene, this .camera);
     } else {
       this .renderer.render( this .scene, this .camera );
     }
@@ -206,6 +221,7 @@ class Space {
     this .animateActionMap = new Map();
     this .offset = $(e).offset();
 
+    renderer.sortObjects = false;
     renderer.setSize(e.clientWidth, e.clientHeight );
     e.appendChild(renderer.domElement);
 
@@ -228,6 +244,38 @@ class Space {
     return this ;
   }
 
+  initBloom(){
+    this .initComposer();
+    const composer = this .composer;
+
+    const  renderPass = new THREE.RenderPass( this .scene, this .camera);
+    composer.addPass( renderPass );
+
+    const bloomPass = new THREE.UnrealBloomPass(
+        new THREE.Vector2( this .innerWidth, this .innerHeight ),
+        1.5, 0.4, 0.85
+      )
+    bloomPass.threshold = 0
+    bloomPass.strength = 1.5
+    bloomPass.radius = 0
+    bloomPass.renderToScreen = true
+    this .bloomPass = bloomPass
+
+    composer.addPass( bloomPass );
+
+    const effectFXAA = new THREE.ShaderPass( THREE.FXAAShader );
+    const pixelRatio = this .renderer.getPixelRatio();
+    effectFXAA.material.uniforms[ 'resolution' ].value.x = 1 / ( this .innerWidth * pixelRatio );
+    effectFXAA.material.uniforms[ 'resolution' ].value.y = 1 / ( this .innerHeight * pixelRatio );
+    composer.addPass( effectFXAA );
+  }
+
+  private initComposer(){
+    if(!this .composer){
+      this .composer = new THREE.EffectComposer( this .renderer );
+    }
+  }
+
   initOrbit(): Space {
     const options = this .options || {};
 
@@ -240,8 +288,8 @@ class Space {
   }
 
   initOutline(): Space {
-    const composer = new THREE.EffectComposer( this .renderer );
-    this .composer = composer;
+    this .initComposer();
+    const composer = this .composer;
 
     const  renderPass = new THREE.RenderPass( this .scene, this .camera);
     composer.addPass( renderPass );
@@ -252,8 +300,8 @@ class Space {
     // BUG: this make object3d having a few px black border.
     const effectFXAA = new THREE.ShaderPass( THREE.FXAAShader );
     const pixelRatio = this .renderer.getPixelRatio();
-    effectFXAA.material.uniforms[ 'resolution' ].value.x = 1 / ( window.innerWidth * pixelRatio );
-    effectFXAA.material.uniforms[ 'resolution' ].value.y = 1 / ( window.innerHeight * pixelRatio );
+    effectFXAA.material.uniforms[ 'resolution' ].value.x = 1 / ( this .innerWidth * pixelRatio );
+    effectFXAA.material.uniforms[ 'resolution' ].value.y = 1 / ( this .innerHeight * pixelRatio );
     composer.addPass( effectFXAA );
     return this ;
   }

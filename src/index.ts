@@ -10,7 +10,7 @@ const space = new Space(element, {
   orbit:true
 });
 
-// space.load("./static/3d/scene05163.glb")
+// space.load("./static/3d/scene0520d.glb")
 // .then(()=>{
   // space.autoRotate(true);
   // const geo = new THREE.SphereGeometry( 20, 12, 12 );
@@ -36,18 +36,44 @@ const space = new Space(element, {
 // })
 
 space.createEmptyScene();
-let line = new Curve(
-  space,
-  new THREE.Vector3( -10, 0, 0 ),
-  new THREE.Vector3( 10, 0, 0 ),
-  {line:true}
-);
-line.colorEasing("#444444", "#00ffff");
-line.positionEasing(new THREE.Vector3( -30, 0, 0 ), new THREE.Vector3( 30, 0, 0 ));
-setInterval(() => {
-  line.positionEasing(new THREE.Vector3( -30, 0, 0 ), new THREE.Vector3( 30, 0, 0 ));
-}, 2000);
-space.stopComposer = true;
+// let line = new Curve(
+//   space,
+//   new THREE.Vector3( -10, 0, 0 ),
+//   new THREE.Vector3( 10, 0, 0 ),
+//   {line:true}
+// );
+// line.colorEasing("#444444", "#00ffff");
+// line.positionEasing(new THREE.Vector3( -30, 0, 0 ), new THREE.Vector3( 30, 0, 0 ));
+// setInterval(() => {
+//   line.positionEasing(new THREE.Vector3( -30, 0, 0 ), new THREE.Vector3( 30, 0, 0 ));
+// }, 2000);
+
+const geo = new THREE.SphereGeometry( 1, 12, 12 );
+const mat = new THREE.MeshLambertMaterial({ color: 0x00ffff});
+const sphere = new THREE.Mesh( geo, mat );
+const mat2 = new THREE.MeshLambertMaterial({ color: 0x00ff00});
+const sphere2 = new THREE.Mesh( geo, mat2 );
+const gui = space.inspector.gui
+sphere2.layers.enable(1);
+space.scene.add(sphere);
+space.scene.add(sphere2);
+sphere2.position.set(2, 0, 0);
+space.initBloom();
+space.initOutline();
+space.setOutline([sphere])
+let params={
+  bloomThreshold:0,
+  bloomStrength:0
+}
+
+gui.add(params, "bloomThreshold", 0.0, 1.0).onChange((value)=>{
+  space.bloomPass.threshold  = Number( value );
+});
+gui.add(params, "bloomStrength", 0, 10).onChange((value)=>{
+  space.bloomPass.strength  = Number(value);
+});
+
+// space.stopComposer = true;
 
 // @ts-ignore
 window.debugSpace=space;
