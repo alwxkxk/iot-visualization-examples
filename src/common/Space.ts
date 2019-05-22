@@ -109,8 +109,13 @@ class Space {
     this .scene.traverse((object3d: IObject3d) => {
       this .raycasterObjects.push(object3d);
       new Controller(this , object3d);
-
     });
+    Array.from(this .scene.children).forEach((v:Objects)=>{
+      if(v.$controller){
+        v.$controller.applyUserData();
+      }
+    });
+
     // click: outline the object by default.
     if (!this .raycasterEventMap) {
       this .setRaycasterEventMap({

@@ -26,6 +26,29 @@ class Controller {
     this .init();
   }
 
+  applyUserData(){
+    if(!this .userData){
+      return ;
+    }
+    console.log(this .name, "applyUserData")
+
+    Array.from(this .object3d.children).forEach((v:Objects)=>{
+      if(v.$controller){
+        v.$controller.applyUserData();
+      }
+    });
+
+    const userData = this .userData
+    if(userData.renderOrder){
+      this .object3d.renderOrder =userData.renderOrder
+    }
+
+    if(userData.showingModel){
+      this .changeShowingModel(userData.showingModel)
+    }
+
+  }
+
   init(): Controller {
     const object3d = this .object3d;
 
@@ -38,22 +61,16 @@ class Controller {
 
     this .showingModel = "normal";
     this .showingObject3d = object3d;
-
-    if(this .userData["renderOrder"]){
-      object3d.renderOrder = this .userData["renderOrder"]
-    }
-
     return this ;
   }
 
-  initLineModel(color?: any): Controller {
+  initLineModel(): Controller {
+    const opt = this .userData.showingModelOptions || {}
     const object3d = this .object3d;
     const group = this .lineObject3d = new THREE.Group();
-    const lineMaterial = new THREE.LineBasicMaterial({color: color || 0x00FFFF});
+    const lineMaterial = new THREE.LineBasicMaterial({color: opt.color || 0x00FFFF});
     const boxMaterial = new THREE.LineBasicMaterial({
-      depthTest: false,
-      depthWrite: false,
-      opacity: 0 ,
+      opacity: opt.opacity || 0 ,
       side: THREE.BackSide,
       transparent: true,
     });
@@ -66,7 +83,7 @@ class Controller {
         const geo = new THREE.EdgesGeometry(v.geometry);
         const line = new THREE.LineSegments( geo , lineMaterial);
         // add transparent box to avoid picking difficult by raycaster.
-        const box = new THREE.Mesh(geo, boxMaterial);
+        const box = new THREE.Mesh(v.geometry, boxMaterial);
 
         this
         .copyCoordinate(v, line)
@@ -150,6 +167,9 @@ class Controller {
       .add(newShowingObject3d)
       .remove(showingObject3d);
     }
+    newShowingObject3d.position.copy(showingObject3d.position);
+    newShowingObject3d.rotation.copy(showingObject3d.rotation);
+    newShowingObject3d.scale.copy(showingObject3d.scale);
     this .showingObject3d = newShowingObject3d;
     return this ;
   }
