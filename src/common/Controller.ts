@@ -39,6 +39,10 @@ class Controller {
     this .showingModel = "normal";
     this .showingObject3d = object3d;
 
+    if(this .userData["renderOrder"]){
+      object3d.renderOrder = this .userData["renderOrder"]
+    }
+
     return this ;
   }
 
