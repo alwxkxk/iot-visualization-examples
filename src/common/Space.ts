@@ -221,7 +221,6 @@ class Space {
     this .animateActionMap = new Map();
     this .offset = $(e).offset();
 
-    renderer.sortObjects = false;
     renderer.setSize(e.clientWidth, e.clientHeight );
     e.appendChild(renderer.domElement);
 
@@ -245,6 +244,7 @@ class Space {
   }
 
   initBloom(){
+    // note: initBloom() should behind initOutline().
     this .initComposer();
     const composer = this .composer;
 
@@ -398,6 +398,9 @@ class Space {
   }
 
   setOutline(array: IObject3d[], key?: string) {
+    if(! this .outlinePassMap){
+      return console.warn("initOutlinePass() should be invoked first.")
+    }
     const outlinePass = this .outlinePassMap.get(key || "space");
     if (outlinePass) {
       outlinePass.selectedObjects = array;
