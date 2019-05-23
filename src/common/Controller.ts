@@ -11,6 +11,7 @@ class Controller {
   originalRotation: Euler;
   originalScale: Vector3;
   position: Vector3;
+  pointsObject3d: IGroup;
   rotation: Euler;
   userData: any;
   scale: Vector3;
@@ -95,8 +96,29 @@ class Controller {
 
       }
     });
-    this .lineObject3d = group;
     return this ;
+  }
+
+  initPointsModel(): Controller {
+    const opt = this .userData.showingModelOptions || {}
+    const pointsMaterial = new THREE.PointsMaterial( { size: opt.size || 1, color: opt.color || 0xffffff } )
+    const children = Array.from(this .object3d.children);
+    const group = this .pointsObject3d = new THREE.Group();
+    group.name = this .name + "_pointsObject3d";
+    group.$controller = this ;
+    children.forEach((v: IMesh) => {
+      if (this .hasGeometry(v)) {
+        const points = new THREE.Points( v.geometry, pointsMaterial );
+
+        this
+        .copyCoordinate(v, points)
+
+        group
+        .add(points)
+      }
+    });
+    return this ;
+
   }
 
   hasGeometry(obj: Objects): boolean {
@@ -111,6 +133,9 @@ class Controller {
         break;
       case "normal":
         this .changeToNormalModel();
+        break;
+      case "points":
+        this .changeToPointsModel();
         break;
 
       default:
@@ -139,6 +164,19 @@ class Controller {
     }
 
     this .updateShowingObject3d(this .lineObject3d);
+    return this ;
+  }
+
+  changeToPointsModel(): Controller {
+    if(this .showingModel === "points"){
+      return;
+    }
+
+    if (!this .pointsObject3d) {
+      this .initPointsModel();
+    }
+
+    this .updateShowingObject3d(this .pointsObject3d);
     return this ;
   }
 
