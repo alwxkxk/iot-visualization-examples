@@ -139,15 +139,19 @@ class Space {
       func();
     });
 
-    if (this .composer && !this .stopComposer) {
+    if(this .bloomPass && !this .stopComposer){
+      // bloom : object3.layers.enable(1)
+      this .renderer.autoClear = false;
+      this .renderer.clear();
+      this .camera.layers.set(1);
       this .composer.render();
-      // this .renderer.autoClear = false;
-      // this .renderer.clear();
-      // this .camera.layers.set(1);
-      // this .composer.render();
-      // this .renderer.clearDepth();
-      // this .camera.layers.set(0);
-      // this .renderer.render(this .scene, this .camera);
+      this .renderer.clearDepth();
+      this .camera.layers.set(0);
+      this .renderer.render(this .scene, this .camera);
+    }
+    else if (this .composer && !this .stopComposer) {
+      // outline
+      this .composer.render();
     } else {
       this .renderer.render( this .scene, this .camera );
     }

@@ -48,6 +48,19 @@ class Controller {
       this .changeShowingModel(userData.showingModel)
     }
 
+    if(userData.bloom){
+      this.bloom(true);
+    }
+
+  }
+
+  bloom(on:boolean){
+    if(on){
+      this .showingObject3d.layers.enable(1);
+    }
+    else{
+      this .showingObject3d.layers.disable(1);
+    }
   }
 
   init(): Controller {
@@ -73,12 +86,13 @@ class Controller {
     const boxMaterial = new THREE.LineBasicMaterial({
       opacity: opt.opacity || 0 ,
       side: THREE.BackSide,
-      transparent: true,
+      transparent: true
     });
     group.name = this .name + "_lineObject3d";
     group.$controller = this ;
 
     const children = Array.from(object3d.children);
+    children.push(object3d);
     children.forEach((v: IMesh) => {
       if (this .hasGeometry(v)) {
         const geo = new THREE.EdgesGeometry(v.geometry);
@@ -106,6 +120,7 @@ class Controller {
     const group = this .pointsObject3d = new THREE.Group();
     group.name = this .name + "_pointsObject3d";
     group.$controller = this ;
+    children.push(this .object3d);
     children.forEach((v: IMesh) => {
       if (this .hasGeometry(v)) {
         const points = new THREE.Points( v.geometry, pointsMaterial );
