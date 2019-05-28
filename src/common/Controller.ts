@@ -49,7 +49,7 @@ class Controller {
     }
 
     if(userData.bloom){
-      this.bloom(true);
+      this .bloom(true);
     }
 
   }
@@ -99,11 +99,8 @@ class Controller {
         const line = new THREE.LineSegments( geo , lineMaterial);
         // add transparent box to avoid picking difficult by raycaster.
         const box = new THREE.Mesh(v.geometry, boxMaterial);
-
-        this
-        .copyCoordinate(v, line)
-        .copyCoordinate(v, box);
-
+        box.position.set(0, 0, 0);
+        line.position.set(0, 0, 0);
         group
         .add(line)
         .add(box);
@@ -124,9 +121,7 @@ class Controller {
     children.forEach((v: IMesh) => {
       if (this .hasGeometry(v)) {
         const points = new THREE.Points( v.geometry, pointsMaterial );
-
-        this
-        .copyCoordinate(v, points)
+        points.position.set(0, 0, 0);
 
         group
         .add(points)
@@ -220,9 +215,7 @@ class Controller {
       .add(newShowingObject3d)
       .remove(showingObject3d);
     }
-    newShowingObject3d.position.copy(showingObject3d.position);
-    newShowingObject3d.rotation.copy(showingObject3d.rotation);
-    newShowingObject3d.scale.copy(showingObject3d.scale);
+    this .copyCoordinate(showingObject3d, newShowingObject3d);
     this .showingObject3d = newShowingObject3d;
     return this ;
   }
