@@ -1,4 +1,5 @@
 import ProgressBar from "./common/components/ProgressBar";
+import StripeBar from "./common/components/StripeBar";
 
 function mockProgressBar() {
   const e = $("#progressing-bar")[0];
@@ -28,44 +29,14 @@ $("#progressing-bar-start").on("click", ()=>{
   mockProgressBar();
 })
 
+
+
+
+function mockStripeBar(element:Element,value:number) {
+  let stripeBar = new StripeBar(element, value);
+}
+
 $.when($.ready).then(()=>{
   mockProgressBar();
+  mockStripeBar($("#stripe-bar1")[0],100);
 })
-
-// let i = 0;
-// let s = setInterval(()=>{
-//   let oldData = data[i-1] || 0;
-//   let d = data[i++]
-//   console.log(d)
-//   if(i > data.length){
-//     clearInterval(s);
-//     return ;
-//   }
-//   let interpolateFun = d3.interpolate(oldData,d);
-//   d3.transition().tween("progress",()=>{
-//     return (t:any)=>{
-//       // console.log(t)
-//       let data = interpolateFun(t)
-//       textSelection.text(`${data}%`);
-//       progressSelection.attr("width",data );
-//     }
-//   })
-// },5000);
-
-// d3.select("#progressing-bar")
-//     .style("color", "black")
-//     .style("background-color", "red");
-
-// var x = d3.scaleLinear()
-//     .domain([0, d3.max(data)])
-//     .range([0, 420]);
-
-//     d3.select($("#progressing-bar")[0]).selectAll("div")
-//       .data(data)
-//     .enter().insert("div")
-//     .style("background-color", "red")
-//       .style("width", function(d) { return x(d) + "px"; })
-//       .text(function(d) { return d; });
-// console.log($("#progressing-bar")[0],d3.select($("#progressing-bar")[0]))
-// console.log(d3.select("#progressing-bar"),    d3.select("#progressing-bar").selectAll("div"))
-    // .selectAll("div")

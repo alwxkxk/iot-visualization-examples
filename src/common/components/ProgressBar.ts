@@ -2,20 +2,8 @@ import * as Selection from "d3-selection";
 import * as Interpolators from "d3-interpolate";
 import * as Transition from "d3-transition";
 import * as uuid from "uuid";
+import {colorRGBA} from "./common";
 
-const colorRGBA={
-  main:"rgb(8,34,88)",
-  mainAlpha:"rgba(8,34,88,0.6)",
-  submain:"rgb(16,235,244)",
-  submainAlpha:"rgba(16,235,244,0.8)",
-  font:"rgb(243,188,15)",
-  border:"rgb(243,188,15)",
-
-  safe:"rgb(139,195,74)",
-  much:"rgb(255,235,59)",
-  over:"rgb(255,152,0)",
-  dangerous:"rgb(f44336)"
-}
 class ProgressBar {
   readonly element:Element;
   id:string;
@@ -34,7 +22,7 @@ class ProgressBar {
   }
 
   init(){
-    const svgSelection = this .svgSelection = Selection.select(this .element)
+    this .svgSelection = Selection.select(this .element)
     .append("div")
     .attr("id", this .id)
     .style("left", "15%")
@@ -43,56 +31,56 @@ class ProgressBar {
     .style("width", "70%")
       .append("svg")
       .attr("viewBox", "0 0 100 20")
+    const svgSelection = this .svgSelection;
+    svgSelection
+      .append("rect")
+      .attr("width", "100")
+      .attr("height", "20")
+      .attr("fill", colorRGBA.mainAlpha);
 
-  svgSelection
-    .append("rect")
-    .attr("width", "100")
-    .attr("height", "20")
-    .attr("fill", colorRGBA.mainAlpha);
+    this .progressSelection = svgSelection
+      .append("rect")
+      .attr("width", "0")
+      .attr("height", "20")
+      .attr("fill", colorRGBA.submain);
 
-  this .progressSelection = svgSelection
-    .append("rect")
-    .attr("width", "0")
-    .attr("height", "20")
-    .attr("fill", colorRGBA.submain);
+    svgSelection
+      .append("line")
+      .attr("x1", "0")
+      .attr("x2", "100")
+      .attr("y1", "0")
+      .attr("y2", "0")
+      .attr("stroke", colorRGBA.border);
 
-  svgSelection
-    .append("line")
-    .attr("x1", "0")
-    .attr("x2", "100")
-    .attr("y1", "0")
-    .attr("y2", "0")
-    .attr("stroke", colorRGBA.border);
+    svgSelection
+      .append("line")
+      .attr("x1", "0")
+      .attr("x2", "100")
+      .attr("y1", "20")
+      .attr("y2", "20")
+      .attr("stroke", colorRGBA.border);
+    svgSelection
+      .append("line")
+      .attr("x1", "0")
+      .attr("x2", "0")
+      .attr("y1", "0")
+      .attr("y2", "20")
+      .attr("stroke", colorRGBA.border);
+    svgSelection
+      .append("line")
+      .attr("x1", "100")
+      .attr("x2", "100")
+      .attr("y1", "0")
+      .attr("y2", "20")
+      .attr("stroke", colorRGBA.border);
 
-  svgSelection
-    .append("line")
-    .attr("x1", "0")
-    .attr("x2", "100")
-    .attr("y1", "20")
-    .attr("y2", "20")
-    .attr("stroke", colorRGBA.border);
-  svgSelection
-    .append("line")
-    .attr("x1", "0")
-    .attr("x2", "0")
-    .attr("y1", "0")
-    .attr("y2", "20")
-    .attr("stroke", colorRGBA.border);
-  svgSelection
-    .append("line")
-    .attr("x1", "100")
-    .attr("x2", "100")
-    .attr("y1", "0")
-    .attr("y2", "20")
-    .attr("stroke", colorRGBA.border);
-
-  this .textSelection = svgSelection
-    .append("text")
-    .attr("font-size", "80%")
-    .attr("x", "5")
-    .attr("y", "14")
-    .attr("fill", colorRGBA.font)
-    .text("LOADING 0%")
+    this .textSelection = svgSelection
+      .append("text")
+      .attr("font-size", "80%")
+      .attr("x", "5")
+      .attr("y", "14")
+      .attr("fill", colorRGBA.font)
+      .text("LOADING 0%")
   }
 
   progress(value:number){
