@@ -334,8 +334,8 @@ class Space {
               console.log("parse spent:", performance.now() - beginTime);
               console.log(gltf);
               progressBar.dispose();
-              resolve();
               scope.afterLoaded(gltf);
+              resolve();
             },
             (error: any) => {
               reject(error);
