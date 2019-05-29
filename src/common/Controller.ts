@@ -1,5 +1,9 @@
 import { Euler, Group, Vector3 } from "three";
 import Space from "./Space";
+import {
+  resetCoordinate,
+  copyCoordinate
+} from "./base/utilities";
 
 const THREE = (window as IWindow).THREE;
 
@@ -23,7 +27,6 @@ class Controller {
     this .space = space;
     this .object3d = object3d;
     object3d.$controller = this ;
-
     this .init();
   }
 
@@ -31,7 +34,7 @@ class Controller {
     if(!this .userData){
       return ;
     }
-    console.log(this .name, "applyUserData")
+    // console.log(this .name, "applyUserData")
 
     Array.from(this .object3d.children).forEach((v:Objects)=>{
       if(v.$controller){
@@ -63,80 +66,8 @@ class Controller {
     }
   }
 
-  init(): Controller {
-    const object3d = this .object3d;
-
-    this .name = object3d.name;
-    this .userData = object3d.userData;
-
-    this .originalPosition = this .position = object3d.position.clone();
-    this .originalRotation = this .rotation = object3d.rotation.clone();
-    this .originalScale = this .scale = object3d.scale.clone();
-
-    this .showingModel = "normal";
-    this .showingObject3d = object3d;
-    return this ;
-  }
-
-  initLineModel(): Controller {
-    const opt = this .userData.showingModelOptions || {}
-    const object3d = this .object3d;
-    const group = this .lineObject3d = new THREE.Group();
-    const lineMaterial = new THREE.LineBasicMaterial({color: opt.color || 0x00FFFF});
-    const boxMaterial = new THREE.LineBasicMaterial({
-      opacity: opt.opacity || 0 ,
-      side: THREE.BackSide,
-      transparent: true
-    });
-    group.name = this .name + "_lineObject3d";
-    group.$controller = this ;
-
-    const children = Array.from(object3d.children);
-    children.push(object3d);
-    children.forEach((v: IMesh) => {
-      if (this .hasGeometry(v)) {
-        const geo = new THREE.EdgesGeometry(v.geometry);
-        const line = new THREE.LineSegments( geo , lineMaterial);
-        // add transparent box to avoid picking difficult by raycaster.
-        const box = new THREE.Mesh(v.geometry, boxMaterial);
-        box.position.set(0, 0, 0);
-        line.position.set(0, 0, 0);
-        group
-        .add(line)
-        .add(box);
-
-      }
-    });
-    return this ;
-  }
-
-  initPointsModel(): Controller {
-    const opt = this .userData.showingModelOptions || {}
-    const pointsMaterial = new THREE.PointsMaterial( { size: opt.size || 1, color: opt.color || 0xffffff } )
-    const children = Array.from(this .object3d.children);
-    const group = this .pointsObject3d = new THREE.Group();
-    group.name = this .name + "_pointsObject3d";
-    group.$controller = this ;
-    children.push(this .object3d);
-    children.forEach((v: IMesh) => {
-      if (this .hasGeometry(v)) {
-        const points = new THREE.Points( v.geometry, pointsMaterial );
-        points.position.set(0, 0, 0);
-
-        group
-        .add(points)
-      }
-    });
-    return this ;
-
-  }
-
-  hasGeometry(obj: Objects): boolean {
-    // @ts-ignore
-    return !!obj.geometry;
-  }
-
   changeShowingModel(model: string): Controller {
+
     switch (model) {
       case "line":
         this .changeToLineModel();
@@ -190,11 +121,85 @@ class Controller {
     return this ;
   }
 
-  copyCoordinate(from: Objects, to: Objects): Controller {
-    to.position.copy(from.position.clone());
-    to.scale.copy(from.scale.clone());
-    to.rotation.copy(from.rotation.clone());
+  init(): Controller {
+    const object3d = this .object3d;
+
+    this .name = object3d.name;
+    this .userData = object3d.userData;
+
+    this .originalPosition = this .position = object3d.position.clone();
+    this .originalRotation = this .rotation = object3d.rotation.clone();
+    this .originalScale = this .scale = object3d.scale.clone();
+
+    this .showingModel = "normal";
+    this .showingObject3d = object3d;
     return this ;
+  }
+
+  initLineModel(): Controller {
+    const opt = this .userData.showingModelOptions || {}
+    const object3d = this .object3d;
+    const group = this .lineObject3d = new THREE.Group();
+    const lineMaterial = new THREE.LineBasicMaterial({color: opt.color || 0x00FFFF});
+    const boxMaterial = new THREE.LineBasicMaterial({
+      opacity: opt.opacity || 0 ,
+      side: THREE.BackSide,
+      transparent: true
+    });
+    group.name = this .name + "_lineObject3d";
+    group.$controller = this ;
+
+    const children = Array.from(object3d.children);
+    children.push(object3d);
+    children.forEach((v: IMesh) => {
+      if (this .hasGeometry(v)) {
+        const geo = new THREE.EdgesGeometry(v.geometry);
+        const line = new THREE.LineSegments( geo , lineMaterial);
+        // add transparent box to avoid picking difficult by raycaster.
+        const box = new THREE.Mesh(v.geometry, boxMaterial);
+        // @ts-ignore
+        if(object3d.geometry){
+          resetCoordinate(line);
+          resetCoordinate(box);
+        }
+        else{
+          copyCoordinate(v, line);
+          copyCoordinate(v, box);
+        }
+
+        group
+        .add(line)
+        .add(box);
+
+      }
+    });
+    return this ;
+  }
+
+  initPointsModel(): Controller {
+    const opt = this .userData.showingModelOptions || {}
+    const pointsMaterial = new THREE.PointsMaterial( { size: opt.size || 1, color: opt.color || 0xffffff } )
+    const children = Array.from(this .object3d.children);
+    const group = this .pointsObject3d = new THREE.Group();
+    group.name = this .name + "_pointsObject3d";
+    group.$controller = this ;
+    children.push(this .object3d);
+    children.forEach((v: IMesh) => {
+      if (this .hasGeometry(v)) {
+        const points = new THREE.Points( v.geometry, pointsMaterial );
+        points.position.set(0, 0, 0);
+
+        group
+        .add(points)
+      }
+    });
+    return this ;
+
+  }
+
+  hasGeometry(obj: Objects): boolean {
+    // @ts-ignore
+    return !!obj.geometry;
   }
 
   updateShowingObject3d(newShowingObject3d: Objects): Controller {
@@ -215,7 +220,7 @@ class Controller {
       .add(newShowingObject3d)
       .remove(showingObject3d);
     }
-    this .copyCoordinate(showingObject3d, newShowingObject3d);
+    copyCoordinate(showingObject3d, newShowingObject3d);
     this .showingObject3d = newShowingObject3d;
     return this ;
   }

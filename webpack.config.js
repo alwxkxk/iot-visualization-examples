@@ -10,6 +10,7 @@ module.exports = {
     sw:'./src/common/sw/sw.ts',
     test:'./src/test.ts',
   },
+  devtool: 'inline-source-map',
   plugins: [
     new CopyPlugin([{
       from:'./static/**/*'
