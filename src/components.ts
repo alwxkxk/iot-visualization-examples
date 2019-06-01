@@ -1,6 +1,7 @@
 import ProgressBar from "./common/components/ProgressBar";
 import StripeBar from "./common/components/StripeBar";
 
+
 function mockProgressBar() {
   const e = $("#progressing-bar")[0];
   const progressBar = new ProgressBar(e);
@@ -32,11 +33,19 @@ $("#progressing-bar-start").on("click", ()=>{
 
 
 
-function mockStripeBar(element:Element,value:number) {
-  let stripeBar = new StripeBar(element, value);
+function mockStripeBar(element:Element,value:number,twinkle?:boolean) {
+  return new StripeBar(element, value,{twinkle:twinkle});
 }
 
 $.when($.ready).then(()=>{
   mockProgressBar();
-  mockStripeBar($("#stripe-bar1")[0],100);
+  let s1 = mockStripeBar($("#stripe-bar1")[0],30);
+  
+  mockStripeBar($("#stripe-bar2")[0],84,true);
+  mockStripeBar($("#stripe-bar3")[0],100);
+
+  $("#stripe-bar1-value-input").on("change",()=>{
+    s1.setValue( Number($("#stripe-bar1-value-input").val()));
+  })
 })
+

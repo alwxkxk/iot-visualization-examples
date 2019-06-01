@@ -3,43 +3,61 @@ import * as Interpolators from "d3-interpolate";
 import * as Transition from "d3-transition";
 import * as uuid from "uuid";
 import {colorRGBA} from "./common";
+import "./common.css"
+
+interface Ioptions{
+  twinkle?: boolean; // true: set the last twinkle
+}
 
 class StripeBar {
   readonly element:Element;
   id:string;
   containerSelection:any;
   svgSelection:any;
-  constructor(element:Element,value?:number) {
-    if(element.clientWidth === 0 || element.clientHeight === 0){
-      console.error("element should had width and height before init.");
-    }
+  options:any;
+  parentClientWidth:number;
+  constructor(element:Element,value?:number, options?:Ioptions) {
+    // if(element.clientWidth === 0 || element.clientHeight === 0){
+    //   console.error("element should had width and height before init.");
+    // }
     this .element = element;
-    this .id = "stripe-bar"+uuid();
+    this .id ="stripe-bar"+uuid();
+    this .options = options || {};
     this .init();
     this .setValue(value || 10);
   }
 
   init(){
+    this .parentClientWidth = this .element.parentElement.clientWidth
     this .containerSelection = Selection.select(this .element)
-    .append("div")
-    .attr("id", this .id)
-    .style("position", "relavite");
+    // .append("div")
+    // .attr("id", this .id)
+    // .style("position", "relavite");
   }
 
   setValue(value:number){
     let v;
+    const parentElement = Selection.select(this .element.parentElement)
+    
     if(value < 0 || value > 100){
       console.warn("value should between 0 ~ 100.",value);
       v = 10; 
     }
+    
+
     // remove old svg element in container
     if(this .svgSelection){
       this .svgSelection.remove();
     }
 
+    // resize parent element width.
+    parentElement.style("width",`${value * this.parentClientWidth/100}px`)
+
+
+
     this .containerSelection
     .style("height", "100%")
-    .style("width", `${value}%`);
+    .style("width", "100%");
 
     this .svgSelection = this .containerSelection
     .append("svg")
@@ -49,10 +67,12 @@ class StripeBar {
 
 
     const svgSelection = this .svgSelection;
-    // 100% -- 40 stripe
-    // 2.5% -- 1 stripe
-    const interval = 2.5
-    const total = value / interval;
+    // 100% -- 40 stripes -- 100/40 = 2.5 interval
+    // 20% -- 8 stripes -- 100/8 = 12.5 interval
+    // value% -- (value*2/5) stripes --  (250/value) interval
+    const fullStripes = 40;
+    const stripes = value * 2 / 5 ;
+    const interval = 250 / value;
     const width = interval * 3 / 5;
     function getColor(value:number):String{
       if(value<50){
@@ -68,22 +88,21 @@ class StripeBar {
         return colorRGBA.dangerous;
       }
     }
-
-    for(let i = 0;i<total;i++){
+    
+    let lastRect:any ;
+    for(let i = 0;i<stripes;i++){
       const v = i*interval;
-      svgSelection
+      lastRect = svgSelection
       .append("rect")
       .attr("x", `${v}%`)
       .attr("width", `${width}%`)
       .attr("height", "100%")
-      .attr("fill", getColor(v));
+      .attr("fill", getColor(i*100/fullStripes));
     }
 
-    // svgSelection
-    // .append("rect")
-    // .attr("width", `${value}%`)
-    // .attr("height", "100%")
-    // .attr("fill", "rgba(20,200,20)");
+    if(lastRect && this .options.twinkle){
+      lastRect.attr("class","twinkle");
+    }
 
   }
 }
