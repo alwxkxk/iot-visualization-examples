@@ -61,7 +61,6 @@ class StripeBar {
 
     this .svgSelection = this .containerSelection
     .append("svg")
-    .attr("viewBox", "0 0 100% 10%")
     .style("height","100%")
     .style("width","100%");
 
