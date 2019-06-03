@@ -2,78 +2,118 @@ import Space from "./common/Space";
 import { Scene, Vector3 } from "three";
 import Curve from "./common/base/Curve";
 import * as Selection from "d3-selection";
+import * as G2 from '@antv/g2';
 
-const THREE = (< IWindow>window).THREE;
+import "./index.css"
+import StripeBar from "./common/components/StripeBar";
+
 const element = $("#3d-space")[0];
 const space = new Space(element, {
-  inspector:true,
   orbit:true
 });
 
-// space.load("./static/3d/scene0520d.glb")
-// .then(()=>{
-  // space.autoRotate(true);
-  // const geo = new THREE.SphereGeometry( 20, 12, 12 );
-  // const mat = new THREE.LineBasicMaterial({ color: 0xffff00});
-  // const sphere = new THREE.Mesh( geo, mat );
-  // space.scene.add(sphere);
-  // let p1 = new THREE.Vector3();
-  // let positionPercent={
-  //   x:0,
-  //   y:0,
-  //   z:0
-  // }
+space.load("./static/3d/scene0525.glb")
+.then(()=>{
+  space.initBloom();
+})
 
-  // function updatePosition() {
-  //   p1 = space.getPositionByPercent(positionPercent.x, positionPercent.y, positionPercent.z);
-  //   sphere.position.copy(p1);
-  // }
+$.when($.ready).then(()=>{
+  new StripeBar($("#stripe-bar1")[0], 30);
+  new StripeBar($("#stripe-bar2")[0], 85,{twinkle:true});
+  new StripeBar($("#stripe-bar3")[0], 100,{twinkle:true});
+})
+.catch((err)=>{
+  console.error(err);
+})
 
-  // space.inspector.gui.add(positionPercent, "x", 0, 100).onChange(updatePosition);
-  // space.inspector.gui.add(positionPercent, "y", 0, 100).onChange(updatePosition);
-  // space.inspector.gui.add(positionPercent, "z", 0, 100).onChange(updatePosition);
 
-// })
+var data = [{
+  time: '03-19',
+  type: '+Other',
+  value: 320
+}, {
+  time: '03-19',
+  type: '+Repair',
+  value: 300
+}, {
+  time: '03-19',
+  type: '+Water',
+  value: 270
+}, {
+  time: '03-19',
+  type: 'Power',
+  value: 240
+}, {
+  time: '03-20',
+  type: '+Other',
+  value: 350
+}, {
+  time: '03-20',
+  type: '+Repair',
+  value: 320
+}, {
+  time: '03-20',
+  type: '+Water',
+  value: 300
+}, {
+  time: '03-20',
+  type: 'Power',
+  value: 270
+}, {
+  time: '03-21',
+  type: '+Other',
+  value: 390
+}, {
+  time: '03-21',
+  type: '+Repair',
+  value: 370
+}, {
+  time: '03-21',
+  type: '+Water',
+  value: 340
+}, {
+  time: '03-21',
+  type: 'Power',
+  value: 300
+}, {
+  time: '03-22',
+  type: '+Other',
+  value: 440
+}, {
+  time: '03-22',
+  type: '+Repair',
+  value: 420
+}, {
+  time: '03-22',
+  type: '+Water',
+  value: 380
+}, {
+  time: '03-22',
+  type: 'Power',
+  value: 340
+}];
 
-space.createEmptyScene();
-// let line = new Curve(
-//   space,
-//   new THREE.Vector3( -10, 0, 0 ),
-//   new THREE.Vector3( 10, 0, 0 ),
-//   {line:true}
-// );
-// line.colorEasing("#444444", "#00ffff");
-// line.positionEasing(new THREE.Vector3( -30, 0, 0 ), new THREE.Vector3( 30, 0, 0 ));
-// setInterval(() => {
-//   line.positionEasing(new THREE.Vector3( -30, 0, 0 ), new THREE.Vector3( 30, 0, 0 ));
-// }, 2000);
-
-const geo = new THREE.SphereGeometry( 1, 12, 12 );
-const mat = new THREE.MeshLambertMaterial({ color: 0x00ffff});
-const sphere = new THREE.Mesh( geo, mat );
-const mat2 = new THREE.MeshLambertMaterial({ color: 0x00ff00});
-const sphere2 = new THREE.Mesh( geo, mat2 );
-const gui = space.inspector.gui
-sphere2.layers.enable(1);
-space.scene.add(sphere);
-space.scene.add(sphere2);
-sphere2.position.set(2, 0, 0);
-space.initBloom();
-space.initOutline();
-space.setOutline([sphere])
-let params={
-  bloomThreshold:0,
-  bloomStrength:0
-}
-
-gui.add(params, "bloomThreshold", 0.0, 1.0).onChange((value)=>{
-  space.bloomPass.threshold  = Number( value );
+const chart = new G2.Chart({
+  container: 'c1',
+  forceFit: true,
+  padding:[40,20,80,50]
 });
-gui.add(params, "bloomStrength", 0, 10).onChange((value)=>{
-  space.bloomPass.strength  = Number(value);
+
+chart.axis('time', {
+  label: {
+    textStyle: {
+      fill: '#cccccc'
+    }
+  }
+});
+chart.axis('value', {
+  label: {
+    textStyle: {
+      fill: '#cccccc'
+    }
+  }
 });
 
-// space.stopComposer = true;
-
-// @ts-ignore
-window.debugSpace=space;
+chart.source(data);
+chart.interval().position('time*value').color('type', ['#40a9ff', '#1890ff', '#096dd9', '#0050b3']).opacity(1);
+chart.render();

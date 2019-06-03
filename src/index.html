@@ -7,19 +7,80 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <!-- <script src="https://browser.sentry-cdn.com/5.1.0/bundle.min.js" crossorigin="anonymous"></script>
   <script>Sentry.init({ dsn: 'https://4ab883bdc9724536b9089ab2c3b4a2e4@sentry.io/1442492'});</script> -->
-  <script>
+  <!-- <script>
     if('serviceWorker' in navigator) {
       navigator.serviceWorker.register("<%= htmlWebpackPlugin.files.chunks['sw'].entry %>");
     }
-  </script>
+  </script> -->
   <script src="<%= htmlWebpackPlugin.files.chunks['global_setting'].entry %>"></script>
 </head>
-<body>
-  <h1>test</h1>
-  <div style="display:flex;height:80vh;">
-    <div>--left--</div>
-    <div id="3d-space" style="height:100%;width:80vw;background-color: rgb(8,34,88);position: relative;"></div>
-    <div>--right--</div>
+<style>
+
+</style>
+<body style="background-image:linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.9)),url('/static/images/sky.jpg');">
+  <div style="height:100vh;">
+    <div id="3d-space" style="height:100%;width:100vw;margin:auto;position: relative;overflow: hidden;"></div>
+  </div>
+  <div class="title">
+    <h1>IOT-DEMO Edifice</h1>
+  </div>
+  <div class="left-info">
+    <div class="row box" style="margin:10px 0;">
+      <div class="info-bar col-6">
+        <img class="icon" src="/static/images/hire.svg">
+        <p class="text-success">48 / 48</p>
+      </div>  
+      <div class="info-bar col-6">
+        <img class="icon" src="/static/images/elevator.svg">
+        <p class="text-success">4 / 4</p>
+      </div>           
+      <div class="info-bar col-6">
+        <img class="icon" src="/static/images/ac.svg">
+        <p class="text-success">145 / 146</p>
+      </div>    
+      <div class="info-bar col-6">
+        <img class="icon" src="/static/images/clean.svg">
+        <p class="text-danger">2 / 24</p>
+      </div> 
+      <div class="info-bar col-6">
+        <img class="icon" src="/static/images/employee.svg">
+        <p class="text-success">18 / 19</p>
+      </div>      
+      <div class="info-bar col-6">
+        <img class="icon" src="/static/images/car.svg">
+        <p class="text-warning">190 / 240</p>
+      </div> 
+    </div>
+    <div class="row box strip-bar-box" style="margin:10px 0;">
+      <div class="flex">
+        <img class="icon" src="/static/images/repair.svg">
+        <div  class="strip-bar-container">
+            <div id="stripe-bar1" class="full"></div>
+        </div>
+        <p class="text-success">$84</p>
+      </div>
+      <div class="flex">
+        <img class="icon" src="/static/images/water.svg">
+        <div  class="strip-bar-container">
+            <div id="stripe-bar2" class="full"></div>
+        </div>
+        <p class="text-warning">$140</p>
+      </div>
+      <div class="flex">
+          <img class="icon" src="/static/images/power.svg">
+        <div  class="strip-bar-container">
+            <div id="stripe-bar3" class="full"></div>
+        </div>
+        <p class="text-danger">$1021</p>
+      </div>
+    </div>
+
+    <div class="row box" style="flex:1;margin:10px 0;">
+      <div id="c1" class="full"></div>
+    </div>
+
+  </div>
+
   </div>
   <script src="<%= htmlWebpackPlugin.files.chunks['index'].entry %>"></script>
 </body>
