@@ -4,6 +4,7 @@ import {
   resetCoordinate,
   copyCoordinate
 } from "./base/utilities";
+import {isNumber} from "lodash";
 
 const THREE = (window as IWindow).THREE;
 
@@ -14,6 +15,7 @@ class Controller {
   originalPosition: Vector3;
   originalRotation: Euler;
   originalScale: Vector3;
+  pipeObject3d:IGroup;
   position: Vector3;
   pointsObject3d: IGroup;
   rotation: Euler;
@@ -75,6 +77,9 @@ class Controller {
       case "normal":
         this .changeToNormalModel();
         break;
+      case "pipe":
+        this .changeToPipeModel();
+        break;
       case "points":
         this .changeToPointsModel();
         break;
@@ -95,26 +100,39 @@ class Controller {
     return this ;
   }
 
-  changeToLineModel(): Controller {
+  changeToLineModel(options?:any): Controller {
     if(this .showingModel === "line"){
       return;
     }
 
     if (!this .lineObject3d) {
-      this .initLineModel();
+      this .initLineModel(options);
     }
 
     this .updateShowingObject3d(this .lineObject3d);
     return this ;
   }
 
-  changeToPointsModel(): Controller {
+  changeToPipeModel(options?:any): Controller {
+    if(this .showingModel === "pipe"){
+      return;
+    }
+
+    if (!this .pipeObject3d) {
+      this .initPipeModel(options);
+    }
+
+    this .updateShowingObject3d(this .pipeObject3d);
+    return this ;
+  }
+
+  changeToPointsModel(options?:any): Controller {
     if(this .showingModel === "points"){
       return;
     }
 
     if (!this .pointsObject3d) {
-      this .initPointsModel();
+      this .initPointsModel(options);
     }
 
     this .updateShowingObject3d(this .pointsObject3d);
@@ -136,8 +154,8 @@ class Controller {
     return this ;
   }
 
-  initLineModel(): Controller {
-    const opt = this .userData.showingModelOptions || {}
+  initLineModel(options?:any): Controller {
+    const opt = options || this .userData.showingModelOptions || {}
     const object3d = this .object3d;
     const group = this .lineObject3d = new THREE.Group();
     const lineMaterial = new THREE.LineBasicMaterial({color: opt.color || 0x00FFFF});
@@ -176,9 +194,71 @@ class Controller {
     return this ;
   }
 
-  initPointsModel(): Controller {
-    const opt = this .userData.showingModelOptions || {}
-    const pointsMaterial = new THREE.PointsMaterial( { size: opt.size || 1, color: opt.color || 0xffffff } )
+  initPipeModel(options?:any):Controller{
+    const opt = options || this .userData.showingModelOptions || {}
+    const object3d = this .object3d;
+    const group = this .pipeObject3d = new THREE.Group();
+    const degToRad = THREE.Math.degToRad
+    group.name = this .name + "_pipeObject3d";
+    group.$controller = this ;
+    // make a texture with an arrow
+    const ctx = document.createElement("canvas").getContext("2d");
+    ctx.canvas.width = 64;
+    ctx.canvas.height = 64;
+
+    ctx.translate(32, 32);
+    ctx.rotate(isNumber(opt.flowRotation)? degToRad(opt.flowRotation) : degToRad(90));
+    ctx.fillStyle = opt.flowColor || "#00ffff";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    ctx.font = "48px sans-serif";
+    ctx.fillText("➡︎", 0, 0);
+
+    const texture = new THREE.CanvasTexture(ctx.canvas);
+    texture.wrapS = THREE.RepeatWrapping;
+    texture.wrapT = THREE.RepeatWrapping;
+    texture.repeat.x = 1;
+    texture.repeat.y = opt.flowNumber || 5;
+
+    const material = new THREE.MeshBasicMaterial({
+      color: opt.color || 0x4040FF,
+      opacity: opt.opacity || 0.5,
+      side: THREE.DoubleSide,
+      depthWrite: false,
+      depthTest: false,
+      transparent: true,
+    });
+
+   const stripMat = new THREE.MeshBasicMaterial({
+    map: texture,
+    opacity: opt.flowOpacity || 0.5,
+    side: THREE.DoubleSide,
+    depthWrite: false,
+    depthTest: false,
+    transparent: true,
+    });
+
+    object3d.traverse((v:IMesh)=>{
+      if(this .hasGeometry(v)){
+        const mesh = new THREE.Mesh(v.geometry, material);
+        const stripMesh = new THREE.Mesh(v.geometry, stripMat);
+
+        group
+        .add(mesh)
+        .add(stripMesh)
+      }
+    })
+
+    this .space.addAnimateAction(`${this .name}-pipe`,()=>{
+      texture.offset.y += opt.flowSpeed || 0.01;
+    })
+
+    return this;
+  }
+
+  initPointsModel(options?:any): Controller {
+    const opt = options || this .userData.showingModelOptions || {}
+    const pointsMaterial = new THREE.PointsMaterial( { size: opt.size || 0.1, color: opt.color || 0xffffff } )
     const children = Array.from(this .object3d.children);
     const group = this .pointsObject3d = new THREE.Group();
     group.name = this .name + "_pointsObject3d";
