@@ -2,7 +2,8 @@ import { Euler, Group, Vector3 } from "three";
 import Space from "./Space";
 import {
   resetCoordinate,
-  copyCoordinate
+  copyCoordinate,
+  hasGeometry
 } from "./base/utilities";
 import {isNumber} from "lodash";
 
@@ -88,53 +89,63 @@ class Controller {
         console.error("can't change to this model :", model);
         return this ;
     }
-    this .showingModel = model;
     return this ;
   }
 
   changeToNormalModel(): Controller {
-    if(this .showingModel === "normal"){
+    if(hasGeometry(this .showingObject3d) && this .showingModel === "normal"){
       return;
     }
-    this .updateShowingObject3d(this .object3d);
+    this .showingModel = "normal";
+    const object3d = this .object3d;
+    const flag = hasGeometry(object3d);
+    if(!flag){
+      const children = Array.from(this .showingObject3d.children);
+      children.forEach((o:Objects)=>{
+        object3d.add(o);
+        o.$controller.changeToNormalModel();
+      })
+    }
+
+    this .updateShowingObject3d(object3d);
     return this ;
   }
 
   changeToLineModel(options?:any): Controller {
-    if(this .showingModel === "line"){
+    if(hasGeometry(this .showingObject3d) && this .showingModel === "line"){
       return;
     }
 
     if (!this .lineObject3d) {
       this .initLineModel(options);
     }
-
+    this .showingModel = "line";
     this .updateShowingObject3d(this .lineObject3d);
     return this ;
   }
 
   changeToPipeModel(options?:any): Controller {
-    if(this .showingModel === "pipe"){
+    if(hasGeometry(this .showingObject3d) && this .showingModel === "pipe"){
       return;
     }
 
     if (!this .pipeObject3d) {
       this .initPipeModel(options);
     }
-
+    this .showingModel = "pipe";
     this .updateShowingObject3d(this .pipeObject3d);
     return this ;
   }
 
   changeToPointsModel(options?:any): Controller {
-    if(this .showingModel === "points"){
+    if(hasGeometry(this .showingObject3d) && this .showingModel === "points"){
       return;
     }
 
     if (!this .pointsObject3d) {
       this .initPointsModel(options);
     }
-
+    this .showingModel = "points";
     this .updateShowingObject3d(this .pointsObject3d);
     return this ;
   }
@@ -166,31 +177,29 @@ class Controller {
     });
     group.name = this .name + "_lineObject3d";
     group.$controller = this ;
-
-    const children = Array.from(object3d.children);
-    children.push(object3d);
-    children.forEach((v: IMesh) => {
-      if (this .hasGeometry(v)) {
+    const flag = hasGeometry(object3d);
+    if(flag){
+        const v:IMesh = object3d as IMesh;
         const geo = new THREE.EdgesGeometry(v.geometry);
         const line = new THREE.LineSegments( geo , lineMaterial);
         // add transparent box to avoid picking difficult by raycaster.
         const box = new THREE.Mesh(v.geometry, boxMaterial);
-        // @ts-ignore
-        if(object3d.geometry){
-          resetCoordinate(line);
-          resetCoordinate(box);
-        }
-        else{
-          copyCoordinate(v, line);
-          copyCoordinate(v, box);
-        }
+        resetCoordinate(line);
+        resetCoordinate(box);
 
         group
         .add(line)
         .add(box);
-
-      }
-    });
+    }
+    else {
+      const children = Array.from(object3d.children);
+      children.forEach((obj:Objects)=>{
+        if(obj.$controller){
+          group.add(obj);
+          obj.$controller.changeToLineModel(options);
+        }
+      })
+    }
     return this ;
   }
 
@@ -237,21 +246,28 @@ class Controller {
     depthTest: false,
     transparent: true,
     });
+    const flag = hasGeometry(object3d);
+    if(flag){
+      const v:IMesh = object3d as IMesh;
+      const mesh = new THREE.Mesh(v.geometry, material);
+      const stripMesh = new THREE.Mesh(v.geometry, stripMat);
 
-    object3d.traverse((v:IMesh)=>{
-      if(this .hasGeometry(v)){
-        const mesh = new THREE.Mesh(v.geometry, material);
-        const stripMesh = new THREE.Mesh(v.geometry, stripMat);
+      resetCoordinate(mesh);
+      resetCoordinate(stripMesh);
 
-        group
-        .add(mesh)
-        .add(stripMesh)
-      }
-    })
-
-    this .space.addAnimateAction(`${this .name}-pipe`,()=>{
-      texture.offset.y += opt.flowSpeed || 0.01;
-    })
+      group
+      .add(mesh)
+      .add(stripMesh);
+    }
+    else {
+      const children = Array.from(object3d.children);
+      children.forEach((obj:Objects)=>{
+        if(obj.$controller){
+          group.add(obj);
+          obj.$controller.changeToPipeModel(options);
+        }
+      })
+    }
 
     return this;
   }
@@ -259,46 +275,45 @@ class Controller {
   initPointsModel(options?:any): Controller {
     const opt = options || this .userData.showingModelOptions || {}
     const pointsMaterial = new THREE.PointsMaterial( { size: opt.size || 0.1, color: opt.color || 0xffffff } )
-    const children = Array.from(this .object3d.children);
+    const object3d = this .object3d;
+    const children = Array.from(object3d.children);
     const group = this .pointsObject3d = new THREE.Group();
     group.name = this .name + "_pointsObject3d";
     group.$controller = this ;
-    children.push(this .object3d);
-    children.forEach((v: IMesh) => {
-      if (this .hasGeometry(v)) {
-        const points = new THREE.Points( v.geometry, pointsMaterial );
-        points.position.set(0, 0, 0);
+    const flag = hasGeometry(object3d);
+    if(flag){
+      const v:IMesh = object3d as IMesh;
+      const points = new THREE.Points( v.geometry, pointsMaterial );
 
-        group
-        .add(points)
-      }
-    });
+      resetCoordinate(points);
+
+      group
+      .add(points);
+    }
+    else {
+      const children = Array.from(object3d.children);
+      children.forEach((obj:Objects)=>{
+        if(obj.$controller){
+          group.add(obj);
+          obj.$controller.changeToPointsModel(options);
+        }
+      })
+    }
     return this ;
 
   }
 
-  hasGeometry(obj: Objects): boolean {
-    // @ts-ignore
-    return !!obj.geometry;
-  }
-
   updateShowingObject3d(newShowingObject3d: Objects): Controller {
-    // move children(group) to new showingObject3d(exclude other objects without geometry.)
     const showingObject3d = this .showingObject3d;
-    const children = Array.from(showingObject3d.children);
-    children.forEach((obj: Objects) => {
-      if (!this .hasGeometry(obj)) {
-        newShowingObject3d.add(obj);
-      }
-    });
 
     const parent = showingObject3d.parent;
     if (parent) {
-      // append to parent
       // remove old showingObject3d from parent
+      // append to parent
       parent
-      .add(newShowingObject3d)
-      .remove(showingObject3d);
+      .remove(showingObject3d)
+      .add(newShowingObject3d);
+      
     }
     copyCoordinate(showingObject3d, newShowingObject3d);
     this .showingObject3d = newShowingObject3d;

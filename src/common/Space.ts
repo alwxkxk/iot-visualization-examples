@@ -107,8 +107,10 @@ class Space {
     // all object is raycaster by default.
     this .raycasterObjects = [];
     this .scene.traverse((object3d: IObject3d) => {
-      this .raycasterObjects.push(object3d);
-      new Controller(this , object3d);
+      if(object3d.type !== "Scene"){
+        this .raycasterObjects.push(object3d);
+        new Controller(this , object3d);
+      }
     });
     Array.from(this .scene.children).forEach((v:Objects)=>{
       if(v.$controller){
