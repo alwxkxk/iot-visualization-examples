@@ -23,7 +23,7 @@ import {
   WebGLRenderer,
   Object3D,
 } from "three";
-import { isNumber } from "lodash";
+import { isNumber, throttle } from "lodash";
 
 const THREE = (window as IWindow).THREE;
 
@@ -60,7 +60,7 @@ class Space {
   renderer: WebGLRenderer;
   scene: Scene;
   stopComposer:boolean; // antialias : renderer > composer with FXAAShader > composer without FXAAShader
-
+  updateRaycasterObjects:Function;
   private _eventList: any;
 
   constructor(element: Element, options?: ISpaceOptions) {
@@ -267,6 +267,7 @@ class Space {
     };
 
     window.addEventListener("resize", this ._eventList.resize);
+    this .initUpdateRaycasterObjects();
 
     return this ;
   }
@@ -332,6 +333,20 @@ class Space {
     effectFXAA.material.uniforms[ 'resolution' ].value.y = 1 / ( this .innerHeight * pixelRatio );
     composer.addPass( effectFXAA );
     return this ;
+  }
+
+  private initUpdateRaycasterObjects(){
+    function func() {
+      this .raycasterObjects = [];
+      this .scene.traverse((object3d: IObject3d) => {
+        if(object3d.$controller){
+          // @ts-ignore
+          this .raycasterObjects.push(object3d.$raycasterObject || object3d);
+        }
+      });
+      return this .raycasterObjects;
+    }
+    this .updateRaycasterObjects = throttle(func.bind(this),500);
   }
 
   load(file: string): Promise< any> {
@@ -506,16 +521,6 @@ class Space {
     return this ;
   }
 
-  updateRaycasterObjects():any[]{
-    this .raycasterObjects = [];
-    this .scene.traverse((object3d: IObject3d) => {
-      if(object3d.$controller){
-        // @ts-ignore
-        this .raycasterObjects.push(object3d.$raycasterObject || object3d);
-      }
-    });
-    return this .raycasterObjects;
-  }
 
 }
 

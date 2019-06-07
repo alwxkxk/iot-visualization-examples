@@ -5,7 +5,7 @@ import {
   copyCoordinate,
   hasGeometry
 } from "./base/utilities";
-import {isNumber, throttle} from "lodash";
+import {isNumber} from "lodash";
 
 const THREE = (window as IWindow).THREE;
 
@@ -25,7 +25,6 @@ class Controller {
   showingObject3d: Objects;
   showingModel: string;
   space: Space;
-  updateRaycasterObjectsLazy:Function;
 
   constructor(space: Space, object3d: Objects, options?: any) {
     this .space = space;
@@ -164,10 +163,6 @@ class Controller {
     this .showingModel = "normal";
     this .showingObject3d = object3d;
 
-    this .updateRaycasterObjectsLazy = throttle(
-      this .space.updateRaycasterObjects.bind(this .space),
-      500
-    );
     return this ;
   }
 
@@ -345,7 +340,7 @@ class Controller {
     }
     copyCoordinate(showingObject3d, newShowingObject3d);
     this .showingObject3d = newShowingObject3d;
-    this .updateRaycasterObjectsLazy();
+    this .space.updateRaycasterObjects();
     return this ;
   }
 
