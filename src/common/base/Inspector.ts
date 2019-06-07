@@ -30,7 +30,7 @@ class Inspector{
         }
         const obj = intersects[0].object;
         (< IWindow>window).selectedThing = obj;
-        console.log(obj);
+        console.log(obj,space.getViewOffset(obj),intersects);
         space.setOutline([obj])
 
       }

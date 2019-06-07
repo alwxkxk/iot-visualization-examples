@@ -5,7 +5,7 @@ import {
   copyCoordinate,
   hasGeometry
 } from "./base/utilities";
-import {isNumber} from "lodash";
+import {isNumber, throttle} from "lodash";
 
 const THREE = (window as IWindow).THREE;
 
@@ -25,6 +25,7 @@ class Controller {
   showingObject3d: Objects;
   showingModel: string;
   space: Space;
+  updateRaycasterObjectsLazy:Function;
 
   constructor(space: Space, object3d: Objects, options?: any) {
     this .space = space;
@@ -162,6 +163,11 @@ class Controller {
 
     this .showingModel = "normal";
     this .showingObject3d = object3d;
+
+    this .updateRaycasterObjectsLazy = throttle(
+      this .space.updateRaycasterObjects.bind(this .space),
+      500
+    );
     return this ;
   }
 
@@ -170,7 +176,7 @@ class Controller {
     const object3d = this .object3d;
     const group = this .lineObject3d = new THREE.Group();
     const lineMaterial = new THREE.LineBasicMaterial({color: opt.color || 0x00FFFF});
-    const boxMaterial = new THREE.LineBasicMaterial({
+    const boxMaterial = new THREE.MeshBasicMaterial({
       opacity: opt.opacity || 0 ,
       side: THREE.BackSide,
       transparent: true
@@ -184,8 +190,12 @@ class Controller {
         const line = new THREE.LineSegments( geo , lineMaterial);
         // add transparent box to avoid picking difficult by raycaster.
         const box = new THREE.Mesh(v.geometry, boxMaterial);
+        box.name = group.name + "_raycasterObject";
         resetCoordinate(line);
         resetCoordinate(box);
+
+        group.$raycasterObject = box;
+        box.scale.set(1.01,1.01,1.01);
 
         group
         .add(line)
@@ -256,6 +266,9 @@ class Controller {
       resetCoordinate(mesh);
       resetCoordinate(stripMesh);
 
+      mesh.name = group.name + "_raycasterObject";
+      group.$raycasterObject = mesh;
+
       group
       .add(mesh)
       .add(stripMesh);
@@ -281,7 +294,11 @@ class Controller {
     const opt = options || this .userData.showingModelOptions || {}
     const pointsMaterial = new THREE.PointsMaterial( { size: opt.size || 0.1, color: opt.color || 0xffffff } )
     const object3d = this .object3d;
-    const children = Array.from(object3d.children);
+    const boxMaterial = new THREE.MeshBasicMaterial({
+      opacity: opt.opacity || 0 ,
+      side: THREE.BackSide,
+      transparent: true
+    });
     const group = this .pointsObject3d = new THREE.Group();
     group.name = this .name + "_pointsObject3d";
     group.$controller = this ;
@@ -290,9 +307,15 @@ class Controller {
       const v:IMesh = object3d as IMesh;
       const points = new THREE.Points( v.geometry, pointsMaterial );
 
+      // add transparent box to avoid picking difficult by raycaster.
+      const box = new THREE.Mesh(v.geometry, boxMaterial);
+      box.name = group.name + "_raycasterObject";
+      group.$raycasterObject = box;
+
       resetCoordinate(points);
 
       group
+      .add(box)
       .add(points);
     }
     else {
@@ -322,6 +345,7 @@ class Controller {
     }
     copyCoordinate(showingObject3d, newShowingObject3d);
     this .showingObject3d = newShowingObject3d;
+    this .updateRaycasterObjectsLazy();
     return this ;
   }
 

@@ -21,7 +21,9 @@ import {
   Scene,
   Vector3,
   WebGLRenderer,
+  Object3D,
 } from "three";
+import { isNumber } from "lodash";
 
 const THREE = (window as IWindow).THREE;
 
@@ -73,6 +75,19 @@ class Space {
     this .box3 = (new THREE.Box3()).setFromObject(this .scene.children[0]);
   }
 
+  getViewOffset(object:Object3D){
+    const vector = new THREE.Vector3();
+    const result:any = {};
+    const widthHalf = this .innerWidth/2;
+    const heightHalf = this . innerHeight/2;
+
+    vector.setFromMatrixPosition(object.matrixWorld);
+    vector.project(this.camera);
+    result.x = vector.x * widthHalf + widthHalf + this .offset.left;
+    result.y = -(vector.y * heightHalf) + heightHalf + this .offset.top;
+    return result;
+  }
+
   getPositionByPercent(x:number, y:number, z:number):Vector3{
     if(!this .box3){
       this .getBox();
@@ -104,19 +119,21 @@ class Space {
     scene.add(camera);
     scene.add( new THREE.HemisphereLight( 0xffffff, 0xffffff, 1 ) );
 
-    // all object is raycaster by default.
-    this .raycasterObjects = [];
+
     this .scene.traverse((object3d: IObject3d) => {
       if(object3d.type !== "Scene"){
-        this .raycasterObjects.push(object3d);
         new Controller(this , object3d);
       }
     });
+
     Array.from(this .scene.children).forEach((v:Objects)=>{
       if(v.$controller){
         v.$controller.applyUserData();
       }
     });
+
+    // all object is raycaster by default.
+    this .updateRaycasterObjects();
 
     // click: outline the object by default.
     if (!this .raycasterEventMap) {
@@ -183,15 +200,15 @@ class Space {
     const gltf: any = {};
     gltf.scene = new THREE.Scene();
     // orbit will abnormal when camera position null.
-    gltf.scene.userData = {
-      fov: 20,
-      x: -10,
-      y: 7,
-      z: 6,
-      rx: -50,
-      ry: -54,
-      rz: -44,
-    };
+    // gltf.scene.userData = {
+    //   fov: 20,
+    //   x: -10,
+    //   y: 7,
+    //   z: 6,
+    //   rx: -50,
+    //   ry: -54,
+    //   rz: -44,
+    // };
     this .afterLoaded(gltf);
   }
 
@@ -435,9 +452,17 @@ class Space {
 
   setPerspectiveCamera(camera: any, data: any): Space {
     const degToRad  = THREE.Math.degToRad ;
-    camera.fov = data.fov;
-    camera.position.set(data.x || 0, data.y || 0, data.z || 0);
-    camera.rotation.set(degToRad(data.rx || 0), degToRad(data.ry || 0), degToRad(data.rz || 0));
+    camera.fov = data.fov || 20;
+    camera.position.set(
+      isNumber(data.x) ? data.x : 1, 
+      isNumber(data.y) ? data.y : 1, 
+      isNumber(data.z) ? data.z : 1
+    );
+    camera.rotation.set(
+      degToRad(data.rx || 0),
+      degToRad(data.ry || 0),
+      degToRad(data.rz || 0)
+    );
     camera.updateProjectionMatrix();
     this .initOrbit();
     return this ;
@@ -479,6 +504,17 @@ class Space {
     mouse.y = -((event.clientY - (this .offset.top)) / this .innerHeight) * 2 + 1;
     this .raycasterAction();
     return this ;
+  }
+
+  updateRaycasterObjects():any[]{
+    this .raycasterObjects = [];
+    this .scene.traverse((object3d: IObject3d) => {
+      if(object3d.$controller){
+        // @ts-ignore
+        this .raycasterObjects.push(object3d.$raycasterObject || object3d);
+      }
+    });
+    return this .raycasterObjects;
   }
 
 }

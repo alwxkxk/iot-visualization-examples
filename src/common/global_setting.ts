@@ -18,6 +18,7 @@ declare global {
     jquery:any;
     THREE:any;
     selectedThing:Objects;// for Inspector debug select thing.
+    debugSpace:any; // for debug.
   }
 
   interface IController{
