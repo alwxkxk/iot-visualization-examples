@@ -227,7 +227,8 @@ class Controller {
     texture.wrapS = THREE.RepeatWrapping;
     texture.wrapT = THREE.RepeatWrapping;
     texture.repeat.x = 1;
-    texture.repeat.y = opt.flowNumber || 5;
+    texture.repeat.y = opt.flowNumberY || 5;
+    texture.offset.x = opt.flowOffsetX || 0;
 
     const material = new THREE.MeshBasicMaterial({
       color: opt.color || 0x4040FF,
@@ -258,6 +259,10 @@ class Controller {
       group
       .add(mesh)
       .add(stripMesh);
+      
+      this .space.addAnimateAction(`${this .name}-pipe`,()=>{
+        texture.offset.y += opt.flowSpeed || 0.01;
+      })
     }
     else {
       const children = Array.from(object3d.children);

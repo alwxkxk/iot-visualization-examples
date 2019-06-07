@@ -9,3 +9,8 @@ export function copyCoordinate(from: Objects, to: Objects){
   to.scale.copy(from.scale.clone());
   to.rotation.copy(from.rotation.clone());
 }
+
+export function hasGeometry(obj: Objects): boolean {
+  // @ts-ignore
+  return !!obj.geometry;
+}
