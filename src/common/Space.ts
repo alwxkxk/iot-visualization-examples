@@ -231,7 +231,11 @@ class Space {
   }
 
   getOutlineArray(key: string) {
-    return this .outlinePassMap.get(key).selectedObjects || [];
+    let result =[];
+    if(this .outlinePassMap.get(key)){
+      result = this .outlinePassMap.get(key).selectedObjects;
+    }
+    return result;
   }
 
   init(): Space {
@@ -340,8 +344,7 @@ class Space {
       this .raycasterObjects = [];
       this .scene.traverse((object3d: IObject3d) => {
         if(object3d.$controller){
-          // @ts-ignore
-          this .raycasterObjects.push(object3d.$raycasterObject || object3d);
+          this .raycasterObjects.push(object3d.$controller.getRaycasterObject());
         }
       });
       return this .raycasterObjects;

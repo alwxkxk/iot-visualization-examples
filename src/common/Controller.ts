@@ -16,6 +16,7 @@ class Controller {
   originalPosition: Vector3;
   originalRotation: Euler;
   originalScale: Vector3;
+  raycasterObject:Objects;
   pipeObject3d:IGroup;
   position: Vector3;
   pointsObject3d: IGroup;
@@ -99,6 +100,9 @@ class Controller {
     this .showingModel = "normal";
     const object3d = this .object3d;
     const flag = hasGeometry(object3d);
+
+    this .setRaycasterObject(object3d);
+
     if(!flag){
       const children = Array.from(this .showingObject3d.children);
       children.forEach((o:Objects)=>{
@@ -150,6 +154,10 @@ class Controller {
     return this ;
   }
 
+  getRaycasterObject(){
+    return this .raycasterObject || this .showingObject3d;
+  }
+
   init(): Controller {
     const object3d = this .object3d;
 
@@ -189,7 +197,7 @@ class Controller {
         resetCoordinate(line);
         resetCoordinate(box);
 
-        group.$raycasterObject = box;
+        this .setRaycasterObject(box);
         box.scale.set(1.01,1.01,1.01);
 
         group
@@ -262,7 +270,7 @@ class Controller {
       resetCoordinate(stripMesh);
 
       mesh.name = group.name + "_raycasterObject";
-      group.$raycasterObject = mesh;
+      this .setRaycasterObject(mesh);
 
       group
       .add(mesh)
@@ -305,7 +313,7 @@ class Controller {
       // add transparent box to avoid picking difficult by raycaster.
       const box = new THREE.Mesh(v.geometry, boxMaterial);
       box.name = group.name + "_raycasterObject";
-      group.$raycasterObject = box;
+      this .setRaycasterObject(box);
 
       resetCoordinate(points);
 
@@ -342,6 +350,10 @@ class Controller {
     this .showingObject3d = newShowingObject3d;
     this .space.updateRaycasterObjects();
     return this ;
+  }
+
+  setRaycasterObject(object3d:Objects){
+    this .raycasterObject = object3d;
   }
 
 }
