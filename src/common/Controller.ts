@@ -1,4 +1,4 @@
-import { Euler, Group, Vector3 } from "three";
+import { Euler, Group, Vector3, Box3 } from "three";
 import Space from "./Space";
 import {
   resetCoordinate,
@@ -6,6 +6,7 @@ import {
   hasGeometry
 } from "./base/utilities";
 import {isNumber} from "lodash";
+import { interpolateNumber } from "d3-interpolate";
 
 const THREE = (window as IWindow).THREE;
 
@@ -156,6 +157,35 @@ class Controller {
 
   getRaycasterObject(){
     return this .raycasterObject || this .showingObject3d;
+  }
+
+  /**
+   *
+   *
+   * @param {Object} [position] - percent value in position xyz.(0~1)
+   * @param {Number} [position.x] - 0~1
+   * @param {Number} [position.y] - 0~1
+   * @param {Number} [position.z] - 0~1
+   * @returns {Object} offset
+   * @memberof Controller
+   */
+  getViewOffset(position?:any){
+    const p = position || {};
+    const space = this .space;
+    const result:any = {};
+    const widthHalf = space.innerWidth/2;
+    const heightHalf = space. innerHeight/2;
+    const vector = new THREE.Vector3();
+    const box3 = (new THREE.Box3()).setFromObject(this.showingObject3d)
+    const ix = interpolateNumber(box3.min.x, box3.max.x);
+    const iy = interpolateNumber(box3.min.y, box3.max.y);
+    const iz = interpolateNumber(box3.min.z, box3.max.z);
+
+    vector.set(ix(p.x || 0.5),iy(p.y || 0.5),iz(p.z || 0.5));
+    vector.project(space.camera);
+    result.x = vector.x * widthHalf + widthHalf + space.offset.left;
+    result.y = -(vector.y * heightHalf) + heightHalf + space.offset.top;
+    return result;
   }
 
   init(): Controller {
