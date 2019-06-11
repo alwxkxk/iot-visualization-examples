@@ -39,6 +39,7 @@ class Space {
   box3: any;
   camera: any;
   composer: any;
+  controllerIdList:Map<string,Controller>;
   readonly element: Element;
   innerHeight: number;
   innerWidth: number;
@@ -73,6 +74,10 @@ class Space {
   private getBox(){
     // set the first objects as global.
     this .box3 = (new THREE.Box3()).setFromObject(this .scene.children[0]);
+  }
+
+  getControllerById(id:string):Controller{
+    return this .controllerIdList.get(id);
   }
 
   getViewOffset(object:Object3D){
@@ -251,6 +256,7 @@ class Space {
     this .innerWidth =  e.clientWidth;
     this .innerHeight =  e.clientHeight;
     this .animateActionMap = new Map();
+    this .controllerIdList = new Map();
     this .offset = $(e).offset();
 
     renderer.setSize(e.clientWidth, e.clientHeight );
@@ -344,7 +350,13 @@ class Space {
       this .raycasterObjects = [];
       this .scene.traverse((object3d: IObject3d) => {
         if(object3d.$controller){
-          this .raycasterObjects.push(object3d.$controller.getRaycasterObject());
+          const userData = object3d.$controller.userData;
+          if( userData.popover ||
+              userData.tips ||
+              userData.click
+          ){
+            this .raycasterObjects.push(object3d.$controller.getRaycasterObject());
+          }
         }
       });
       return this .raycasterObjects;
@@ -427,9 +439,9 @@ class Space {
     raycaster.setFromCamera(mouse, this .camera);
     intersects = raycaster.intersectObjects(this .raycasterObjects, this .raycasterRecursive);
 
-    if (intersects.length === 0) {
-      return this ;
-    }
+    // if (intersects.length === 0) {
+    //   return this ;
+    // }
 
     // raycasterEventMap callback
     if (eventMap.has(mouse.eventType)) {
@@ -441,6 +453,14 @@ class Space {
     // console.log(intersects);
 
     return this ;
+  }
+
+  setControllerId(id:string,controller:Controller){
+    const list = this .controllerIdList;
+    if(list.has(id)){
+      return console.error("error: same id.",list.get(id),controller)
+    }
+    list.set(id,controller);
   }
 
   setOutline(array: IObject3d[], key?: string) {
@@ -485,7 +505,17 @@ class Space {
     this .initOrbit();
     return this ;
   }
-
+  
+  /**
+   * set the raycaster callback.
+   *
+   * @param {Object} eventList 
+   * @param {Function} [eventList.click] - click event callback function
+   * @param {Function} [eventList.dblclick] - dblclick event callback function
+   * @param {Function} [eventList.mousemove] - mousemove event callback function
+   * @returns {Space}
+   * @memberof Space
+   */
   setRaycasterEventMap(eventList: any): Space {
     let eventMap = this .raycasterEventMap;
     if (!eventMap) {
@@ -503,14 +533,17 @@ class Space {
     switch (event.type) {
       case "click":
         mouse.eventType = "click";
+        mouse.clickEvent = event;
         break;
 
       case "dblclick":
         mouse.eventType = "dblclick";
+        mouse.dblclickEvent = event;
         break;
 
       case "mousemove":
         mouse.eventType = "mousemove";
+        mouse.mousemoveEvent = event;
         break;
 
       default:

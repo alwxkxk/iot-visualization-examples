@@ -48,6 +48,10 @@ class Controller {
     });
 
     const userData = this .userData
+    if(userData.id){
+      this .space.setControllerId(userData.id,this);
+    }
+    
     if(userData.renderOrder){
       this .object3d.renderOrder =userData.renderOrder
     }
@@ -181,7 +185,11 @@ class Controller {
     const iy = interpolateNumber(box3.min.y, box3.max.y);
     const iz = interpolateNumber(box3.min.z, box3.max.z);
 
-    vector.set(ix(p.x || 0.5),iy(p.y || 0.5),iz(p.z || 0.5));
+    vector.set(
+      ix(isNumber(p.x) ? p.x : 0.5),
+      iy(isNumber(p.y) ? p.y : 0.5),
+      iz(isNumber(p.z) ? p.z : 0.5)
+    );
     vector.project(space.camera);
     result.x = vector.x * widthHalf + widthHalf + space.offset.left;
     result.y = -(vector.y * heightHalf) + heightHalf + space.offset.top;
