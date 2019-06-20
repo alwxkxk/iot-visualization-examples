@@ -20,53 +20,55 @@
 <body style="background-image:linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.9)),url('/static/images/sky.jpg');">
   <div style="height:100vh;">
     <div id="3d-space" style="height:100%;width:100vw;margin:auto;position: relative;overflow: hidden;"></div>
+    <p id="popover-test" style="background-color: rgba(255,255,255,0.8);position: absolute;pointer-events:none;"></p>
   </div>
-  <div class="title">
-    <h1>IOT-DEMO Edifice</h1>
+  <div class="title" >
+    <h1>IOT-DEMO EDIFICE</h1>
+    <img class="icon" src="/static/images/github.svg" >
   </div>
-  <div class="left-info">
-    <div class="row box" style="margin:10px 0;">
-      <div class="info-bar col-6">
-        <img class="icon" src="/static/images/hire.svg">
-        <p class="text-success">48 / 48</p>
+  <div class="left-info cursor-default">
+    <div class="row box" style="margin:10px 0;" >
+      <div class="info-bar col-6" data-toggle="tooltip" title="Rent">
+        <img class="icon" src="/static/images/hire.svg" >
+        <p class="text-success" >48 / 48</p>
       </div>  
-      <div class="info-bar col-6">
+      <div class="info-bar col-6" data-toggle="tooltip" title="Elevator">
         <img class="icon" src="/static/images/elevator.svg">
         <p class="text-success">4 / 4</p>
       </div>           
-      <div class="info-bar col-6">
+      <div class="info-bar col-6" data-toggle="tooltip" title="Air Conditioning">
         <img class="icon" src="/static/images/ac.svg">
         <p class="text-success">145 / 146</p>
       </div>    
-      <div class="info-bar col-6">
+      <div class="info-bar col-6" data-toggle="tooltip" title="Clean Floor">
         <img class="icon" src="/static/images/clean.svg">
         <p class="text-danger">2 / 24</p>
       </div> 
-      <div class="info-bar col-6">
+      <div class="info-bar col-6" data-toggle="tooltip" title="Employee">
         <img class="icon" src="/static/images/employee.svg">
         <p class="text-success">18 / 19</p>
       </div>      
-      <div class="info-bar col-6">
+      <div class="info-bar col-6" data-toggle="tooltip" title="Parking Lot">
         <img class="icon" src="/static/images/car.svg">
         <p class="text-warning">190 / 240</p>
       </div> 
     </div>
-    <div class="row box strip-bar-box" style="margin:10px 0;">
-      <div class="flex">
+    <div class="row box strip-bar-box cursor-default" style="margin:10px 0;">
+      <div class="flex" data-toggle="tooltip" title="Repair Fees">
         <img class="icon" src="/static/images/repair.svg">
         <div  class="strip-bar-container">
             <div id="stripe-bar1" class="full"></div>
         </div>
         <p class="text-success">$84</p>
       </div>
-      <div class="flex">
+      <div class="flex" data-toggle="tooltip" title="Water Fee">
         <img class="icon" src="/static/images/water.svg">
         <div  class="strip-bar-container">
             <div id="stripe-bar2" class="full"></div>
         </div>
         <p class="text-warning">$140</p>
       </div>
-      <div class="flex">
+      <div class="flex" data-toggle="tooltip" title="Power Fee">
           <img class="icon" src="/static/images/power.svg">
         <div  class="strip-bar-container">
             <div id="stripe-bar3" class="full"></div>
