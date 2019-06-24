@@ -58,6 +58,16 @@
   height:32px;
 }
 
+.icon-list{
+  justify-content: space-around;
+  width: 100%;
+}
+
+.icon-description{
+  margin:10px;
+  color:#EEE;
+}
+
 p{
   margin: 0;
   padding: 0 5px;
@@ -84,6 +94,17 @@ p{
   margin: 0 2px;
   width: 32px;
   height: 32px;
+}
+
+.right-info{
+  position: absolute;
+  top:10px;
+  right:20px;
+  width:380px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 95vh;
 }
 
 @keyframes twinkle{
