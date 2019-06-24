@@ -3,4 +3,5 @@ dist
 
 static/3d/*
 
+!static/3d/edifice-0624.glb
 !.vscode/settings.json

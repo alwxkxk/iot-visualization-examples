@@ -136,7 +136,7 @@ function updateIconListPosition() {
 }
 
 // load 3d model.
-space.load("./static/3d/scene0607.glb")
+space.load("./static/3d/edifice-0624.glb")
 // space.load("./static/3d/change-model-test.glb")
 .then(()=>{
   setInterval(updateIconListPosition,100);
