@@ -113,7 +113,7 @@ class Curve{
 
   colorEasing(color1?:string, color2?:string, easeFunction?:Function){
     let colorArray:number[]=[];
-    let len = this .object3d.geometry.attributes.position.array.length /3
+    let len = this .object3d.geometry.attributes.position.count
     let easeFun = easeFunction || easeExpInOut;
     for(let i = 0;i < len;i++){
       let v ;

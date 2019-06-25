@@ -17,9 +17,9 @@ class StripeBar {
   options:any;
   parentClientWidth:number;
   constructor(element:Element,value?:number, options?:Ioptions) {
-    // if(element.clientWidth === 0 || element.clientHeight === 0){
-    //   console.error("element should had width and height before init.");
-    // }
+    if(!element || element.clientWidth === 0 || element.clientHeight === 0){
+      throw new Error("element should had width and height before init.");
+    }
     this .element = element;
     this .id ="stripe-bar"+uuid();
     this .options = options || {};
