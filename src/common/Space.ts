@@ -204,16 +204,6 @@ class Space {
   createEmptyScene() {
     const gltf: any = {};
     gltf.scene = new THREE.Scene();
-    // orbit will abnormal when camera position null.
-    // gltf.scene.userData = {
-    //   fov: 20,
-    //   x: -10,
-    //   y: 7,
-    //   z: 6,
-    //   rx: -50,
-    //   ry: -54,
-    //   rz: -44,
-    // };
     this .afterLoaded(gltf);
   }
 
@@ -368,7 +358,6 @@ class Space {
     const scope = this ;
     const progressBar = this .progressBar = new ProgressBar(this .element);
     return new Promise((resolve, reject) => {
-      // TODO: set and get data first from indexDB
       const gltfLoader = new THREE.GLTFLoader();
       const loader = new THREE.FileLoader( THREE.DefaultLoadingManager );
       loader.setResponseType( "arraybuffer" );
@@ -406,32 +395,13 @@ class Space {
     return this ;
   }
 
-  resize(): Space {
-    const camera = this .camera;
-    const e = this .element;
-    this .offset = $(e).offset();
-    if (e.clientWidth === 0 || e.clientHeight === 0) {
-      console.error("resize error:element width and height is error.", e.clientWidth, e.clientHeight);
-      return this ;
-    }
 
-    // console.log(camera,offset);
-
-    if (camera.type === "PerspectiveCamera") {
-      camera.aspect = e.clientWidth / e.clientHeight;
-      camera.updateProjectionMatrix();
-    }
-
-    this .renderer.setSize(e.clientWidth, e.clientHeight);
-    return this ;
-  }
 
   raycasterAction(): Space {
 
     if (this .raycasterEventMap.size === 0) {
       return this ;
     }
-
     const raycaster = this .raycaster;
     const mouse = this .mouse;
     const eventMap = this .raycasterEventMap;
@@ -452,6 +422,27 @@ class Space {
     }
     // console.log(intersects);
 
+    return this ;
+  }
+
+  resize(): Space {
+    const camera = this .camera;
+    const e = this .element;
+    this .offset = $(e).offset();
+    if (e.clientWidth === 0 || e.clientHeight === 0) {
+      console.error("resize error:element width and height is error.", e.clientWidth, e.clientHeight);
+      return this ;
+    }
+
+    console.log("resize:",this .offset);
+
+    if (camera.type === "PerspectiveCamera") {
+      camera.aspect = e.clientWidth / e.clientHeight;
+      camera.updateProjectionMatrix();
+    }
+    this .innerHeight = e.clientHeight;
+    this .innerWidth = e.clientWidth;
+    this .renderer.setSize(e.clientWidth, e.clientHeight);
     return this ;
   }
 
