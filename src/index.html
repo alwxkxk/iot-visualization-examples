@@ -19,7 +19,7 @@
 </style>
 <body style="background-image:linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.9)),url('/static/images/sky.jpg');">
   <div style="height:100vh;">
-    <div id="3d-space" style="height:100%;width:100vw;margin:auto;position: relative;overflow: hidden;"></div>
+    <div id="3d-space" style="height:100%;width:60vw;margin:auto;position: relative;overflow: hidden;"></div>
     <p id="popover-test" style="background-color: rgba(255,255,255,0.8);position: absolute;pointer-events:none;"></p>
   </div>
   <div class="title" >
@@ -152,6 +152,27 @@
       114767653128
     </div>
   </div>
+
+  <!-- Modal -->
+<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Handle</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        this is a demo handle dialog.
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary"  data-dismiss="modal">Confirm</button>
+      </div>
+    </div>
+  </div>
+</div>
   
   <script src="<%= htmlWebpackPlugin.files.chunks['index'].entry %>"></script>
 </body>

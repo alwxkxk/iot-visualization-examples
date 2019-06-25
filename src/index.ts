@@ -117,6 +117,10 @@ $('<img></img>')
 .attr("data-content","Waiting for repair.")
 .addClass("icon-3d");
 
+$(".icon-3d").on("click",()=>{
+  $('#exampleModal').modal('show');
+})
+
 function updateIconListPosition() {
   const f4Position =  space.getControllerById("F4").getViewOffset({x:0.2});
   const f8Position =  space.getControllerById("F8").getViewOffset({x:0.2});
@@ -254,3 +258,4 @@ chart.axis('value', {
 chart.source(data);
 chart.interval().position('time*value').color('type', ['#40a9ff', '#1890ff', '#096dd9', '#0050b3']).opacity(1);
 chart.render();
+
