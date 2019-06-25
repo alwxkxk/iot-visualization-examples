@@ -11,6 +11,10 @@ npm run server
 ```
 
 ## edifice 
+- CDN by CouldFire :[https://www.alwxkxk.tk/ ](https://www.alwxkxk.tk/)
+- without CDN :[https://www.alwxkxk.xyz/ ](https://www.alwxkxk.xyz/)
 a example about edifice and still working.
-[https://www.alwxkxk.xyz/](https://www.alwxkxk.xyz/)
+
 ![edifice.png](https://i.loli.net/2019/06/24/5d1080774391b43166.png)
+
+
