@@ -11,9 +11,11 @@ npm run server
 ```
 
 ## edifice 
-- CDN by Cloudflare :[https://www.alwxkxk.tk/ ](https://www.alwxkxk.tk/)
-- without CDN :[https://www.alwxkxk.xyz/ ](https://www.alwxkxk.xyz/)
-a example about edifice and still working.
+- CDN by Cloudflare :[https://www.alwxkxk.tk/edifice ](https://www.alwxkxk.tk/edifice)
+- without CDN :[https://www.alwxkxk.xyz/edifice ](https://www.alwxkxk.xyz/edifice)
+
+
+a example about edifice(performing).
 
 ![edifice.png](https://i.loli.net/2019/06/24/5d1080774391b43166.png)
 

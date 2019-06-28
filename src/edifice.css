@@ -1,0 +1,115 @@
+.flex{
+  display: flex;
+}
+
+.m0{
+  margin:0;
+}
+
+.full{
+  width: 100%;
+  height: 100%;
+}
+
+.strip-bar-container{
+  width: 240px;
+  height:32px;
+  margin: 0 10px;
+}
+
+.strip-bar-box>div{
+  margin: 10px 0 10px 10px;
+}
+
+.title{
+  position: absolute;
+  top:0;
+  left:45vw;
+  padding: 0 10px;
+  background: -webkit-linear-gradient(#fff, #666);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.left-info{
+  position: absolute;
+  top:10px;
+  left:20px;
+  width:380px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  /* height: 95vh; */
+}
+
+
+.box{
+  background-color: rgba(20,50,200,0.4);
+  border-radius: 16px;
+}
+
+.info-bar{
+  display: flex;
+  padding: 10px;
+}
+
+.icon{
+  width:32px;
+  height:32px;
+}
+
+.icon-list{
+  justify-content: space-around;
+  width: 100%;
+}
+
+.icon-description{
+  margin:10px;
+  color:#EEE;
+}
+
+p{
+  margin: 0;
+  padding: 0 5px;
+  font-size:24px;
+  font-weight: 600;
+}
+
+.star {
+  animation-name: twinkle;
+  animation-duration: 1s;
+}
+
+.pointer{
+  cursor: pointer;
+}
+
+.cursor-default{
+  cursor: default;
+}
+
+.icon-3d{
+  cursor: pointer;
+  background-color: rgba(20,50,200,0.2);
+  margin: 0 2px;
+  width: 32px;
+  height: 32px;
+}
+
+.right-info{
+  position: absolute;
+  top:10px;
+  right:20px;
+  width:380px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  /* height: 95vh; */
+}
+
+@keyframes twinkle{
+  50%  {
+    transform: scale(0.5);
+    opacity: 0.5;
+  }
+}

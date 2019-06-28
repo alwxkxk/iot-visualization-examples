@@ -9,6 +9,7 @@ module.exports = {
     components:'./src/components.ts',
     sw:'./src/common/sw/sw.ts',
     test:'./src/test.ts',
+    edifice:'./src/edifice.ts'
   },
   devtool: 'inline-source-map',
   plugins: [
@@ -20,6 +21,12 @@ module.exports = {
       template:'./src/index.html',
       inject:false,
       chunks:["global_setting","sw","index"]
+    }),
+    new HtmlWebpackPlugin({
+      filename:"edifice.html",
+      template:'./src/edifice.html',
+      inject:false,
+      chunks:["global_setting","sw","edifice"]
     }),
     new HtmlWebpackPlugin({
       filename:"test.html",
