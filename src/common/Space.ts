@@ -3,6 +3,8 @@ import "three/examples/js/loaders/GLTFLoader.js";
 import Inspector from "./base/Inspector";
 import ProgressBar from "./components/ProgressBar";
 import Controller from "./Controller";
+import * as Selection from "d3-selection";
+import {easeCubicInOut} from 'd3-ease';
 
 // outline
 import "three/examples/js/postprocessing/EffectComposer.js";
@@ -24,8 +26,13 @@ import {
   Object3D,
 } from "three";
 import { isNumber, throttle } from "lodash";
+import { interpolateNumber } from "d3-interpolate";
 
 const THREE = (window as IWindow).THREE;
+const box = new THREE.Box3();
+const delta = new THREE.Vector3();
+const center = new THREE.Vector3();
+const sphere = new THREE.Sphere();
 
 interface ISpaceOptions {
   renderer?: any;
@@ -69,6 +76,43 @@ class Space {
     this .options = options;
     this .init();
     return this ;
+  }
+
+  focus(target:Object3D){
+    let distance;
+    box.setFromObject( target );
+
+		if ( box.isEmpty() === false ) {
+
+			box.getCenter( center );
+			distance = box.getBoundingSphere( sphere ).radius;
+
+		} else {
+
+			// Focusing on an Group, AmbientLight, etc
+
+			center.setFromMatrixPosition( target.matrixWorld );
+			distance = 0.1;
+
+		}
+
+		delta.set( 0, 0, 1 );
+		delta.applyQuaternion( this.camera.quaternion );
+    delta.multiplyScalar( distance * 4 );
+    
+    let start = this.camera.position.clone()    
+    let end = center.add( delta );
+    let scope = this;
+
+    // @ts-ignore
+    Selection.select({}).transition().duration(2000).ease(easeCubicInOut).tween("camera-focus-move", ()=>{
+      let ix = interpolateNumber(start.x,end.x);
+      let iy = interpolateNumber(start.y,end.y);
+      let iz = interpolateNumber(start.z,end.z);
+      return (t:any)=>{
+        scope.camera.position.set(ix(t),iy(t),iz(t));
+      }
+    })
   }
 
   private getBox(){
@@ -144,7 +188,9 @@ class Space {
     if (!this .raycasterEventMap) {
       this .setRaycasterEventMap({
         click: (intersects: any) => {
-          this .setOutline([intersects[0].object]);
+          if(intersects.length >0){
+            this .setOutline([intersects[0].object]);
+          }
         },
       });
     }
@@ -341,12 +387,14 @@ class Space {
       this .scene.traverse((object3d: IObject3d) => {
         if(object3d.$controller){
           const userData = object3d.$controller.userData;
-          if( userData.popover ||
-              userData.tips ||
-              userData.click
-          ){
-            this .raycasterObjects.push(object3d.$controller.getRaycasterObject());
-          }
+          this .raycasterObjects.push(object3d.$controller.getRaycasterObject());
+          // if( userData.popover ||
+          //     userData.tips ||
+          //     userData.click ||
+          //     object3d.$controller.hasTag("raycaster")
+          // ){
+          //   this .raycasterObjects.push(object3d.$controller.getRaycasterObject());
+          // }
         }
       });
       return this .raycasterObjects;
