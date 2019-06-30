@@ -21,12 +21,16 @@ class Controller {
   pipeObject3d:IGroup;
   position: Vector3;
   pointsObject3d: IGroup;
+  raycasterFlag:boolean; // true: push into space.raycasterObjects to make raycaster available.
+  raycasterRedirect: Controller;
   rotation: Euler;
   userData: any;
   scale: Vector3;
   showingObject3d: Objects;
   showingModel: string;
   space: Space;
+  tags: string[];
+
 
   constructor(space: Space, object3d: Objects, options?: any) {
     this .space = space;
@@ -63,6 +67,33 @@ class Controller {
     if(userData.bloom){
       this .bloom(true);
     }
+
+    if( userData.popover ||
+        userData.tips ||
+        userData.click
+    ){
+      this.raycasterFlag = true;
+    }
+
+  }
+
+  applyTags(){
+    if(this.tags.length ===0){
+      return;
+    }
+    let scope =this;
+    this.tags.forEach((t:String)=>{
+      let flag = t[0]
+      switch (flag) {
+        case "r":
+          scope.setRaycasterRedirect(t);
+          break;
+      
+        default:
+          console.warn(flag,"is not an available tags flag.")
+          break;
+      }
+    })
 
   }
 
@@ -196,10 +227,14 @@ class Controller {
     return result;
   }
 
+  hasTag(key:string):boolean{
+    return this.tags.includes(key);
+  }
+
   init(): Controller {
     const object3d = this .object3d;
 
-    this .name = object3d.name;
+    this.parseName(object3d.name);
     this .userData = object3d.userData;
 
     this .originalPosition = this .position = object3d.position.clone();
@@ -372,6 +407,26 @@ class Controller {
 
   }
 
+  parseName(name:String){
+    let arr= name.split("_");
+    this.name = arr[0];
+    this.tags = [];
+    if(arr.length>1){
+      if( !isNaN(Number(arr[1])) ){
+        // sequence number,not tag.
+        this.name += arr[1];
+        this.tags = arr.slice(2);
+      }
+      else{
+        this.tags = arr.slice(1);
+      }
+    }
+    // filter number value
+    this.tags = this.tags.filter( t=>isNaN(Number(t)) )
+    // TODO: r r1,r2
+    this.applyTags();
+  }
+
   updateShowingObject3d(newShowingObject3d: Objects): Controller {
     const showingObject3d = this .showingObject3d;
 
@@ -392,6 +447,25 @@ class Controller {
 
   setRaycasterObject(object3d:Objects){
     this .raycasterObject = object3d;
+  }
+
+  setRaycasterRedirect(str:String){
+    this.raycasterFlag = true;
+
+    if(str === 'r'){
+      this.raycasterRedirect = this;
+    }
+    else{
+      let num = Number(str.substring(1));
+      let p=this.object3d;
+      for(let i=0;i<num;i++){
+        // @ts-ignore
+        p=p.parent;
+      }
+      // @ts-ignore
+      this.raycasterRedirect = p.$controller
+      // console.log("redirect:",this.name,str,this);
+    }
   }
 
 }

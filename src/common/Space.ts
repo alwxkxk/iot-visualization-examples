@@ -385,16 +385,8 @@ class Space {
     function func() {
       this .raycasterObjects = [];
       this .scene.traverse((object3d: IObject3d) => {
-        if(object3d.$controller){
-          const userData = object3d.$controller.userData;
+        if(object3d.$controller && object3d.$controller.raycasterFlag){
           this .raycasterObjects.push(object3d.$controller.getRaycasterObject());
-          // if( userData.popover ||
-          //     userData.tips ||
-          //     userData.click ||
-          //     object3d.$controller.hasTag("raycaster")
-          // ){
-          //   this .raycasterObjects.push(object3d.$controller.getRaycasterObject());
-          // }
         }
       });
       return this .raycasterObjects;
