@@ -1,4 +1,6 @@
 import { Euler, Group, Vector3, Box3 } from "three";
+import * as Selection from "d3-selection";
+import {easeCubicInOut} from 'd3-ease';
 import Space from "./Space";
 import {
   resetCoordinate,
@@ -9,7 +11,16 @@ import {isNumber} from "lodash";
 import { interpolateNumber } from "d3-interpolate";
 
 const THREE = (window as IWindow).THREE;
-
+const degToRad  = THREE.Math.degToRad ;
+interface ILocation{
+  x?:number;
+  y?:number;
+  z?:number;
+  rx?:number;
+  ry?:number;
+  rz?:number;
+  ef?:string; // ease function
+}
 class Controller {
   lineObject3d: IGroup;
   name: string;
@@ -29,6 +40,7 @@ class Controller {
   showingObject3d: Objects;
   showingModel: string;
   space: Space;
+  status:string;// what action has executed
   tags: string[];
 
 
@@ -82,7 +94,7 @@ class Controller {
       return;
     }
     let scope =this;
-    this.tags.forEach((t:String)=>{
+    this.tags.forEach((t:string)=>{
       let flag = t[0]
       switch (flag) {
         case "r":
@@ -188,6 +200,34 @@ class Controller {
     this .showingModel = "points";
     this .updateShowingObject3d(this .pointsObject3d);
     return this ;
+  }
+
+  executeAction(key:string){
+    this.showingObject3d.traverse((o:IObject3d)=>{
+      if(o.$controller && o.$controller.userData[key]){
+        // console.log("executeAction",o.$controller.userData[key],o.$controller)
+        o.$controller.status = key;
+        o.$controller.offsetMove(o.$controller.userData[key])
+      }
+    })
+  }
+
+
+  /**
+   * get controllers by name which include key value.
+   *
+   * @param {string} key the sub string of name
+   * @returns {Controller[]}
+   * @memberof Controller
+   */
+  getControllersByName(key:string):Controller[]{
+    let result:Controller[] = [];
+    this.showingObject3d.traverse((o:IObject3d)=>{
+      if(o.$controller && o.$controller.name.includes(key)){
+        result.push(o.$controller)
+      }
+    })
+    return result;
   }
 
   getRaycasterObject(){
@@ -407,7 +447,7 @@ class Controller {
 
   }
 
-  parseName(name:String){
+  parseName(name:string){
     let arr= name.split("_");
     this.name = arr[0];
     this.tags = [];
@@ -423,8 +463,84 @@ class Controller {
     }
     // filter number value
     this.tags = this.tags.filter( t=>isNaN(Number(t)) )
-    // TODO: r r1,r2
     this.applyTags();
+  }
+
+  offsetMove(location:ILocation){
+    const scope = this;
+    let updatePosition:boolean;
+    let updateRotation:boolean;
+    let position:Vector3 = new Vector3();
+    let rotation:Euler= new Euler();
+    if(location.x || location.y || location.z){
+      updatePosition = true;
+      position = this.position.add(new Vector3(
+        location.x || 0,
+        location.y || 0,
+        location.z || 0,
+      ))
+    }
+    if(location.rx || location.ry || location.rz){
+      updateRotation = true;
+      rotation = new Euler(
+        this.rotation.x + (degToRad(location.rx || 0)),
+        this.rotation.y + (degToRad(location.ry || 0)),
+        this.rotation.z + (degToRad(location.rz || 0))
+      )
+    }
+    //TODO: chose ease function
+
+    // @ts-ignore
+    Selection.select({}).transition().duration(2000).ease(easeCubicInOut).tween("object-offsetMove", ()=>{
+      const ix = interpolateNumber(scope.originalPosition.x,position.x);
+      const iy = interpolateNumber(scope.originalPosition.y,position.y);
+      const iz = interpolateNumber(scope.originalPosition.z,position.z);
+      const irx = interpolateNumber(scope.originalRotation.x,rotation.x);
+      const iry = interpolateNumber(scope.originalRotation.y,rotation.y);
+      const irz = interpolateNumber(scope.originalRotation.z,rotation.z);
+      return (t:any)=>{
+        if(updatePosition)
+          scope.showingObject3d.position.set(ix(t),iy(t),iz(t));
+        if(updateRotation)
+          scope.showingObject3d.rotation.set(irx(t),iry(t),irz(t));
+      }
+    })
+
+    // console.log("offsetMove:",position,rotation,this)
+  }
+
+  resetAction(){
+    // reset location those objects which has executed action.
+    this.showingObject3d.traverse((o:IObject3d)=>{
+      const controller = o.$controller
+      if(controller && controller.status){
+        controller.status = null;
+        controller.resetLocation();
+      }
+    })
+  }
+
+  resetLocation(){
+    const obj = this.showingObject3d;
+    const position = obj.position.clone();
+    const rotation = obj.rotation.clone();
+    const originalPosition = this.originalPosition;
+    const originalRotation = this.originalRotation;
+
+    // @ts-ignore
+    Selection.select({}).transition().duration(2000).ease(easeCubicInOut).tween("object-resetLocation", ()=>{
+      const ix = interpolateNumber(position.x,originalPosition.x);
+      const iy = interpolateNumber(position.y,originalPosition.y);
+      const iz = interpolateNumber(position.z,originalPosition.z);
+      const irx = interpolateNumber(rotation.x,originalRotation.x);
+      const iry = interpolateNumber(rotation.y,originalRotation.y);
+      const irz = interpolateNumber(rotation.z,originalRotation.z);
+      return (t:any)=>{
+        obj.position.set(ix(t),iy(t),iz(t));
+        obj.rotation.set(irx(t),iry(t),irz(t));
+      }
+    })
+
   }
 
   updateShowingObject3d(newShowingObject3d: Objects): Controller {
@@ -449,7 +565,7 @@ class Controller {
     this .raycasterObject = object3d;
   }
 
-  setRaycasterRedirect(str:String){
+  setRaycasterRedirect(str:string){
     this.raycasterFlag = true;
 
     if(str === 'r'){

@@ -124,6 +124,23 @@ class Space {
     return this .controllerIdList.get(id);
   }
 
+  /**
+   * get controllers by name which include key value.
+   *
+   * @param {string} key the sub string of name
+   * @returns {Controller[]}
+   * @memberof Space
+   */
+  getControllersByName(key:string):Controller[]{
+    let result:Controller[] = [];
+    this.scene.traverse((o:IObject3d)=>{
+      if(o.$controller && o.$controller.name.includes(key)){
+        result.push(o.$controller)
+      }
+    })
+    return result;
+  }
+
   getViewOffset(object:Object3D){
     const vector = new THREE.Vector3();
     const result:any = {};
