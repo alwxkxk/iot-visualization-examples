@@ -1,13 +1,18 @@
 import Space from "./common/Space";
-import { Scene, Vector3 } from "three";
-import Curve from "./common/base/Curve";
-import * as Selection from "d3-selection";
-import * as G2 from '@antv/g2';
-
-import "./index.css"
-import StripeBar from "./common/components/StripeBar";
 import Controller from "./common/Controller";
-import { throttle } from "lodash";
+import "./index.css"
+import { Object3D } from "three";
+
+const openDoorLocation={
+  ry:120
+}
+const popServerLocation={
+  x:0.35,
+  t:700
+}
+
+const moveOutlineKey = "move"
+const lockServerOutlineKey = "lockServer"
 
 const element = $("#3d-space")[0];
 const space = new Space(element, {
@@ -15,247 +20,130 @@ const space = new Space(element, {
   outline:true
 });
 
+
+
+// for reset action
+let racks:Controller[]; 
+let servers:Controller[];
+
+//  for lock outline
+let lockRack:Controller;
+let lockServer:Controller;
+
 // @ts-ignore
 window.debugSpace =space;
 const THREE = (< IWindow>window).THREE;
+let showServerFlag = false;
+let oldRaycasterObjects:IObject3d[];
 
-// mousemove popover
-function mousemoveHandle(intersections:any[]) {
-  if(!intersections.length ){
-    $("#popover-test").css("display","none");
-    return ;
-  }
-  const object = intersections[0].object;
-  const controller:Controller = object.$controller || object.parent.$controller
-  const event = space.mouse.mousemoveEvent;
 
-  if(!controller.userData.popover){
-    $("#popover-test").css("display","none");
-    return ;
+function clickServer(results:any[]) {
+  if(results.length >0){
+    let server = results[0].object.$controller.raycasterRedirect;
+    lockServer = server;
+    // reset other
+    servers.forEach((c)=>{
+      c.resetAction()
+    })
+    server.executeAction("popServer",popServerLocation);
+    console.log("clickServer",server.name)
+    space.setOutline([lockServer.showingObject3d],lockServerOutlineKey)
   }
-  // const offset = controller.getViewOffset({x:0});
-  space.setOutline([object]);
-  $("#popover-test").css("display","block");
-  $("#popover-test").css("top",event.clientY+10)
-  $("#popover-test").css("left",event.clientX+10)
-  $("#popover-test").text(controller.userData.popover);
-  console.log("mousemove",intersections)
 }
-space.setRaycasterEventMap({
-  mousemove:throttle(mousemoveHandle,100) 
+
+function mousemoveServer(results:any[]) {
+  if(results.length >0){
+    let server = results[0].object.$controller.raycasterRedirect;
+    if(server !== lockServer){
+      space.setOutline([server.showingObject3d],moveOutlineKey);
+    }
+  }
+}
+
+function showServerModel(rack:Controller){
+  console.log("showServerModel")
+  showServerFlag = true;
+  servers = rack.getControllersByName("server");
+  space.focus(rack.showingObject3d)
+  oldRaycasterObjects = space.raycasterObjects;
+  space.raycasterObjects = []
+  servers.forEach( (c:Controller) => {
+    space.raycasterObjects.push(c.getRaycasterObject())
+  });
+  space.setRaycasterEventMap({mousemove:mousemoveServer,click:clickServer});
+}
+
+function showRackModel(){
+  console.log("showRackModel")
+  showServerFlag = false;
+  space.setRaycasterEventMap({click:clickRack,dblclick:dblclickRack});
+  space.raycasterObjects = oldRaycasterObjects;
+
+  space.setOutline([])
+  space.setOutline([],moveOutlineKey)
+  space.setOutline([],lockServerOutlineKey)
+  
+  lockRack = null;
+  lockServer = null;
+}
+
+$("#back").on("click", ()=>{
+  showRackModel();
 })
 
 
-// add icon list 
-const p = $($("#3d-space")[0].parentElement);
-const f4IconList = $('<div></div>')
-.attr("id","f4-icon-list")
-.css("position","absolute")
-.css("display","flex");
-
-const f8IconList = $('<div></div>')
-.attr("id","f8-icon-list")
-.css("position","absolute")
-.css("display","flex");
-
-const f12IconList = $('<div></div>')
-.attr("id","f12-icon-list")
-.css("position","absolute")
-.css("display","flex");
-
-f4IconList.appendTo(p);
-f8IconList.appendTo(p);
-f12IconList.appendTo(p);
-
-// F4 icon : warn 
-$('<img></img>')
-.appendTo(f4IconList)
-.attr("src","./static/images/warn.svg")
-.attr("data-toggle","popover")
-.attr("data-trigger","hover")
-.attr("title","warn")
-.attr("data-content","Device exception.")
-.addClass("icon-3d")
-.addClass("twinkle");
-
-// F8 icon : danger smoke  
-$('<img></img>')
-.appendTo(f8IconList)
-.attr("src","./static/images/danger.svg")
-.attr("data-toggle","popover")
-.attr("data-trigger","hover")
-.attr("title","danger")
-.attr("data-content","Check for fire immediately!")
-.addClass("icon-3d")
-.addClass("twinkle");
-
-$('<img></img>')
-.appendTo(f8IconList)
-.attr("src","./static/images/smoking.svg")
-.attr("data-toggle","popover")
-.attr("data-trigger","hover")
-.attr("title","smoking")
-.attr("data-content","Check for smoking!")
-.addClass("icon-3d");
-
-// F12 icon : water power
-$('<img></img>')
-.appendTo(f12IconList)
-.attr("src","./static/images/water.svg")
-.attr("data-toggle","popover")
-.attr("data-trigger","hover")
-.attr("title","water")
-.attr("data-content","Excessive water consumption.")
-.addClass("icon-3d");
-
-$('<img></img>')
-.appendTo(f12IconList)
-.attr("src","./static/images/repair.svg")
-.attr("data-toggle","popover")
-.attr("data-trigger","hover")
-.attr("title","repair")
-.attr("data-content","Waiting for repair.")
-.addClass("icon-3d");
-
-$(".icon-3d").on("click",()=>{
-  $('#exampleModal').modal('show');
-})
-
-function updateIconListPosition() {
-  const f4Position =  space.getControllerById("F4").getViewOffset({x:0.2});
-  const f8Position =  space.getControllerById("F8").getViewOffset({x:0.2});
-  const f12Position = space.getControllerById("F12").getViewOffset({x:0.2});
-
-  f4IconList
-  .css("top",f4Position.y)
-  .css("left",f4Position.x);
-
-  f8IconList
-  .css("top",f8Position.y)
-  .css("left",f8Position.x);
-
-  f12IconList
-  .css("top",f12Position.y)
-  .css("left",f12Position.x);
+function moveRack(results:any[]) {
+  if(results.length>0){
+    let rack = results[0].object.$controller.raycasterRedirect;
+    space.setOutline([rack.showingObject3d],moveOutlineKey)
+  }
 }
+
+function clickRack(results:any[]) {
+  if(results.length >0){
+    (< IWindow>window).selectedThing = results[0].object;
+    console.log(results)
+    //reset other rack
+    racks.forEach(c => {
+      c.resetAction();
+    });
+
+    let rack = results[0].object.$controller.raycasterRedirect;
+    let door = rack.getControllersByName("door")[0]
+    door.executeAction("openDoor",openDoorLocation);
+
+    space.setOutline([rack.showingObject3d])
+  }
+}
+
+function dblclickRack(results:any[]) {
+  if(results.length >0){
+    lockRack = results[0].object.$controller.raycasterRedirect;
+    showServerModel(lockRack)
+    space.setOutline([lockRack.showingObject3d])
+  }
+}
+
+
 
 // load 3d model.
-space.load("./static/3d/edifice-0624.glb")
-// space.load("./static/3d/change-model-test.glb")
+space.load("./static/3d/datacenter.glb")
 .then(()=>{
-  setInterval(updateIconListPosition,100);
-  $('[data-toggle="popover"]').popover();
+  space.setRaycasterEventMap({click:clickRack,dblclick:dblclickRack,mousemove:moveRack});
+  racks = space.getControllersByName("rack");
+
+  space.setOutlinePass(moveOutlineKey, {
+    edgeStrength:3,
+    edgeGlow:1,
+    pulsePeriod: 0,
+    visibleEdgeColor:0xffffff,
+    hiddenEdgeColor:0xffffff
+  });
+
+  space.setOutlinePass(lockServerOutlineKey);
+  
+  // console.log("racks",racks)
 })
 .catch((err)=>{
   console.error(err);
 })
-
-$.when($.ready).then(()=>{
-  new StripeBar($("#stripe-bar1")[0], 30);
-  new StripeBar($("#stripe-bar2")[0], 85,{twinkle:true});
-  new StripeBar($("#stripe-bar3")[0], 100,{twinkle:true});
-
-  $('[data-toggle="tooltip"]').tooltip()
-})
-.catch((err)=>{
-  console.error(err);
-})
-
-
-
-
-
-
-
-// G2 
-var data = [{
-  time: '03-19',
-  type: '+Other',
-  value: 320
-}, {
-  time: '03-19',
-  type: '+Repair',
-  value: 300
-}, {
-  time: '03-19',
-  type: '+Water',
-  value: 270
-}, {
-  time: '03-19',
-  type: 'Power',
-  value: 240
-}, {
-  time: '03-20',
-  type: '+Other',
-  value: 350
-}, {
-  time: '03-20',
-  type: '+Repair',
-  value: 320
-}, {
-  time: '03-20',
-  type: '+Water',
-  value: 300
-}, {
-  time: '03-20',
-  type: 'Power',
-  value: 270
-}, {
-  time: '03-21',
-  type: '+Other',
-  value: 390
-}, {
-  time: '03-21',
-  type: '+Repair',
-  value: 370
-}, {
-  time: '03-21',
-  type: '+Water',
-  value: 340
-}, {
-  time: '03-21',
-  type: 'Power',
-  value: 300
-}, {
-  time: '03-22',
-  type: '+Other',
-  value: 440
-}, {
-  time: '03-22',
-  type: '+Repair',
-  value: 420
-}, {
-  time: '03-22',
-  type: '+Water',
-  value: 380
-}, {
-  time: '03-22',
-  type: 'Power',
-  value: 340
-}];
-
-const chart = new G2.Chart({
-  container: 'c1',
-  forceFit: true,
-  padding:[40,20,80,50]
-});
-
-chart.axis('time', {
-  label: {
-    textStyle: {
-      fill: '#cccccc'
-    }
-  }
-});
-chart.axis('value', {
-  label: {
-    textStyle: {
-      fill: '#cccccc'
-    }
-  }
-});
-
-chart.source(data);
-chart.interval().position('time*value').color('type', ['#40a9ff', '#1890ff', '#096dd9', '#0050b3']).opacity(1);
-chart.render();
-

@@ -5,174 +5,22 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <title>Page Title</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <script src="https://browser.sentry-cdn.com/5.1.0/bundle.min.js" crossorigin="anonymous"></script>
+  <!-- <script src="https://browser.sentry-cdn.com/5.1.0/bundle.min.js" crossorigin="anonymous"></script>
   <script>Sentry.init({ dsn: 'https://4ab883bdc9724536b9089ab2c3b4a2e4@sentry.io/1442492'});</script>
   <script>
     if('serviceWorker' in navigator) {
       navigator.serviceWorker.register("<%= htmlWebpackPlugin.files.chunks['sw'].entry %>");
     }
-  </script>
+  </script> -->
   <script src="<%= htmlWebpackPlugin.files.chunks['global_setting'].entry %>"></script>
 </head>
 <style>
 
 </style>
 <body style="background-image:linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.9)),url('/static/images/sky.jpg');">
-  <div style="height:100vh;">
-    <div id="3d-space" style="height:100%;width:60vw;margin:auto;position: relative;overflow: hidden;"></div>
-    <p id="popover-test" style="background-color: rgba(255,255,255,0.8);position: absolute;pointer-events:none;"></p>
-  </div>
-  <div class="title" >
-    <h1>IOT-DEMO EDIFICE</h1>
-  </div>
-  <div class="left-info cursor-default">
-    <div class="row box" style="margin:10px 0;" >
-      <div class="info-bar col-6" data-toggle="tooltip" title="Rent">
-        <img class="icon" src="/static/images/hire.svg" >
-        <p class="text-success" >48 / 48</p>
-      </div>  
-      <div class="info-bar col-6" data-toggle="tooltip" title="Elevator">
-        <img class="icon" src="/static/images/elevator.svg">
-        <p class="text-success">4 / 4</p>
-      </div>           
-      <div class="info-bar col-6" data-toggle="tooltip" title="Air Conditioning">
-        <img class="icon" src="/static/images/ac.svg">
-        <p class="text-success">145 / 146</p>
-      </div>    
-      <div class="info-bar col-6" data-toggle="tooltip" title="Clean Floor">
-        <img class="icon" src="/static/images/clean.svg">
-        <p class="text-danger">2 / 24</p>
-      </div> 
-      <div class="info-bar col-6" data-toggle="tooltip" title="Employee">
-        <img class="icon" src="/static/images/employee.svg">
-        <p class="text-success">18 / 19</p>
-      </div>      
-      <div class="info-bar col-6" data-toggle="tooltip" title="Parking Lot">
-        <img class="icon" src="/static/images/car.svg">
-        <p class="text-warning">190 / 240</p>
-      </div> 
-    </div>
-    <div class="row box strip-bar-box cursor-default" style="margin:10px 0;">
-      <div class="flex" data-toggle="tooltip" title="Repair Fees">
-        <img class="icon" src="/static/images/repair.svg">
-        <div  class="strip-bar-container">
-            <div id="stripe-bar1" class="full"></div>
-        </div>
-        <p class="text-success">$84</p>
-      </div>
-      <div class="flex" data-toggle="tooltip" title="Water Fee">
-        <img class="icon" src="/static/images/water.svg">
-        <div  class="strip-bar-container">
-            <div id="stripe-bar2" class="full"></div>
-        </div>
-        <p class="text-warning">$140</p>
-      </div>
-      <div class="flex" data-toggle="tooltip" title="Power Fee">
-          <img class="icon" src="/static/images/power.svg">
-        <div  class="strip-bar-container">
-            <div id="stripe-bar3" class="full"></div>
-        </div>
-        <p class="text-danger">$1021</p>
-      </div>
-    </div>
+  <button id="back" type="button" class="btn btn-primary" style="z-index: 1;">back </button>
+  <div id="3d-space" style="height:100vh;width:100vw;margin:auto;position: relative;overflow: hidden;"></div>
 
-    <div class="row box" style="flex:1;margin:10px 0;">
-      <div id="c1" class="full"></div>
-    </div>
-
-  </div>
-
-  </div>
-
-  <div class="right-info ">
-    <div class="row box" style="margin:10px 0;" >
-      <div class="info-bar icon-list">
-        <img class="icon" data-toggle="tooltip" title="temperature" src="/static/images/temperature.svg" >
-        <img class="icon cursor-pointer" data-toggle="tooltip" title="icon" src="/static/images/icon-list.svg" >
-        <img class="icon cursor-pointer" data-toggle="tooltip" title="full screen" src="/static/images/full-screen.svg" >
-        
-      </div>  
-      <div class="info-bar icon-list">
-        <img class="icon" data-toggle="tooltip" title="camera" src="/static/images/camera.svg" >
-        <img class="icon" data-toggle="tooltip" title="controller" src="/static/images/button.svg" >
-        <a href="https://github.com/alwxkxk/iot-visualization-examples" target="_blank">
-          <img class="icon" data-toggle="tooltip" title="source code" src="/static/images/github.svg" >
-        </a>
-      </div>  
-  </div>
-  <div class="row box" style="margin:10px 0;" >
-    <div class="icon-description">
-      <img class="icon" src="/static/images/danger.svg" >
-      A dangerous event has been detected. Staff must handle it immediately.
-    </div>
-    <div class="icon-description">
-      <img class="icon" src="/static/images/warn.svg" >
-      A warning event has been detected. Staff should handle it.
-    </div>
-    <div class="icon-description">
-      <img class="icon" src="/static/images/repair.svg" >
-      There is a problem here that needs to be handled by the maintenance staff.
-    </div>
-    <div class="icon-description">
-      <img class="icon" src="/static/images/power.svg" >
-      The power consumption is abnormal, please check the reason.
-    </div>
-    <div class="icon-description">
-      <img class="icon" src="/static/images/water.svg" >
-      The water consumption is abnormal, please check the reason.
-    </div>
-    <div class="icon-description">
-      <img class="icon" src="/static/images/smoking.svg" >
-      Smoke is detected, please check if someone is smoking or burning.
-    </div>
-    <div class="icon-description">
-      <img class="icon" src="/static/images/temperature.svg" >
-      The temperature is abnormal. Please check the related equipment.
-    </div>
-    <div class="icon-description">
-      <img class="icon" src="/static/images/elevator.svg" >
-      The elevator is running abnormally.
-    </div>
-    <div class="icon-description">
-      <img class="icon" src="/static/images/message.svg" >
-      Customer complaints or suggestions.
-    </div>
-  </div>
-  <div class="row box" style="margin:10px 0;" >
-    <div class="icon-description">
-      <img class="icon" src="/static/images/phone.svg" >
-      119687402745
-    </div>
-    <div class="icon-description">
-      <img class="icon" src="/static/images/phone.svg" >
-      12088884546
-    </div>
-    <div class="icon-description">
-      <img class="icon" src="/static/images/phone.svg" >
-      114767653128
-    </div>
-  </div>
-
-  <!-- Modal -->
-<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="exampleModalLabel">Handle</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body">
-        this is a demo handle dialog.
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-        <button type="button" class="btn btn-primary"  data-dismiss="modal">Confirm</button>
-      </div>
-    </div>
-  </div>
-</div>
   
   <script src="<%= htmlWebpackPlugin.files.chunks['index'].entry %>"></script>
 </body>
