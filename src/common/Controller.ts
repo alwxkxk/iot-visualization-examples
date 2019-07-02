@@ -20,6 +20,7 @@ interface ILocation{
   ry?:number;
   rz?:number;
   ef?:string; // ease function
+  t?:number; // duration time 
 }
 class Controller {
   lineObject3d: IGroup;
@@ -202,14 +203,20 @@ class Controller {
     return this ;
   }
 
-  executeAction(key:string){
-    this.showingObject3d.traverse((o:IObject3d)=>{
-      if(o.$controller && o.$controller.userData[key]){
-        // console.log("executeAction",o.$controller.userData[key],o.$controller)
-        o.$controller.status = key;
-        o.$controller.offsetMove(o.$controller.userData[key])
-      }
-    })
+  executeAction(key:string,location?:ILocation){
+    if(location){
+      this.status = key;
+      this.offsetMove(location)
+    }
+    else{
+      this.showingObject3d.traverse((o:IObject3d)=>{
+        if(o.$controller && (o.$controller.userData[key]) ){
+          // console.log("executeAction",o.$controller.userData[key],o.$controller)
+          o.$controller.status = key;
+          o.$controller.offsetMove(o.$controller.userData[key])
+        }
+      })
+    }
   }
 
 
@@ -274,7 +281,7 @@ class Controller {
   init(): Controller {
     const object3d = this .object3d;
 
-    this.parseName(object3d.name);
+
     this .userData = object3d.userData;
 
     this .originalPosition = this .position = object3d.position.clone();
@@ -284,6 +291,8 @@ class Controller {
     this .showingModel = "normal";
     this .showingObject3d = object3d;
 
+    this.raycasterRedirect = this;
+    this.parseName(object3d.name);
     return this ;
   }
 
@@ -472,9 +481,11 @@ class Controller {
     let updateRotation:boolean;
     let position:Vector3 = new Vector3();
     let rotation:Euler= new Euler();
+    let op = this.originalPosition.clone();
+    let or = this.originalRotation.clone();
     if(location.x || location.y || location.z){
       updatePosition = true;
-      position = this.position.add(new Vector3(
+      position = op.add(new Vector3(
         location.x || 0,
         location.y || 0,
         location.z || 0,
@@ -483,15 +494,15 @@ class Controller {
     if(location.rx || location.ry || location.rz){
       updateRotation = true;
       rotation = new Euler(
-        this.rotation.x + (degToRad(location.rx || 0)),
-        this.rotation.y + (degToRad(location.ry || 0)),
-        this.rotation.z + (degToRad(location.rz || 0))
+        or.x + (degToRad(location.rx || 0)),
+        or.y + (degToRad(location.ry || 0)),
+        or.z + (degToRad(location.rz || 0))
       )
     }
     //TODO: chose ease function
 
     // @ts-ignore
-    Selection.select({}).transition().duration(2000).ease(easeCubicInOut).tween("object-offsetMove", ()=>{
+    Selection.select({}).transition().duration(location.t || 2000).ease(easeCubicInOut).tween("object-offsetMove", ()=>{
       const ix = interpolateNumber(scope.originalPosition.x,position.x);
       const iy = interpolateNumber(scope.originalPosition.y,position.y);
       const iz = interpolateNumber(scope.originalPosition.z,position.z);
@@ -516,6 +527,7 @@ class Controller {
       if(controller && controller.status){
         controller.status = null;
         controller.resetLocation();
+        console.log("reset:",this)
       }
     })
   }

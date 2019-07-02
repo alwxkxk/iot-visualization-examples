@@ -27,6 +27,7 @@ import {
 } from "three";
 import { isNumber, throttle } from "lodash";
 import { interpolateNumber } from "d3-interpolate";
+import { setTimeout } from "timers";
 
 const THREE = (window as IWindow).THREE;
 const box = new THREE.Box3();
@@ -78,7 +79,7 @@ class Space {
     return this ;
   }
 
-  focus(target:Object3D){
+  focus(target:IObject3d){
     let distance;
     box.setFromObject( target );
 
@@ -109,8 +110,23 @@ class Space {
       let ix = interpolateNumber(start.x,end.x);
       let iy = interpolateNumber(start.y,end.y);
       let iz = interpolateNumber(start.z,end.z);
+      
+      let tix:Function ,tiy:Function,tiz:Function;
+      if(scope.orbit){
+        let ot = scope.orbit.target.clone()
+        tix = interpolateNumber(ot.x,target.position.x);
+        tiy = interpolateNumber(ot.y,target.position.y);
+        tiz = interpolateNumber(ot.z,target.position.z);
+        // console.log("target:",target)
+      }
+      
       return (t:any)=>{
         scope.camera.position.set(ix(t),iy(t),iz(t));
+
+        if(scope.orbit){
+          scope.orbit.target.set(tix(t),tiy(t),tiz(t));
+          scope.orbit.update();
+        }
       }
     })
   }
@@ -527,9 +543,9 @@ class Space {
     );
     this .composer.addPass( outlinePass );
     const opt = options || {};
-    outlinePass.edgeStrength = opt.edgeStrength || 5;
-    outlinePass.edgeGlow = opt.edgeGlow || 1;
-    outlinePass.pulsePeriod = opt.pulsePeriod || 2;
+    outlinePass.edgeStrength = isNumber(opt.edgeStrength)?opt.edgeStrength:5;
+    outlinePass.edgeGlow = isNumber(opt.edgeGlow)?opt.edgeGlow:1;
+    outlinePass.pulsePeriod = isNumber(opt.pulsePeriod)?opt.pulsePeriod:2;
     outlinePass.visibleEdgeColor.set(opt.visibleEdgeColor || "#35f2d1");
     outlinePass.hiddenEdgeColor.set(opt.hiddenEdgeColor || "#00ffff");
     this .outlinePassMap.set(key, outlinePass);
