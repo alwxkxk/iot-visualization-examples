@@ -14,3 +14,28 @@ export function hasGeometry(obj: Objects): boolean {
   // @ts-ignore
   return !!obj.geometry;
 }
+
+const colorRGBA={
+  safe:"rgb(139,195,74)",
+  much:"rgb(255,235,59)",
+  over:"rgb(255,152,0)",
+  dangerous:"rgb(244,67,54)"
+}
+
+export function getColorByValue(value:number){
+  let result;
+  if(value<50){
+    result = colorRGBA.safe;
+  }
+  else if(value<80){
+    result = colorRGBA.much;
+  }
+  else if(value<90){
+    result = colorRGBA.over;
+  }
+  else{
+    result = colorRGBA.dangerous;
+  }
+
+  return result;
+}

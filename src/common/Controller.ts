@@ -5,13 +5,16 @@ import Space from "./Space";
 import {
   resetCoordinate,
   copyCoordinate,
-  hasGeometry
+  hasGeometry,
+  getColorByValue
 } from "./base/utilities";
 import {isNumber} from "lodash";
 import { interpolateNumber } from "d3-interpolate";
 
 const THREE = (window as IWindow).THREE;
 const degToRad  = THREE.Math.degToRad ;
+const box3 = new THREE.Box3();
+
 interface ILocation{
   x?:number;
   y?:number;
@@ -43,6 +46,8 @@ class Controller {
   space: Space;
   status:string;// what action has executed
   tags: string[];
+  capacityObject3d: IGroup;
+  box3: Box3;
 
 
   constructor(space: Space, object3d: Objects, options?: any) {
@@ -141,6 +146,20 @@ class Controller {
     }
     return this ;
   }
+
+  changeToCapacityModel(options?:any): Controller {
+    if(hasGeometry(this .showingObject3d) && this .showingModel === "capacity"){
+      return;
+    }
+
+    if (!this .capacityObject3d) {
+      this .initCapacityModel(options);
+    }
+    this .showingModel = "capacity";
+    this .updateShowingObject3d(this .capacityObject3d);
+    return this ;
+  }
+
 
   changeToNormalModel(): Controller {
     if(hasGeometry(this .showingObject3d) && this .showingModel === "normal"){
@@ -294,6 +313,51 @@ class Controller {
     this.raycasterRedirect = this;
     this.parseName(object3d.name);
     return this ;
+  }
+
+  initCapacityModel(options: any) {
+    const opt = options || this .userData.showingModelOptions || {}
+    const object3d = this .object3d;
+    const group = this .lineObject3d = new THREE.Group();
+    group.name = this .name + "_capacityObject3d";
+    group.$controller = this ;
+
+    let b = box3.setFromObject(object3d)
+    this.box3 = b;
+    let x = b.max.x-b.min.x
+    let y = b.max.y-b.min.y
+    let z = b.max.z-b.min.z
+
+    let cg = new THREE.BoxGeometry(x,y,z)
+    let cm = new THREE.MeshBasicMaterial({color:0xcccccc,opacity:0.4,transparent:true})
+    let cube = new THREE.Mesh(cg,cm)
+
+    let cm2 = new THREE.MeshBasicMaterial({color:0x00cc00})
+    let cube2 = new THREE.Mesh(cg,cm2)
+    cube2.name = "capacity-value"
+    cube2.scale.set(0.85,0.4,0.85)
+    cube2.position.set(0,-(y*0.3),0)
+
+    group.add(cube)
+    group.add(cube2)
+    this.capacityObject3d = group;
+    return this;
+
+  }
+
+  setCapacity(value?:number,color?:string){
+    if(!this.capacityObject3d){
+      return console.warn("you should init capacity model before set value.")
+    }
+    let v = (value || 1)/100;
+    let cube = this.capacityObject3d.getObjectByName("capacity-value");
+    cube.scale.y = v;
+    let hight = this.box3.max.y - this.box3.min.y
+    cube.position.y = -((1-v)/2)*hight;
+
+    //@ts-ignore
+    cube.material.color = new THREE.Color(color || getColorByValue(value))
+
   }
 
   initLineModel(options?:any): Controller {
