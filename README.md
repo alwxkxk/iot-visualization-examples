@@ -10,13 +10,9 @@ npm run build
 npm run server
 ```
 
-## edifice 
-- CDN by Cloudflare :[https://www.alwxkxk.tk/edifice ](https://www.alwxkxk.tk/edifice)
-- without CDN :[https://www.alwxkxk.xyz/edifice ](https://www.alwxkxk.xyz/edifice)
+## simple datacenter
 
+![iot-visualizaiton-datacenter.jpg](https://i.loli.net/2019/07/03/5d1c78389a78571470.jpg)
 
-a example about edifice(performing).
-
-![edifice.png](https://i.loli.net/2019/06/24/5d1080774391b43166.png)
 
 
