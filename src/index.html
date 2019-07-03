@@ -6,12 +6,12 @@
   <title>Page Title</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <!-- <script src="https://browser.sentry-cdn.com/5.1.0/bundle.min.js" crossorigin="anonymous"></script>
-  <script>Sentry.init({ dsn: 'https://4ab883bdc9724536b9089ab2c3b4a2e4@sentry.io/1442492'});</script>
+  <script>Sentry.init({ dsn: 'https://4ab883bdc9724536b9089ab2c3b4a2e4@sentry.io/1442492'});</script> -->
   <script>
     if('serviceWorker' in navigator) {
       navigator.serviceWorker.register("<%= htmlWebpackPlugin.files.chunks['sw'].entry %>");
     }
-  </script> -->
+  </script>
   <script src="<%= htmlWebpackPlugin.files.chunks['global_setting'].entry %>"></script>
 </head>
 <style>
@@ -30,7 +30,7 @@
 
   <div class="flex" style="position: absolute;right:20px;top:0;">
     <img id="left-arrow-button" src="/static/images/left-arrow.svg" class="icon m10 hide" alt="" data-toggle="tooltip" title="back">
-    <img id="icon-list-button" src="/static/images/icon-list.svg" class="icon m10" alt="" data-toggle="tooltip" title="3d icon visible">
+    <!-- <img id="icon-list-button" src="/static/images/icon-list.svg" class="icon m10" alt="" data-toggle="tooltip" title="3d icon visible"> -->
     <img id="capacity-button" src="/static/images/chart.svg" class="icon m10" alt="" data-toggle="tooltip" title="show capacity">
     <a href="https://github.com/alwxkxk/iot-visualization-examples" target="_blank" class="m10">
       <img class="icon" data-toggle="tooltip" title="source code" src="/static/images/github.svg" >
@@ -124,7 +124,26 @@
     </div>
   </div>
 
-  
+    <!-- Modal -->
+<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="exampleModalLabel">Handle</h5>
+          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          this is a demo handle dialog.
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-primary"  data-dismiss="modal">Confirm</button>
+        </div>
+      </div>
+    </div>
+  </div>
   <script src="<%= htmlWebpackPlugin.files.chunks['index'].entry %>"></script>
 </body>
 </html>

@@ -56,7 +56,7 @@
 }
 
 .card{
-  background-color: rgba(20,50,200,0.4);
+  background-color: rgba(20,50,200,0.6);
   color: white;
 }
 
@@ -101,11 +101,6 @@ p{
   font-weight: 600;
 }
 
-.star {
-  animation-name: twinkle;
-  animation-duration: 1s;
-}
-
 .pointer{
   cursor: pointer;
 }
@@ -133,9 +128,15 @@ p{
   /* height: 95vh; */
 }
 
-@keyframes twinkle{
+
+.twinkle {
+  animation-name: twinkle-key;
+  animation-duration: 1s;
+  animation-iteration-count: infinite;
+}
+
+@keyframes twinkle-key{
   50%  {
-    transform: scale(0.5);
     opacity: 0.5;
   }
 }

@@ -21,6 +21,7 @@ const space = new Space(element, {
 });
 
 
+
 //for orbit reset
 let main:Controller;
 
@@ -119,6 +120,7 @@ function mousemoveServer(results:any[]) {
   }
   else{
     updatePopoverContent(null)
+    space.setOutline([],moveOutlineKey);
   }
 }
 
@@ -195,6 +197,7 @@ function moveRack(results:any[]) {
   }
   else{
     updatePopoverContent(null)
+    space.setOutline([],moveOutlineKey)
   }
 }
 
@@ -229,9 +232,12 @@ function dblclickRack(results:any[]) {
 // load 3d model.
 space.load("./static/3d/datacenter.glb")
 .then(()=>{
+  space.orbit.minPolarAngle = Math.PI * 0.2
+  space.orbit.maxPolarAngle = Math.PI * 0.65
   space.setRaycasterEventMap({click:clickRack,dblclick:dblclickRack,mousemove:moveRack});
   racks = space.getControllersByName("rack");
   main = space.getControllersByTags("main")[0];
+  $('[data-toggle="popover"]').popover();
 
   space.setOutlinePass(moveOutlineKey, {
     edgeStrength:3,
@@ -242,6 +248,8 @@ space.load("./static/3d/datacenter.glb")
   });
 
   space.setOutlinePass(lockServerOutlineKey);
+
+  setInterval(updateIconListPosition,100);
   
   // console.log("racks",racks)
 })
@@ -253,6 +261,40 @@ space.load("./static/3d/datacenter.glb")
 $.when($.ready).then(()=>{
   $('[data-toggle="tooltip"]').tooltip({placement:"bottom"})
 })
+
+
+
+// add icon list 
+const p = $($("#3d-space")[0].parentElement);
+const iconList = $('<div></div>')
+.attr("id","icon-list")
+.css("position","absolute")
+.css("display","flex");
+
+iconList.appendTo(p);
+
+// icon : warn 
+$('<img></img>')
+.appendTo(iconList)
+.attr("src","./static/images/warn.svg")
+.attr("data-toggle","popover")
+.attr("data-trigger","hover")
+.attr("title","warn")
+.attr("data-content","Device exception.")
+.addClass("icon-3d")
+.addClass("twinkle");
+
+$(".icon-3d").on("click",()=>{
+  $('#exampleModal').modal('show');
+})
+
+function updateIconListPosition() {
+  const screenPosition =  space.getControllersByName("screen")[0].getViewOffset({y:2});
+
+  iconList
+  .css("top",screenPosition.y)
+  .css("left",screenPosition.x);
+}
 
 //G2
 var data = [{
