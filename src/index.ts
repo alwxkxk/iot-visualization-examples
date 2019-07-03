@@ -230,7 +230,7 @@ function dblclickRack(results:any[]) {
 
 
 // load 3d model.
-space.load("./static/3d/datacenter.glb")
+space.load("./static/3d/datacenter-0703.glb")
 .then(()=>{
   space.orbit.minPolarAngle = Math.PI * 0.2
   space.orbit.maxPolarAngle = Math.PI * 0.65
