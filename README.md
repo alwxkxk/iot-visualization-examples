@@ -11,7 +11,8 @@ npm run server
 ```
 
 ## simple datacenter
-
+- [https://www.alwxkxk.xyz/](https://www.alwxkxk.xyz/)
+- [Operational Video -- Youtube](https://www.youtube.com/watch?v=q_sh1b_sIEM)
 ![iot-visualizaiton-datacenter.jpg](https://i.loli.net/2019/07/03/5d1c78389a78571470.jpg)
 
 
