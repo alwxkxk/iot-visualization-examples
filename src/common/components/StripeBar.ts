@@ -36,12 +36,11 @@ class StripeBar {
   }
 
   setValue(value:number){
-    let v;
     const parentElement = Selection.select(this .element.parentElement)
     
     if(value < 0 || value > 100){
       console.warn("value should between 0 ~ 100.",value);
-      v = 10; 
+      value = 10; 
     }
     
 
@@ -73,7 +72,7 @@ class StripeBar {
     const stripes = value * 2 / 5 ;
     const interval = 250 / value;
     const width = interval * 3 / 5;
-    function getColor(value:number):String{
+    function getColor(value:number):string{
       if(value<50){
         return colorRGBA.safe;
       }

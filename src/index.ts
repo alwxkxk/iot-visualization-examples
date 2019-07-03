@@ -249,7 +249,7 @@ space.load("./static/3d/datacenter-0703.glb")
 
   space.setOutlinePass(lockServerOutlineKey);
 
-  setInterval(updateIconListPosition,100);
+  setInterval(updateIconListPosition,50);
   
   // console.log("racks",racks)
 })
@@ -297,7 +297,7 @@ function updateIconListPosition() {
 }
 
 //G2
-var data = [{
+let data = [{
   item: 'used',
   count: 40,
   percent: 0.64
@@ -306,7 +306,7 @@ var data = [{
   count: 21,
   percent: 0.36
 }];
-var chart = new G2.Chart({
+let chart = new G2.Chart({
   container: 'mountNode',
   forceFit: true,
   padding:[10,10,50,10],
@@ -349,7 +349,7 @@ function updateChart() {
 
 
 // G2 chart2
-var data2 = [{
+let data2 = [{
   item: 'power',
   percent: 38
 }, {
@@ -362,7 +362,7 @@ var data2 = [{
   item: 'space',
   percent: 30
 }];
-var chart2 = new G2.Chart({
+let chart2 = new G2.Chart({
   container: 'chart2',
   padding:[20,0,20,40],
   width:300,
@@ -404,7 +404,7 @@ function updateChart2Data() {
 
 
 // G2 chart3
-var data3 = [{
+let data3 = [{
   month: '1',
   value: 3
 }, {
@@ -432,7 +432,7 @@ var data3 = [{
   month: '9',
   value: 13
 }];
-var chart3 = new G2.Chart({
+let chart3 = new G2.Chart({
   container: 'chart3',
   padding:[20,0,20,40],
   width:300,

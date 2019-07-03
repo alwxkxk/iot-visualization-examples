@@ -322,7 +322,7 @@ class Controller {
   }
 
   initCapacityModel(options: any) {
-    const opt = options || this .userData.showingModelOptions || {}
+    // const opt = options || this .userData.showingModelOptions || {}
     const object3d = this .object3d;
     const group = this .lineObject3d = new THREE.Group();
     group.name = this .name + "_capacityObject3d";
