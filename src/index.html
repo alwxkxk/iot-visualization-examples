@@ -17,9 +17,112 @@
 <style>
 
 </style>
-<body style="background-image:linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.9)),url('/static/images/sky.jpg');">
-  <button id="back" type="button" class="btn btn-primary" style="z-index: 1;">back </button>
+<body style="background-image:linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.9)),url('/static/images/sky.jpg');overflow: hidden;">
+  <div class="title" >
+    <h1>DATACENTER DEMO</h1>
+  </div>
+
   <div id="3d-space" style="height:100vh;width:100vw;margin:auto;position: relative;overflow: hidden;"></div>
+  <div id="popover-content" class="hide">
+    <p id="popover-text" >text</p>
+    <div id="mountNode" style="width:200px;height:200px;"></div>
+  </div>
+
+  <div class="flex" style="position: absolute;right:20px;top:0;">
+    <img id="left-arrow-button" src="/static/images/left-arrow.svg" class="icon m10 hide" alt="" data-toggle="tooltip" title="back">
+    <img id="icon-list-button" src="/static/images/icon-list.svg" class="icon m10" alt="" data-toggle="tooltip" title="3d icon visible">
+    <img id="capacity-button" src="/static/images/chart.svg" class="icon m10" alt="" data-toggle="tooltip" title="show capacity">
+    <a href="https://github.com/alwxkxk/iot-visualization-examples" target="_blank" class="m10">
+      <img class="icon" data-toggle="tooltip" title="source code" src="/static/images/github.svg" >
+
+    </a>
+  </div>
+
+  <div class="right-info">
+    <div class="accordion" id="accordionContainer">
+      <div id="rackCard" class="card hide">
+        <div class="card-header" id="headingOne">
+          <h2 class="mb-0">
+            <button id="rackName" class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+              rack name
+            </button>
+          </h2>
+        </div>
+    
+        <div id="collapseOne" class="collapse show" aria-labelledby="headingOne" data-parent="#accordionContainer">
+          <div class="card-body">
+            <div class="row">
+              <div class="col-6">
+                  <div class="parameter">
+                    <div class="name">
+                        HEIGHT:
+                    </div> 2000 mm</div>
+              </div>
+              <div class="col-6">
+                  <div class="parameter">
+                    <div class="name">
+                        WIDTH:
+                    </div> 600 mm</div>
+              </div>
+              <div class="col-6">
+                  <div class="parameter">
+                    <div class="name">
+                        DEPTH
+                    </div> 800 mm</div>
+              </div>
+              <div class="col-6">
+                  <div class="parameter">
+                    <div class="name">
+                        CAPACITY:
+                    </div> 42 U</div>
+              </div>
+            </div>
+            <div id="chart2" style="width:300px;height:300px;"></div>
+          </div>
+        </div>
+      </div>
+      <div id="serverCard" class="card hide">
+        <div class="card-header" id="headingTwo">
+          <h2 class="mb-0">
+            <button id="serverName" class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
+             server name
+            </button>
+          </h2>
+        </div>
+        <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionContainer">
+          <div class="card-body">
+              <div class="row">
+                <div class="col-6">
+                    <div class="parameter">
+                      <div class="name">
+                          SIZE:
+                      </div> 1 U</div>
+                </div>
+                <div class="col-6">
+                    <div class="parameter">
+                      <div class="name">
+                          POWER:
+                      </div> 1500 W</div>
+                </div>
+                <div class="col-6">
+                    <div class="parameter">
+                      <div class="name">
+                          MEMORY:
+                      </div> 24-slots</div>
+                </div>
+                <div class="col-6">
+                    <div class="parameter">
+                      <div class="name">
+                          SPACE:
+                      </div> 25-drive</div>
+                </div>
+              </div>
+            <div id="chart3" style="width:300px;height:300px;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 
   
   <script src="<%= htmlWebpackPlugin.files.chunks['index'].entry %>"></script>

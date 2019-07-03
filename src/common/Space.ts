@@ -157,6 +157,16 @@ class Space {
     return result;
   }
 
+  getControllersByTags(key:string):Controller[]{
+    let result:Controller[] = [];
+    this.scene.traverse((o:IObject3d)=>{
+      if(o.$controller && o.$controller.tags.includes(key)){
+        result.push(o.$controller)
+      }
+    })
+    return result;
+  }
+
   getViewOffset(object:Object3D){
     const vector = new THREE.Vector3();
     const result:any = {};

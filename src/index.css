@@ -6,6 +6,10 @@
   margin:0;
 }
 
+.m10{
+  margin: 10px;
+}
+
 .full{
   width: 100%;
   height: 100%;
@@ -19,6 +23,10 @@
 
 .strip-bar-box>div{
   margin: 10px 0 10px 10px;
+}
+
+.hide{
+  display: none;
 }
 
 .title{
@@ -39,13 +47,26 @@
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  /* height: 95vh; */
 }
 
 
 .box{
   background-color: rgba(20,50,200,0.4);
   border-radius: 16px;
+}
+
+.card{
+  background-color: rgba(20,50,200,0.4);
+  color: white;
+}
+
+.card-header{
+  background-color: rgba(20,50,200,0.7);
+}
+
+.btn-link {
+  color: white;
+  font-size: x-large;
 }
 
 .info-bar{
@@ -56,6 +77,11 @@
 .icon{
   width:32px;
   height:32px;
+  cursor: pointer;
+}
+
+.icon:hover{
+  background-color:rgba(20,50,200,0.4);
 }
 
 .icon-list{
@@ -98,8 +124,8 @@ p{
 
 .right-info{
   position: absolute;
-  top:10px;
-  right:20px;
+  top:70px;
+  right:10px;
   width:380px;
   display: flex;
   flex-direction: column;
@@ -112,4 +138,27 @@ p{
     transform: scale(0.5);
     opacity: 0.5;
   }
+}
+
+#popover-content{
+  position: absolute;
+  pointer-events:none;
+  background-color: rgba(20,50,200,0.6);
+  border-radius: 20px;
+}
+
+#popover-text{
+  color: white;
+  text-align: center;
+  border-bottom: 1px solid;
+}
+
+.parameter{
+  display: flex;
+  justify-content: space-between;
+}
+
+.parameter .name{
+  font-weight: 600;
+  color: #007bff;
 }

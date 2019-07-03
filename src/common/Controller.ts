@@ -103,9 +103,13 @@ class Controller {
     this.tags.forEach((t:string)=>{
       let flag = t[0]
       switch (flag) {
+        // r,r1,r2 ...
         case "r":
           scope.setRaycasterRedirect(t);
           break;
+        // main 
+        case "m":
+            break;
       
         default:
           console.warn(flag,"is not an available tags flag.")
@@ -174,8 +178,10 @@ class Controller {
     if(!flag){
       const children = Array.from(this .showingObject3d.children);
       children.forEach((o:Objects)=>{
-        object3d.add(o);
-        o.$controller.changeToNormalModel();
+        if(o.$controller){
+          object3d.add(o);
+          o.$controller.changeToNormalModel();
+        }
       })
     }
 
@@ -591,7 +597,7 @@ class Controller {
       if(controller && controller.status){
         controller.status = null;
         controller.resetLocation();
-        console.log("reset:",this)
+        // console.log("reset:",this)
       }
     })
   }
