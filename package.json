@@ -49,6 +49,7 @@
     "@types/jquery": "^3.3.29",
     "@types/lodash": "^4.14.133",
     "@types/node": "^11.13.6",
-    "@types/uuid": "^3.4.4"
+    "@types/uuid": "^3.4.4",
+    "@types/workbox-sw": "^4.2.0"
   }
 }
