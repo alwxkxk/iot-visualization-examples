@@ -1,27 +1,27 @@
-import * as Selection from "d3-selection";
 import * as Interpolators from "d3-interpolate";
+import * as Selection from "d3-selection";
 import * as Transition from "d3-transition";
 import * as uuid from "uuid";
 import {colorRGBA} from "./common";
 
 class ProgressBar {
-  readonly element:Element;
-  id:string;
-  progressValue:number;
-  progressSelection:any;
-  svgSelection:any;
-  textSelection:any;
-  constructor(element:Element) {
-    if(element.clientWidth === 0 || element.clientHeight === 0){
+  public readonly element: Element;
+  public id: string;
+  public progressValue: number;
+  public progressSelection: any;
+  public svgSelection: any;
+  public textSelection: any;
+  constructor(element: Element) {
+    if (element.clientWidth === 0 || element.clientHeight === 0) {
       console.error("element should had width and height before init.");
     }
     this .element = element;
     this .progressValue = 0;
-    this .id = "progress-bar"+uuid();
+    this .id = "progress-bar" + uuid();
     this .init();
   }
 
-  init(){
+  public init() {
     this .svgSelection = Selection.select(this .element)
     .append("div")
     .attr("id", this .id)
@@ -30,7 +30,7 @@ class ProgressBar {
     .style("position", "absolute")
     .style("width", "70%")
       .append("svg")
-      .attr("viewBox", "0 0 100 20")
+      .attr("viewBox", "0 0 100 20");
     const svgSelection = this .svgSelection;
     svgSelection
       .append("rect")
@@ -80,41 +80,41 @@ class ProgressBar {
       .attr("x", "5")
       .attr("y", "14")
       .attr("fill", colorRGBA.font)
-      .text("LOADING 0%")
+      .text("LOADING 0%");
   }
 
-  progress(value:number){
-    let interpolateFun = Interpolators.interpolate(this .progressValue, value);
+  public progress(value: number) {
+    const interpolateFun = Interpolators.interpolate(this .progressValue, value);
     this .progressValue = value;
-    Transition.transition().tween("progress", ()=>{
-      return (t:any)=>{
-        let data = interpolateFun(t).toFixed(0);
+    Transition.transition().tween("progress", () => {
+      return (t: any) => {
+        const data = interpolateFun(t).toFixed(0);
         this .textSelection.text(`LOADING ${data}%`);
         this .progressSelection.attr("width", data );
-      }
+      };
     });
   }
 
-  setText(text:string){
+  public setText(text: string) {
     this .textSelection.text(text);
   }
 
-  start(){
+  public start() {
     this .textSelection.text(`LOADING 0%`);
   }
 
-  parse(){
-    this .progressSelection.transition().attrTween("width", ()=>{
+  public parse() {
+    this .progressSelection.transition().attrTween("width", () => {
       return Interpolators.interpolateNumber(0, 100);
     });
     this .setText(" PARSEING");
   }
 
-  error(){
+  public error() {
     this .setText("LOAD ERROR");
   }
 
-  dispose(){
+  public dispose() {
     setTimeout(() => {
       Selection.selectAll(`#${this .id}`).remove();
     }, 1000);

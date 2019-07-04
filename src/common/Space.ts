@@ -1,10 +1,10 @@
+import {easeCubicInOut} from "d3-ease";
+import * as Selection from "d3-selection";
 import "three/examples/js/controls/OrbitControls.js";
 import "three/examples/js/loaders/GLTFLoader.js";
 import Inspector from "./base/Inspector";
 import ProgressBar from "./components/ProgressBar";
 import Controller from "./Controller";
-import * as Selection from "d3-selection";
-import {easeCubicInOut} from 'd3-ease';
 
 // outline
 import "three/examples/js/postprocessing/EffectComposer.js";
@@ -18,15 +18,15 @@ import "./base/outlinepass.js";
 import "three/examples/js/shaders/LuminosityHighPassShader.js";
 import "./base/UnrealBloomPass.js";
 
+import { interpolateNumber } from "d3-interpolate";
+import { isNumber, throttle } from "lodash";
 import {
+  Object3D,
   Raycaster,
   Scene,
   Vector3,
   WebGLRenderer,
-  Object3D,
 } from "three";
-import { isNumber, throttle } from "lodash";
-import { interpolateNumber } from "d3-interpolate";
 import { setTimeout } from "timers";
 
 const THREE = (window as IWindow).THREE;
@@ -39,37 +39,37 @@ interface ISpaceOptions {
   renderer?: any;
   inspector?: boolean;
   orbit?: boolean;
-  outline?:boolean; // true: initOutline
+  outline?: boolean; // true: initOutline
 }
 class Space {
-  animateActionMap: Map< string, Function>;
-  bloomPass: any;
-  box3: any;
-  camera: any;
-  composer: any;
-  controllerIdList:Map<string,Controller>;
-  readonly element: Element;
-  innerHeight: number;
-  innerWidth: number;
-  inspector:Inspector;
-  mouse: any;
-  offset: {
+  public animateActionMap: Map< string, Function>;
+  public bloomPass: any;
+  public box3: any;
+  public camera: any;
+  public composer: any;
+  public controllerIdList: Map<string, Controller>;
+  public readonly element: Element;
+  public innerHeight: number;
+  public innerWidth: number;
+  public inspector: Inspector;
+  public mouse: any;
+  public offset: {
     top: number;
     left: number;
   };
-  readonly options: ISpaceOptions;
-  orbit: any;
+  public readonly options: ISpaceOptions;
+  public orbit: any;
   // outlinePass:any;
-  outlinePassMap: Map< string, any>;
-  progressBar: ProgressBar;
-  raycaster: Raycaster;
-  raycasterEventMap: Map< string, Function>;
-  raycasterObjects: IObject3d[];
-  raycasterRecursive: boolean;
-  renderer: WebGLRenderer;
-  scene: Scene;
-  stopComposer:boolean; // antialias : renderer > composer with FXAAShader > composer without FXAAShader
-  updateRaycasterObjects:Function;
+  public outlinePassMap: Map< string, any>;
+  public progressBar: ProgressBar;
+  public raycaster: Raycaster;
+  public raycasterEventMap: Map< string, Function>;
+  public raycasterObjects: IObject3d[];
+  public raycasterRecursive: boolean;
+  public renderer: WebGLRenderer;
+  public scene: Scene;
+  public stopComposer: boolean; // antialias : renderer > composer with FXAAShader > composer without FXAAShader
+  public updateRaycasterObjects: Function;
   private _eventList: any;
 
   constructor(element: Element, options?: ISpaceOptions) {
@@ -79,64 +79,61 @@ class Space {
     return this ;
   }
 
-  focus(target:IObject3d){
+  public focus(target: IObject3d) {
     let distance;
     box.setFromObject( target );
 
-		if ( box.isEmpty() === false ) {
+    if ( box.isEmpty() === false ) {
 
-			box.getCenter( center );
-			distance = box.getBoundingSphere( sphere ).radius;
+      box.getCenter( center );
+      distance = box.getBoundingSphere( sphere ).radius;
 
-		} else {
+    } else {
 
-			// Focusing on an Group, AmbientLight, etc
+      // Focusing on an Group, AmbientLight, etc
 
-			center.setFromMatrixPosition( target.matrixWorld );
-			distance = 0.1;
+      center.setFromMatrixPosition( target.matrixWorld );
+      distance = 0.1;
 
-		}
+    }
 
-		delta.set( 0, 0, 1 );
-		delta.applyQuaternion( this.camera.quaternion );
+    delta.set( 0, 0, 1 );
+    delta.applyQuaternion( this.camera.quaternion );
     delta.multiplyScalar( distance * 4 );
-    
-    let start = this.camera.position.clone()    
-    let end = center.add( delta );
-    let scope = this;
+
+    const start = this.camera.position.clone();
+    const end = center.add( delta );
+    const scope = this;
 
     // @ts-ignore
-    Selection.select({}).transition().duration(2000).ease(easeCubicInOut).tween("camera-focus-move", ()=>{
-      let ix = interpolateNumber(start.x,end.x);
-      let iy = interpolateNumber(start.y,end.y);
-      let iz = interpolateNumber(start.z,end.z);
-      
-      let tix:Function ,tiy:Function,tiz:Function;
-      if(scope.orbit){
-        let ot = scope.orbit.target.clone()
-        tix = interpolateNumber(ot.x,target.position.x);
-        tiy = interpolateNumber(ot.y,target.position.y);
-        tiz = interpolateNumber(ot.z,target.position.z);
+    Selection.select({}).transition().duration(2000).ease(easeCubicInOut).tween("camera-focus-move", () => {
+      const ix = interpolateNumber(start.x, end.x);
+      const iy = interpolateNumber(start.y, end.y);
+      const iz = interpolateNumber(start.z, end.z);
+
+      let tix: Function;
+      let tiy: Function;
+      let tiz: Function;
+      if (scope.orbit) {
+        const ot = scope.orbit.target.clone();
+        tix = interpolateNumber(ot.x, target.position.x);
+        tiy = interpolateNumber(ot.y, target.position.y);
+        tiz = interpolateNumber(ot.z, target.position.z);
         // console.log("target:",target)
       }
-      
-      return (t:any)=>{
-        scope.camera.position.set(ix(t),iy(t),iz(t));
 
-        if(scope.orbit){
-          scope.orbit.target.set(tix(t),tiy(t),tiz(t));
+      return (t: any) => {
+        scope.camera.position.set(ix(t), iy(t), iz(t));
+
+        if (scope.orbit) {
+          scope.orbit.target.set(tix(t), tiy(t), tiz(t));
           scope.orbit.update();
         }
-      }
-    })
+      };
+    });
   }
 
-  private getBox(){
-    // set the first objects as global.
-    this .box3 = (new THREE.Box3()).setFromObject(this .scene.children[0]);
-  }
-
-  getControllerById(id:string):Controller{
+  public getControllerById(id: string): Controller {
     return this .controllerIdList.get(id);
   }
 
@@ -147,31 +144,31 @@ class Space {
    * @returns {Controller[]}
    * @memberof Space
    */
-  getControllersByName(key:string):Controller[]{
-    let result:Controller[] = [];
-    this.scene.traverse((o:IObject3d)=>{
-      if(o.$controller && o.$controller.name.includes(key)){
-        result.push(o.$controller)
+  public getControllersByName(key: string): Controller[] {
+    const result: Controller[] = [];
+    this.scene.traverse((o: IObject3d) => {
+      if (o.$controller && o.$controller.name.includes(key)) {
+        result.push(o.$controller);
       }
-    })
+    });
     return result;
   }
 
-  getControllersByTags(key:string):Controller[]{
-    let result:Controller[] = [];
-    this.scene.traverse((o:IObject3d)=>{
-      if(o.$controller && o.$controller.tags.includes(key)){
-        result.push(o.$controller)
+  public getControllersByTags(key: string): Controller[] {
+    const result: Controller[] = [];
+    this.scene.traverse((o: IObject3d) => {
+      if (o.$controller && o.$controller.tags.includes(key)) {
+        result.push(o.$controller);
       }
-    })
+    });
     return result;
   }
 
-  getViewOffset(object:Object3D){
+  public getViewOffset(object: Object3D) {
     const vector = new THREE.Vector3();
-    const result:any = {};
-    const widthHalf = this .innerWidth/2;
-    const heightHalf = this . innerHeight/2;
+    const result: any = {};
+    const widthHalf = this .innerWidth / 2;
+    const heightHalf = this . innerHeight / 2;
 
     vector.setFromMatrixPosition(object.matrixWorld);
     vector.project(this.camera);
@@ -180,20 +177,20 @@ class Space {
     return result;
   }
 
-  getPositionByPercent(x:number, y:number, z:number):Vector3{
-    if(!this .box3){
+  public getPositionByPercent(x: number, y: number, z: number): Vector3 {
+    if (!this .box3) {
       this .getBox();
     }
     const max = this .box3.max;
     const min = this .box3.min;
     return new THREE.Vector3(
-      (max.x - min.x) * x/100 + min.x,
-      (max.y - min.y) * y/100 + min.y,
-      (max.z - min.z) * z/100 + min.z
+      (max.x - min.x) * x / 100 + min.x,
+      (max.y - min.y) * y / 100 + min.y,
+      (max.z - min.z) * z / 100 + min.z,
     );
   }
 
-  addAnimateAction(key: string, func: Function): Space {
+  public addAnimateAction(key: string, func: Function): Space {
     const map = this .animateActionMap;
     if (map.has(key)) {
       console.warn(`${key} already existed in animateActionMap,and replace by new function.`);
@@ -202,7 +199,7 @@ class Space {
     return this ;
   }
 
-  afterLoaded(gltf: any): Space {
+  public afterLoaded(gltf: any): Space {
     const e = this .element;
 
     const scene = this .scene = gltf.scene;
@@ -211,15 +208,15 @@ class Space {
     scene.add(camera);
     scene.add( new THREE.HemisphereLight( 0xffffff, 0xffffff, 1 ) );
 
-
     this .scene.traverse((object3d: IObject3d) => {
-      if(object3d.type !== "Scene"){
+      if (object3d.type !== "Scene") {
+        // tslint:disable-next-line: no-unused-expression
         new Controller(this , object3d);
       }
     });
 
-    Array.from(this .scene.children).forEach((v:Objects)=>{
-      if(v.$controller){
+    Array.from(this .scene.children).forEach((v: Objects) => {
+      if (v.$controller) {
         v.$controller.applyUserData();
       }
     });
@@ -231,7 +228,7 @@ class Space {
     if (!this .raycasterEventMap) {
       this .setRaycasterEventMap({
         click: (intersects: any) => {
-          if(intersects.length >0){
+          if (intersects.length > 0) {
             this .setOutline([intersects[0].object]);
           }
         },
@@ -240,19 +237,19 @@ class Space {
     e.addEventListener("click", this ._eventList.updateMouse);
     e.addEventListener("dblclick", this ._eventList.updateMouse);
     e.addEventListener("mousemove", this ._eventList.updateMouse);
-    if(this .options.outline){
+    if (this .options.outline) {
       this .initOutline();
     }
     this .animate();
     return this ;
   }
-  animate(): Space {
+  public animate(): Space {
 
     this .animateActionMap.forEach((func: Function) => {
       func();
     });
 
-    if(this .bloomPass && !this .stopComposer){
+    if (this .bloomPass && !this .stopComposer) {
       // bloom : object3.layers.enable(1)
       this .renderer.autoClear = false;
       this .renderer.clear();
@@ -261,8 +258,7 @@ class Space {
       this .renderer.clearDepth();
       this .camera.layers.set(0);
       this .renderer.render(this .scene, this .camera);
-    }
-    else if (this .composer && !this .stopComposer) {
+    } else if (this .composer && !this .stopComposer) {
       // outline
       this .composer.render();
     } else {
@@ -273,7 +269,7 @@ class Space {
     return this ;
   }
 
-  autoRotate(flag: boolean, speed?: number) {
+  public autoRotate(flag: boolean, speed?: number) {
     const orbit = this .orbit;
     if (!orbit) {
       return console.error("autoRotate need orbit control");
@@ -290,13 +286,13 @@ class Space {
     }
   }
 
-  createEmptyScene() {
+  public createEmptyScene() {
     const gltf: any = {};
     gltf.scene = new THREE.Scene();
     this .afterLoaded(gltf);
   }
 
-  dispose() {
+  public dispose() {
     const e = this .element;
     // TODO: dispose Materials,Geometries,Textures,Render Targets
 
@@ -310,19 +306,19 @@ class Space {
     this ._eventList = null;
   }
 
-  deleteOutlinePass(key: string) {
+  public deleteOutlinePass(key: string) {
     this .outlinePassMap.delete(key);
   }
 
-  getOutlineArray(key: string) {
-    let result =[];
-    if(this .outlinePassMap.get(key)){
+  public getOutlineArray(key: string) {
+    let result = [];
+    if (this .outlinePassMap.get(key)) {
       result = this .outlinePassMap.get(key).selectedObjects;
     }
     return result;
   }
 
-  init(): Space {
+  public init(): Space {
     const e = this .element;
     const options = this .options || {};
     const renderer = this .renderer = new THREE.WebGLRenderer({alpha: true, antialias: true});
@@ -361,7 +357,7 @@ class Space {
     return this ;
   }
 
-  initBloom(){
+  public initBloom() {
     // note: initBloom() should behind initOutline().
     this .initComposer();
     const composer = this .composer;
@@ -371,30 +367,24 @@ class Space {
 
     const bloomPass = new THREE.UnrealBloomPass(
         new THREE.Vector2( this .innerWidth, this .innerHeight ),
-        1.5, 0.4, 0.85
-      )
-    bloomPass.threshold = 0
-    bloomPass.strength = 1.5
-    bloomPass.radius = 0
-    bloomPass.renderToScreen = true
-    this .bloomPass = bloomPass
+        1.5, 0.4, 0.85,
+      );
+    bloomPass.threshold = 0;
+    bloomPass.strength = 1.5;
+    bloomPass.radius = 0;
+    bloomPass.renderToScreen = true;
+    this .bloomPass = bloomPass;
 
     composer.addPass( bloomPass );
 
     const effectFXAA = new THREE.ShaderPass( THREE.FXAAShader );
     const pixelRatio = this .renderer.getPixelRatio();
-    effectFXAA.material.uniforms[ 'resolution' ].value.x = 1 / ( this .innerWidth * pixelRatio );
-    effectFXAA.material.uniforms[ 'resolution' ].value.y = 1 / ( this .innerHeight * pixelRatio );
+    effectFXAA.material.uniforms.resolution.value.x = 1 / ( this .innerWidth * pixelRatio );
+    effectFXAA.material.uniforms.resolution.value.y = 1 / ( this .innerHeight * pixelRatio );
     composer.addPass( effectFXAA );
   }
 
-  private initComposer(){
-    if(!this .composer){
-      this .composer = new THREE.EffectComposer( this .renderer );
-    }
-  }
-
-  initOrbit(): Space {
+  public initOrbit(): Space {
     const options = this .options || {};
 
     if (options.orbit) {
@@ -405,7 +395,7 @@ class Space {
     return this ;
   }
 
-  initOutline(): Space {
+  public initOutline(): Space {
     this .initComposer();
     const composer = this .composer;
 
@@ -418,26 +408,13 @@ class Space {
     // BUG: this make object3d having a few px black border.
     const effectFXAA = new THREE.ShaderPass( THREE.FXAAShader );
     const pixelRatio = this .renderer.getPixelRatio();
-    effectFXAA.material.uniforms[ 'resolution' ].value.x = 1 / ( this .innerWidth * pixelRatio );
-    effectFXAA.material.uniforms[ 'resolution' ].value.y = 1 / ( this .innerHeight * pixelRatio );
+    effectFXAA.material.uniforms.resolution.value.x = 1 / ( this .innerWidth * pixelRatio );
+    effectFXAA.material.uniforms.resolution.value.y = 1 / ( this .innerHeight * pixelRatio );
     composer.addPass( effectFXAA );
     return this ;
   }
 
-  private initUpdateRaycasterObjects(){
-    function func() {
-      this .raycasterObjects = [];
-      this .scene.traverse((object3d: IObject3d) => {
-        if(object3d.$controller && object3d.$controller.raycasterFlag){
-          this .raycasterObjects.push(object3d.$controller.getRaycasterObject());
-        }
-      });
-      return this .raycasterObjects;
-    }
-    this .updateRaycasterObjects = throttle(func.bind(this),500);
-  }
-
-  load(file: string): Promise< any> {
+  public load(file: string): Promise< any> {
     const scope = this ;
     const progressBar = this .progressBar = new ProgressBar(this .element);
     return new Promise((resolve, reject) => {
@@ -473,14 +450,12 @@ class Space {
     });
   }
 
-  removeAnimateAction(key: string): Space {
+  public removeAnimateAction(key: string): Space {
     this .animateActionMap.delete(key);
     return this ;
   }
 
-
-
-  raycasterAction(): Space {
+  public raycasterAction(): Space {
 
     if (this .raycasterEventMap.size === 0) {
       return this ;
@@ -508,7 +483,7 @@ class Space {
     return this ;
   }
 
-  resize(): Space {
+  public resize(): Space {
     const camera = this .camera;
     const e = this .element;
     this .offset = $(e).offset();
@@ -517,7 +492,7 @@ class Space {
       return this ;
     }
 
-    console.log("resize:",this .offset);
+    console.log("resize:", this .offset);
 
     if (camera.type === "PerspectiveCamera") {
       camera.aspect = e.clientWidth / e.clientHeight;
@@ -529,17 +504,17 @@ class Space {
     return this ;
   }
 
-  setControllerId(id:string,controller:Controller){
+  public setControllerId(id: string, controller: Controller) {
     const list = this .controllerIdList;
-    if(list.has(id)){
-      return console.error("error: same id.",list.get(id),controller)
+    if (list.has(id)) {
+      return console.error("error: same id.", list.get(id), controller);
     }
-    list.set(id,controller);
+    list.set(id, controller);
   }
 
-  setOutline(array: IObject3d[], key?: string) {
-    if(! this .outlinePassMap){
-      return console.warn("initOutlinePass() should be invoked first.")
+  public setOutline(array: IObject3d[], key?: string) {
+    if (! this .outlinePassMap) {
+      return console.warn("initOutlinePass() should be invoked first.");
     }
     const outlinePass = this .outlinePassMap.get(key || "space");
     if (outlinePass) {
@@ -547,50 +522,50 @@ class Space {
     }
   }
 
-  setOutlinePass(key: string, options?: any) {
+  public setOutlinePass(key: string, options?: any) {
     const outlinePass = new THREE.OutlinePass(
       new THREE.Vector2( this .innerWidth, this .innerHeight ), this .scene, this .camera,
     );
     this .composer.addPass( outlinePass );
     const opt = options || {};
-    outlinePass.edgeStrength = isNumber(opt.edgeStrength)?opt.edgeStrength:5;
-    outlinePass.edgeGlow = isNumber(opt.edgeGlow)?opt.edgeGlow:1;
-    outlinePass.pulsePeriod = isNumber(opt.pulsePeriod)?opt.pulsePeriod:2;
+    outlinePass.edgeStrength = isNumber(opt.edgeStrength) ? opt.edgeStrength : 5;
+    outlinePass.edgeGlow = isNumber(opt.edgeGlow) ? opt.edgeGlow : 1;
+    outlinePass.pulsePeriod = isNumber(opt.pulsePeriod) ? opt.pulsePeriod : 2;
     outlinePass.visibleEdgeColor.set(opt.visibleEdgeColor || "#35f2d1");
     outlinePass.hiddenEdgeColor.set(opt.hiddenEdgeColor || "#00ffff");
     this .outlinePassMap.set(key, outlinePass);
 
   }
 
-  setPerspectiveCamera(camera: any, data: any): Space {
+  public setPerspectiveCamera(camera: any, data: any): Space {
     const degToRad  = THREE.Math.degToRad ;
     camera.fov = data.fov || 20;
     camera.position.set(
-      isNumber(data.x) ? data.x : 1, 
-      isNumber(data.y) ? data.y : 1, 
-      isNumber(data.z) ? data.z : 1
+      isNumber(data.x) ? data.x : 1,
+      isNumber(data.y) ? data.y : 1,
+      isNumber(data.z) ? data.z : 1,
     );
     camera.rotation.set(
       degToRad(data.rx || 0),
       degToRad(data.ry || 0),
-      degToRad(data.rz || 0)
+      degToRad(data.rz || 0),
     );
     camera.updateProjectionMatrix();
     this .initOrbit();
     return this ;
   }
-  
+
   /**
    * set the raycaster callback.
    *
-   * @param {Object} eventList 
+   * @param {Object} eventList
    * @param {Function} [eventList.click] - click event callback function
    * @param {Function} [eventList.dblclick] - dblclick event callback function
    * @param {Function} [eventList.mousemove] - mousemove event callback function
    * @returns {Space}
    * @memberof Space
    */
-  setRaycasterEventMap(eventList: any): Space {
+  public setRaycasterEventMap(eventList: any): Space {
     let eventMap = this .raycasterEventMap;
     if (!eventMap) {
       eventMap = this .raycasterEventMap = new Map();
@@ -602,7 +577,7 @@ class Space {
     return this ;
   }
 
-  updateMouse(event: MouseEvent): Space {
+  public updateMouse(event: MouseEvent): Space {
     const mouse = this .mouse;
     switch (event.type) {
       case "click":
@@ -631,6 +606,29 @@ class Space {
     return this ;
   }
 
+  private getBox() {
+    // set the first objects as global.
+    this .box3 = (new THREE.Box3()).setFromObject(this .scene.children[0]);
+  }
+
+  private initComposer() {
+    if (!this .composer) {
+      this .composer = new THREE.EffectComposer( this .renderer );
+    }
+  }
+
+  private initUpdateRaycasterObjects() {
+    function func() {
+      this .raycasterObjects = [];
+      this .scene.traverse((object3d: IObject3d) => {
+        if (object3d.$controller && object3d.$controller.raycasterFlag) {
+          this .raycasterObjects.push(object3d.$controller.getRaycasterObject());
+        }
+      });
+      return this .raycasterObjects;
+    }
+    this .updateRaycasterObjects = throttle(func.bind(this), 500);
+  }
 
 }
 
