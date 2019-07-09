@@ -278,11 +278,10 @@ class Controller {
     const widthHalf = space.innerWidth / 2;
     const heightHalf = space. innerHeight / 2;
     const vector = new THREE.Vector3();
+    box3.setFromObject(this.showingObject3d);
     const ix = interpolateNumber(box3.min.x, box3.max.x);
     const iy = interpolateNumber(box3.min.y, box3.max.y);
     const iz = interpolateNumber(box3.min.z, box3.max.z);
-
-    box3.setFromObject(this.showingObject3d);
 
     vector.set(
       ix(isNumber(p.x) ? p.x : 0.5),
