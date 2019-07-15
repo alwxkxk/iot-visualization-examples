@@ -539,7 +539,7 @@ class Space {
 
   public setPerspectiveCamera(camera: any, data: any): Space {
     const degToRad  = THREE.Math.degToRad ;
-    camera.fov = data.fov || 20;
+    camera.fov = data.fov || 50;
     camera.position.set(
       isNumber(data.x) ? data.x : 1,
       isNumber(data.y) ? data.y : 1,

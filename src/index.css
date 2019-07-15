@@ -15,15 +15,6 @@
   height: 100%;
 }
 
-.strip-bar-container{
-  width: 240px;
-  height:32px;
-  margin: 0 10px;
-}
-
-.strip-bar-box>div{
-  margin: 10px 0 10px 10px;
-}
 
 .hide{
   display: none;
@@ -39,21 +30,6 @@
   -webkit-text-fill-color: transparent;
 }
 
-.left-info{
-  position: absolute;
-  top:10px;
-  left:20px;
-  width:380px;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-}
-
-
-.box{
-  background-color: rgba(20,50,200,0.4);
-  border-radius: 16px;
-}
 
 .card{
   background-color: rgba(20,50,200,0.6);
