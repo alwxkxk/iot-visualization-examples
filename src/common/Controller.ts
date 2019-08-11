@@ -460,7 +460,7 @@ class Controller {
       .add(mesh)
       .add(stripMesh);
 
-      this .space.addAnimateAction(`${this .name}-pipe`, () => {
+      this .space.addAnimateAction(`${this .name}-pipe-${this.object3d.uuid}`, () => {
         texture.offset.y += opt.flowSpeed || 0.01;
       });
     } else {
