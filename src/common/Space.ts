@@ -5,6 +5,7 @@ import "three/examples/js/loaders/GLTFLoader.js";
 import Inspector from "./base/Inspector";
 import ProgressBar from "./components/ProgressBar";
 import Controller from "./Controller";
+import Heatmap from './base/Heatmap';
 
 // outline
 import "three/examples/js/postprocessing/EffectComposer.js";
@@ -37,7 +38,6 @@ const sphere = new THREE.Sphere();
 
 interface ISpaceOptions {
   renderer?: any;
-  inspector?: boolean;
   orbit?: boolean;
   outline?: boolean; // true: initOutline
 }
@@ -52,6 +52,7 @@ class Space {
   public innerHeight: number;
   public innerWidth: number;
   public inspector: Inspector;
+  public heatmap: Heatmap;
   public mouse: any;
   public offset: {
     top: number;
@@ -340,11 +341,9 @@ class Space {
     this .raycaster = new THREE.Raycaster();
     this .mouse = new THREE.Vector2();
 
-    if (options.inspector) {
-      const inspector = this .inspector = new Inspector(this );
-      this .addAnimateAction("inspector", inspector.animateAction);
-      this .setRaycasterEventMap(inspector.raycasterEvent);
-    }
+    const inspector = this .inspector = new Inspector(this );
+    // this .addAnimateAction("inspector", inspector.animateAction);
+    // this .setRaycasterEventMap(inspector.raycasterEvent);
 
     this ._eventList = {
       resize: this .resize.bind(this ),
@@ -604,6 +603,10 @@ class Space {
     mouse.y = -((event.clientY - (this .offset.top)) / this .innerHeight) * 2 + 1;
     this .raycasterAction();
     return this ;
+  }
+
+  public showHeatmap(mainObj: THREE.Object3D) {
+    this.heatmap = new Heatmap(this, mainObj);
   }
 
   private getBox() {
