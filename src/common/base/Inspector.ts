@@ -1,8 +1,9 @@
-import * as dat from "dat.gui";
+// import * as dat from "dat.gui";
 import * as THREE from "three";
-import Space from "../Space.js";
+import Space from "../Space";
+import Events from "./Events";
 // @ts-ignore
-import Stats from "./Stats.js"; // can not import Stats from "THREE/examples/js/libs/stats.min.js"
+import Stats from "./Stats"; // can not import Stats from "THREE/examples/js/libs/stats.min.js"
 
 // https://github.com/mrdoob/stats.js/blob/master/src/Stats.js
 interface IStatsInterface {
@@ -12,49 +13,34 @@ interface IStatsInterface {
 }
 
 class Inspector {
-  public animateAction: Function;
+  // public animateAction: Function;
   public gui: any;
   public raycasterEvent: any;
   public space: Space;
+  public stats: any;
+  public statsAnimate: () => void;
   // public stats: IStatsInterface;
   constructor(space: Space) {
     this .space = space;
     // this .gui = new dat.GUI();
-    // this .animateAction = this ._animateAction();
-
-    // this .raycasterEvent = {
-    //   click: (intersects: any[]) => {
-    //     if (intersects.length === 0) {
-    //       return ;
-    //     }
-    //     const obj = intersects[0].object;
-    //     ( window as IWindow).selectedThing = obj;
-    //     console.log(obj, space.getViewOffset(obj), intersects);
-    //     space.setOutline([obj]);
-
-    //   },
-    // };
     return this ;
   }
 
-  public axesHelp(len: number) {
+  public showAxesHelp(len: number) {
     // The X axis is red. The Y axis is green. The Z axis is blue.
     this.space.scene.add( new THREE.AxesHelper( len || 20 ) );
   }
 
-  public stats() {
-    const stats = this .stats = new Stats();
-    this.space.element.appendChild(stats.dom);
+  public showStats() {
+    this .stats = new Stats();
+    this.space.element.appendChild(this.stats.dom);
+
+    this.statsAnimate = function statsAnimate() {
+      this.stats.update();
+    };
+
+    this.space.on(Events.animate, this.statsAnimate);
   }
-
-  // private _animateAction(): Function {
-  //   const stats = this .stats;
-  //   return () => {
-  //     stats.update();
-  //   };
-  // }
-
-
 
 }
 

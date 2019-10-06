@@ -2,8 +2,8 @@ import {easeCubicInOut} from "d3-ease";
 import { interpolateNumber } from "d3-interpolate";
 import * as Selection from "d3-selection";
 import {isNumber} from "lodash";
-import { Box3, Euler, Group, Vector3 } from "three";
 import { IGroup, ILocation, IMesh, IObject3d, Objects } from "../type";
+import Events from "./base/Events";
 import {
   copyCoordinate,
   getColorByValue,
@@ -20,25 +20,26 @@ class Controller {
   public lineObject3d: IGroup;
   public name: string;
   public object3d: Objects;
-  public originalPosition: Vector3;
-  public originalRotation: Euler;
-  public originalScale: Vector3;
+  public originalPosition: THREE.Vector3;
+  public originalRotation: THREE.Euler;
+  public originalScale: THREE.Vector3;
   public raycasterObject: Objects;
   public pipeObject3d: IGroup;
-  public position: Vector3;
+  public position: THREE.Vector3;
   public pointsObject3d: IGroup;
   public raycasterFlag: boolean; // true: push into space.raycasterObjects to make raycaster available.
   public raycasterRedirect: Controller;
-  public rotation: Euler;
+  public rotation: THREE.Euler;
   public userData: any;
-  public scale: Vector3;
+  public scale: THREE.Vector3;
   public showingObject3d: Objects;
   public showingModel: string;
   public space: Space;
   public status: string; // what action has executed
   public tags: string[];
   public capacityObject3d: IGroup;
-  public box3: Box3;
+  public box3: THREE.Box3;
+  public textureUpdate: () => void;
 
   constructor(space: Space, object3d: Objects, options?: any) {
     this .space = space;
@@ -451,9 +452,12 @@ class Controller {
       .add(mesh)
       .add(stripMesh);
 
-      this .space.addAnimateAction(`${this .name}-pipe-${this.object3d.uuid}`, () => {
+      this.textureUpdate = function textureUpdate() {
         texture.offset.y += opt.flowSpeed || 0.01;
-      });
+      };
+
+      this.space.on(Events.animate, this.textureUpdate);
+
     } else {
       const children = Array.from(object3d.children);
       children.forEach((obj: Objects) => {
@@ -529,13 +533,13 @@ class Controller {
     const scope = this;
     let updatePosition: boolean;
     let updateRotation: boolean;
-    let position: Vector3 = new Vector3();
-    let rotation: Euler = new Euler();
+    let position: THREE.Vector3 = new THREE.Vector3();
+    let rotation: THREE.Euler = new THREE.Euler();
     const op = this.originalPosition.clone();
     const or = this.originalRotation.clone();
     if (location.x || location.y || location.z) {
       updatePosition = true;
-      position = op.add(new Vector3(
+      position = op.add(new THREE.Vector3(
         location.x || 0,
         location.y || 0,
         location.z || 0,
@@ -543,7 +547,7 @@ class Controller {
     }
     if (location.rx || location.ry || location.rz) {
       updateRotation = true;
-      rotation = new Euler(
+      rotation = new THREE.Euler(
         or.x + (degToRad(location.rx || 0)),
         or.y + (degToRad(location.ry || 0)),
         or.z + (degToRad(location.rz || 0)),

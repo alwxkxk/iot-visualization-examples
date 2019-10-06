@@ -21,15 +21,10 @@ import "./base/UnrealBloomPass.js";
 
 import { interpolateNumber } from "d3-interpolate";
 import { isNumber, throttle } from "lodash";
-import {
-  Object3D,
-  Raycaster,
-  Scene,
-  Vector3,
-  WebGLRenderer,
-} from "three";
-import { setTimeout } from "timers";
+// @ts-ignore
+import mitt from "mitt";
 import { IObject3d, ISpaceOptions, Objects } from "../type";
+import Events from "./base/Events";
 
 const THREE = window.THREE;
 const box = new THREE.Box3();
@@ -38,7 +33,6 @@ const center = new THREE.Vector3();
 const sphere = new THREE.Sphere();
 
 class Space {
-  public animateActionMap: Map< string, Function>;
   public bloomPass: any;
   public box3: any;
   public camera: any;
@@ -59,15 +53,17 @@ class Space {
   // outlinePass:any;
   public outlinePassMap: Map< string, any>;
   public progressBar: ProgressBar;
-  public raycaster: Raycaster;
+  public raycaster: THREE.Raycaster;
   public raycasterEventMap: Map< string, Function>;
   public raycasterObjects: IObject3d[];
   public raycasterRecursive: boolean;
-  public renderer: WebGLRenderer;
-  public scene: Scene;
+  public renderer: THREE.WebGLRenderer;
+  public scene: THREE.Scene;
   public stopComposer: boolean; // antialias : renderer > composer with FXAAShader > composer without FXAAShader
   public updateRaycasterObjects: Function;
-  private _eventList: any;
+  public emitter: mitt.Emitter;
+  public animationId: number;
+  private eventList: any;
 
   constructor(element: Element, options?: ISpaceOptions) {
     this .element = element;
@@ -161,7 +157,7 @@ class Space {
     return result;
   }
 
-  public getViewOffset(object: Object3D) {
+  public getViewOffset(object: THREE.Object3D) {
     const vector = new THREE.Vector3();
     const result: any = {};
     const widthHalf = this .innerWidth / 2;
@@ -174,7 +170,7 @@ class Space {
     return result;
   }
 
-  public getPositionByPercent(x: number, y: number, z: number): Vector3 {
+  public getPositionByPercent(x: number, y: number, z: number): THREE.Vector3 {
     if (!this .box3) {
       this .getBox();
     }
@@ -185,15 +181,6 @@ class Space {
       (max.y - min.y) * y / 100 + min.y,
       (max.z - min.z) * z / 100 + min.z,
     );
-  }
-
-  public addAnimateAction(key: string, func: Function): Space {
-    const map = this .animateActionMap;
-    if (map.has(key)) {
-      console.warn(`${key} already existed in animateActionMap,and replace by new function.`);
-    }
-    map.set(key, func);
-    return this ;
   }
 
   public afterLoaded(gltf: any): Space {
@@ -231,9 +218,9 @@ class Space {
         },
       });
     }
-    e.addEventListener("click", this ._eventList.updateMouse);
-    e.addEventListener("dblclick", this ._eventList.updateMouse);
-    e.addEventListener("mousemove", this ._eventList.updateMouse);
+    e.addEventListener("click", this .eventList.updateMouse);
+    e.addEventListener("dblclick", this .eventList.updateMouse);
+    e.addEventListener("mousemove", this .eventList.updateMouse);
     if (this .options.outline) {
       this .initOutline();
     }
@@ -242,9 +229,7 @@ class Space {
   }
   public animate(): Space {
 
-    this .animateActionMap.forEach((func: Function) => {
-      func();
-    });
+    this.emit(Events.animate, null);
 
     if (this .bloomPass && !this .stopComposer) {
       // bloom : object3.layers.enable(1)
@@ -262,25 +247,8 @@ class Space {
       this .renderer.render( this .scene, this .camera );
     }
 
-    requestAnimationFrame( this .animate.bind(this ) );
+    this.animationId = requestAnimationFrame( this .animate.bind(this ) );
     return this ;
-  }
-
-  public autoRotate(flag: boolean, speed?: number) {
-    const orbit = this .orbit;
-    if (!orbit) {
-      return console.error("autoRotate need orbit control");
-    }
-    orbit.autoRotate = flag;
-
-    if (flag) {
-      orbit.autoRotateSpeed = speed || 2;
-      this .addAnimateAction("autoRotate", () => {
-        orbit.update();
-      });
-    } else {
-      this .removeAnimateAction("autoRotate");
-    }
   }
 
   public createEmptyScene() {
@@ -291,16 +259,18 @@ class Space {
 
   public dispose() {
     const e = this .element;
+
+    cancelAnimationFrame(this.animationId);
     // TODO: dispose Materials,Geometries,Textures,Render Targets
 
     // @ts-ignore : scene has dispose method.
     this .scene.dispose();
 
-    window.removeEventListener("resize", this ._eventList.resize);
-    e.removeEventListener("click", this ._eventList.updateMouse);
-    e.removeEventListener("dblclick", this ._eventList.updateMouse);
-    e.removeEventListener("mousemove", this ._eventList.updateMouse);
-    this ._eventList = null;
+    window.removeEventListener("resize", this .eventList.resize);
+    e.removeEventListener("click", this .eventList.updateMouse);
+    e.removeEventListener("dblclick", this .eventList.updateMouse);
+    e.removeEventListener("mousemove", this .eventList.updateMouse);
+    this .eventList = null;
   }
 
   public deleteOutlinePass(key: string) {
@@ -316,6 +286,7 @@ class Space {
   }
 
   public init(): Space {
+    this.emitter = mitt();
     const e = this .element;
     const options = this .options || {};
     const renderer = this .renderer = new THREE.WebGLRenderer({alpha: true, antialias: true});
@@ -327,7 +298,6 @@ class Space {
 
     this .innerWidth =  e.clientWidth;
     this .innerHeight =  e.clientHeight;
-    this .animateActionMap = new Map();
     this .controllerIdList = new Map();
     this .offset = $(e).offset();
 
@@ -337,16 +307,14 @@ class Space {
     this .raycaster = new THREE.Raycaster();
     this .mouse = new THREE.Vector2();
 
-    const inspector = this .inspector = new Inspector(this );
-    // this .addAnimateAction("inspector", inspector.animateAction);
-    // this .setRaycasterEventMap(inspector.raycasterEvent);
+    this .inspector = new Inspector(this );
 
-    this ._eventList = {
+    this .eventList = {
       resize: this .resize.bind(this ),
       updateMouse: this .updateMouse.bind(this ),
     };
 
-    window.addEventListener("resize", this ._eventList.resize);
+    window.addEventListener("resize", this .eventList.resize);
     this .initUpdateRaycasterObjects();
 
     return this ;
@@ -443,11 +411,6 @@ class Space {
           reject(error);
         });
     });
-  }
-
-  public removeAnimateAction(key: string): Space {
-    this .animateActionMap.delete(key);
-    return this ;
   }
 
   public raycasterAction(): Space {
@@ -603,6 +566,18 @@ class Space {
 
   public showHeatmap(mainObj: THREE.Object3D) {
     this.heatmap = new Heatmap(this, mainObj);
+  }
+
+  public on(type: string, handler: any) {
+    this.emitter.on(type, handler);
+  }
+
+  public off(type: string, handler: any) {
+    this.emitter.off(type, handler);
+  }
+
+  public emit(type: string, evt: any) {
+    this.emitter.emit(type, evt);
   }
 
   private getBox() {
