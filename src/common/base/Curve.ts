@@ -1,17 +1,11 @@
-import { easeExpInOut, interpolateHsl, interpolateNumber, easeLinear } from "d3";
+import { easeExpInOut, easeLinear, interpolateHsl, interpolateNumber } from "d3";
 import * as Selection from "d3-selection";
 import "d3-transition";
 import { CubicBezierCurve3, Vector3 } from "three";
+import { ICurveOptions, IObject3d } from "../../type";
 import Space from "../Space";
 
-const THREE = ( window as IWindow).THREE;
-
-interface ICurveOptions {
-  line?: boolean; // true: make curve become straight line
-  controlPoint?: Vector3; // undefined: auto calculate controlPoint
-  pointModel?: boolean; // true: show points instead of line.
-  pointSize?: number;// point size
-}
+const THREE = window.THREE;
 
 class Curve {
   public startPoint: Vector3;
@@ -59,15 +53,14 @@ class Curve {
     const geometry = new THREE.BufferGeometry();
     geometry.addAttribute( "position", new THREE.BufferAttribute( new Float32Array(vertices), 3 ) );
     // const geometry = new THREE.TubeGeometry(curve, 64, 0.03);
-    let curveObject:IObject3d;
-    if(this.options.pointModel){
+    let curveObject: IObject3d;
+    if (this.options.pointModel) {
       const material = new THREE.PointsMaterial({
         size: this.options.pointSize || 1,
         vertexColors: THREE.VertexColors,
       });
       curveObject = new THREE.Points( geometry, material );
-    }
-    else{
+    } else {
       const material = new THREE.MeshBasicMaterial({ vertexColors: THREE.VertexColors} );
       curveObject = new THREE.Line( geometry, material );
     }
@@ -123,15 +116,15 @@ class Curve {
     });
   }
 
-  public colorEasing(color1?: string, color2?: string, easeFunction?: Function,options?:any) {
+  public colorEasing(color1?: string, color2?: string, easeFunction?: Function, options?: any) {
     const colorArray: number[] = [];
     const len = this .object3d.geometry.attributes.position.count;
     const easeFun = easeFunction || easeExpInOut;
-    const repeat = options?options.repeat:false;
+    const repeat = options ? options.repeat : false;
     const rgbInterpolate = interpolateHsl(color1 || "#aaaaaa", color2 || "#00ffff");
     for (let i = 0; i < len; i++) {
-      let t =i/len;
-      let v = easeFun(t)
+      const t = i / len;
+      const v = easeFun(t);
       // if (i > len / 2) {
       //   v = 2 - 2 * i / len;
       // } else {
@@ -149,9 +142,9 @@ class Curve {
     Selection.select({}).transition().duration(2000).ease(easeLinear).tween("color-easing", () => {
       return (t: number) => {
         const anchor = Number((t * len).toFixed(0));
-        let b = colorArray.slice(anchor * 3);
-        let f = colorArray.slice(0, anchor * 3);
-        const newColorArray: number[] = [].concat(b,f) ;
+        const b = colorArray.slice(anchor * 3);
+        const f = colorArray.slice(0, anchor * 3);
+        const newColorArray: number[] = [].concat(b, f) ;
         this .object3d.geometry.addAttribute( "color", new THREE.Float32BufferAttribute( newColorArray, 3 ) );
       };
 

@@ -2,10 +2,10 @@ import {easeCubicInOut} from "d3-ease";
 import * as Selection from "d3-selection";
 import "three/examples/js/controls/OrbitControls.js";
 import "three/examples/js/loaders/GLTFLoader.js";
+import Heatmap from "./base/Heatmap";
 import Inspector from "./base/Inspector";
 import ProgressBar from "./components/ProgressBar";
 import Controller from "./Controller";
-import Heatmap from './base/Heatmap';
 
 // outline
 import "three/examples/js/postprocessing/EffectComposer.js";
@@ -29,18 +29,14 @@ import {
   WebGLRenderer,
 } from "three";
 import { setTimeout } from "timers";
+import { IObject3d, ISpaceOptions, Objects } from "../type";
 
-const THREE = (window as IWindow).THREE;
+const THREE = window.THREE;
 const box = new THREE.Box3();
 const delta = new THREE.Vector3();
 const center = new THREE.Vector3();
 const sphere = new THREE.Sphere();
 
-interface ISpaceOptions {
-  renderer?: any;
-  orbit?: boolean;
-  outline?: boolean; // true: initOutline
-}
 class Space {
   public animateActionMap: Map< string, Function>;
   public bloomPass: any;

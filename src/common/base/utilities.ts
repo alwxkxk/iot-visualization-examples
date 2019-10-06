@@ -1,3 +1,5 @@
+import { Objects } from "../../type";
+
 export function resetCoordinate(obj: Objects) {
   obj.position.set(0, 0, 0);
   obj.scale.set(1, 1, 1);

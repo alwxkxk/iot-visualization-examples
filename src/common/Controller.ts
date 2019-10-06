@@ -3,6 +3,7 @@ import { interpolateNumber } from "d3-interpolate";
 import * as Selection from "d3-selection";
 import {isNumber} from "lodash";
 import { Box3, Euler, Group, Vector3 } from "three";
+import { IGroup, ILocation, IMesh, IObject3d, Objects } from "../type";
 import {
   copyCoordinate,
   getColorByValue,
@@ -11,20 +12,10 @@ import {
 } from "./base/utilities";
 import Space from "./Space";
 
-const THREE = (window as IWindow).THREE;
+const THREE = window.THREE;
 const degToRad  = THREE.Math.degToRad ;
 const box3 = new THREE.Box3();
 
-interface ILocation {
-  x?: number;
-  y?: number;
-  z?: number;
-  rx?: number;
-  ry?: number;
-  rz?: number;
-  ef?: string; // ease function
-  t?: number; // duration time
-}
 class Controller {
   public lineObject3d: IGroup;
   public name: string;

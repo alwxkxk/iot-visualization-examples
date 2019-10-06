@@ -36,7 +36,7 @@
     "lodash": "^4.17.11",
     "popper.js": "^1.15.0",
     "style-loader": "^0.23.1",
-    "three": "^0.106.2",
+    "three": "^0.109.0",
     "ts-loader": "^6.0.2",
     "typescript": "^3.5.1",
     "uuid": "^3.3.2",
