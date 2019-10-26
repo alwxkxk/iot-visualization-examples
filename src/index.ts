@@ -36,6 +36,7 @@ let lockServer: Controller;
 window.debugSpace = space;
 const THREE = window.THREE;
 let capacityFlag = false;
+let temperatureFlag = false;
 let oldRaycasterObjects: IObject3d[];
 
 const updatePopoverContent = (() => {
@@ -178,6 +179,11 @@ $("#capacity-button").on("click", () => {
   }
 });
 
+$("#temperature-button").on("click", () => {
+  temperatureFlag = !temperatureFlag;
+  space.heatmap.visible(temperatureFlag);
+});
+
 function moveRack(results: any[]) {
   if (results.length > 0) {
     const rack = results[0].object.$controller.raycasterRedirect;
@@ -252,13 +258,14 @@ space.load("./static/3d/datacenter-0715.glb")
     const position = new THREE.Vector3();
     position.setFromMatrixPosition( r.showingObject3d.matrixWorld );
     datas.push({
-      value: Math.random() * 10,
+      value: Math.min(Math.random() * 10 + 2, 10),
       x: position.x,
       y: position.z,
     });
   });
   // @ts-ignore
   space.heatmap.setDatas(datas);
+  space.heatmap.visible(temperatureFlag);
 
   // test();
 

@@ -2,19 +2,16 @@ import Curve from "./common/base/Curve";
 import Space from "./common/Space";
 const element = $("#3d-space")[0];
 const space = new Space(element, {
-  inspector: true,
   orbit: true,
 });
 
-( window as IWindow).debugSpace = space;
-const THREE = ( window as IWindow).THREE;
+window.debugSpace = space;
+const THREE = window.THREE;
 
 space.createEmptyScene();
 space.camera.position.set(69, 88, -157);
 space.camera.rotation.set(-2.6, 0.36, 2.94);
 space.orbit.update();
-
-
 
 function ef(repeat: number) {
   return (input: number) => {
@@ -60,9 +57,11 @@ const state = {
     // },
   ],
 };
+// @ts-ignore
 const canvas = window.canvasDebug = document.createElement("canvas");
+// @ts-ignore
 const ctx = window.ctxDebug = canvas.getContext("2d");
-
+// @ts-ignore
 const img1 = window.img1 = new Image();
 // drawing of the test image - img1
 img1.onload = function() {
@@ -73,7 +72,7 @@ img1.onload = function() {
     globeWidth = ctx.canvas.width / 2;
     globeHeight = ctx.canvas.height / 2;
 
-    state.users.forEach((v)=> {
+    state.users.forEach((v) => {
       const l = convertLatLngToFlatCoords(v.geo.lat, v.geo.lng);
       console.log("convertFlatCoordsToSphereCoords", convertFlatCoordsToSphereCoords(l.x, l.y));
       console.log("convertLatLngToSphereCoords", convertLatLngToSphereCoords(v.geo.lat, v.geo.lng));

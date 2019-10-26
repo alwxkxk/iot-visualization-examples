@@ -99,4 +99,8 @@ export default class Heatmap {
     this.max = value || 0;
   }
 
+  public visible(flag: boolean) {
+    this.plane.visible = flag;
+  }
+
 }
