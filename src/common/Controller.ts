@@ -182,11 +182,25 @@ class Controller {
     if (hasGeometry(this .showingObject3d) && this .showingModel === "line") {
       return;
     }
-
     if (!this .lineObject3d) {
       this .initLineModel(options);
     }
     this .showingModel = "line";
+    // move children to lineObject3d
+    const object3d = this .lineObject3d;
+    const flag = hasGeometry(object3d);
+
+    this .setRaycasterObject(object3d);
+
+    if (!flag) {
+      const children = Array.from(this .showingObject3d.children);
+      children.forEach((o: Objects) => {
+        if (o.$controller) {
+          object3d.add(o);
+          o.$controller.changeToLineModel(options);
+        }
+      });
+    }
     this .updateShowingObject3d(this .lineObject3d);
     return this ;
   }
@@ -200,6 +214,21 @@ class Controller {
       this .initPipeModel(options);
     }
     this .showingModel = "pipe";
+    // move children to pipeObject3d
+    const object3d = this .pipeObject3d;
+    const flag = hasGeometry(object3d);
+
+    this .setRaycasterObject(object3d);
+
+    if (!flag) {
+      const children = Array.from(this .showingObject3d.children);
+      children.forEach((o: Objects) => {
+        if (o.$controller) {
+          object3d.add(o);
+          o.$controller.changeToPipeModel(options);
+        }
+      });
+    }
     this .updateShowingObject3d(this .pipeObject3d);
     return this ;
   }
@@ -213,6 +242,21 @@ class Controller {
       this .initPointsModel(options);
     }
     this .showingModel = "points";
+    // move children to pointsObject3d
+    const object3d = this .pointsObject3d;
+    const flag = hasGeometry(object3d);
+
+    this .setRaycasterObject(object3d);
+
+    if (!flag) {
+      const children = Array.from(this .showingObject3d.children);
+      children.forEach((o: Objects) => {
+        if (o.$controller) {
+          object3d.add(o);
+          o.$controller.changeToPointsModel(options);
+        }
+      });
+    }
     this .updateShowingObject3d(this .pointsObject3d);
     return this ;
   }
@@ -619,10 +663,10 @@ class Controller {
     if (parent) {
       // remove old showingObject3d from parent
       // append to parent
+      // console.log(parent.name, "add", newShowingObject3d.name, "remove", showingObject3d.name);
       parent
       .remove(showingObject3d)
       .add(newShowingObject3d);
-
     }
     copyCoordinate(showingObject3d, newShowingObject3d);
     this .showingObject3d = newShowingObject3d;
