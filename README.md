@@ -15,6 +15,10 @@ npm run server
 ```
 
 ## simple datacenter
-- [https://www.alwxkxk.xyz/](https://www.alwxkxk.xyz/)
+- [https://alwxkxk.github.io/iot-visualization-examples](https://alwxkxk.github.io/iot-visualization-examples)
 - [Operational Video -- Youtube](https://www.youtube.com/watch?v=q_sh1b_sIEM)
 ![iot-visualization-datacenter.jpg](https://i.loli.net/2019/07/03/5d1c78389a78571470.jpg)
+
+## other pages
+- [edifice](https://alwxkxk.github.io/iot-visualization-examples/edifice.html)
+- [global](https://alwxkxk.github.io/iot-visualization-examples/global.html)
