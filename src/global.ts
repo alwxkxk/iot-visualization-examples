@@ -115,7 +115,7 @@ img1.onload = function() {
 
 };
 
-img1.src = "/static/images//global9.png";
+img1.src = "./static/images//global9.png";
 
 function convertLatLngToSphereCoords(latitude: number, longitude: number) {
   const phi = (latitude * Math.PI) / 180;
