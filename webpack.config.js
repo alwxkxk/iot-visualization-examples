@@ -6,9 +6,8 @@ module.exports = {
   entry: {
     "global_setting":'./src/common/global_setting.ts',
     index:'./src/index.ts',
-    components:'./src/components.ts',
     sw:'./src/common/sw/sw.ts',
-    test:'./src/test.ts',
+    global:'./src/global.ts',
     edifice:'./src/edifice.ts'
   },
   devtool: 'inline-source-map',
@@ -29,17 +28,11 @@ module.exports = {
       chunks:["global_setting","sw","edifice"]
     }),
     new HtmlWebpackPlugin({
-      filename:"test.html",
-      template:'./src/test.html',
+      filename:"global.html",
+      template:'./src/global.html',
       inject:false,
-      chunks:["global_setting","sw","test"]
+      chunks:["global_setting","sw","global"]
     }),
-    new HtmlWebpackPlugin({
-      filename:"components.html",
-      template:'./src/components.html',
-      inject:false,
-      chunks:["global_setting","sw","components"]
-    })
   ],
   mode:"development",//production or development
   module: {

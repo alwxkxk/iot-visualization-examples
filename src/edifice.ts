@@ -17,7 +17,7 @@ const space = new Space(element, {
 
 // @ts-ignore
 window.debugSpace =space;
-const THREE = (< IWindow>window).THREE;
+const THREE = window.THREE;
 
 // mousemove popover
 function mousemoveHandle(intersections:any[]) {

@@ -1,7 +1,7 @@
 importScripts("static/js/workbox-sw.js");
 
 // Declare workbox
-declare const workbox: typeof import("workbox-sw");
+// declare const workbox: typeof import("workbox-sw");
 
 if (workbox) {
   console.log(`Yay! Workbox is loaded 🎉`);
