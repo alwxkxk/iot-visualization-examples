@@ -14,7 +14,7 @@
   </script>
   <script src="<%= htmlWebpackPlugin.files.chunks['global_setting'].entry %>"></script>
 </head>
-<body style="background-image:linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.9)),url('/static/images/sky.jpg');">
+<body style="background-image:linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.9)),url('./static/images/sky.jpg');">
   <div style="height:100vh;">
     <div id="3d-space" style="height:100%;width:60vw;margin:auto;position: relative;overflow: hidden;"></div>
     <p id="popover-test" style="background-color: rgba(255,255,255,0.8);position: absolute;pointer-events:none;"></p>
@@ -25,47 +25,47 @@
   <div class="left-info cursor-default">
     <div class="row box" style="margin:10px 0;" >
       <div class="info-bar col-6" data-toggle="tooltip" title="Rent">
-        <img alt="hire" class="icon" src="/static/images/hire.svg" >
+        <img alt="hire" class="icon" src="./static/images/hire.svg" >
         <p class="text-success" >48 / 48</p>
       </div>  
       <div class="info-bar col-6" data-toggle="tooltip" title="Elevator">
-        <img alt="elevator" class="icon" src="/static/images/elevator.svg">
+        <img alt="elevator" class="icon" src="./static/images/elevator.svg">
         <p class="text-success">4 / 4</p>
       </div>           
       <div class="info-bar col-6" data-toggle="tooltip" title="Air Conditioning">
-        <img alt="ac" class="icon" src="/static/images/ac.svg">
+        <img alt="ac" class="icon" src="./static/images/ac.svg">
         <p class="text-success">145 / 146</p>
       </div>    
       <div class="info-bar col-6" data-toggle="tooltip" title="Clean Floor">
-        <img alt="clean" class="icon" src="/static/images/clean.svg">
+        <img alt="clean" class="icon" src="./static/images/clean.svg">
         <p class="text-danger">2 / 24</p>
       </div> 
       <div class="info-bar col-6" data-toggle="tooltip" title="Employee">
-        <img alt="employee" class="icon" src="/static/images/employee.svg">
+        <img alt="employee" class="icon" src="./static/images/employee.svg">
         <p class="text-success">18 / 19</p>
       </div>      
       <div class="info-bar col-6" data-toggle="tooltip" title="Parking Lot">
-        <img alt="car" class="icon" src="/static/images/car.svg">
+        <img alt="car" class="icon" src="./static/images/car.svg">
         <p class="text-warning">190 / 240</p>
       </div> 
     </div>
     <div class="row box strip-bar-box cursor-default" style="margin:10px 0;">
       <div class="flex" data-toggle="tooltip" title="Repair Fees">
-        <img alt="repair" class="icon" src="/static/images/repair.svg">
+        <img alt="repair" class="icon" src="./static/images/repair.svg">
         <div  class="strip-bar-container">
             <div id="stripe-bar1" class="full"></div>
         </div>
         <p class="text-success">$84</p>
       </div>
       <div class="flex" data-toggle="tooltip" title="Water Fee">
-        <img alt="water" class="icon" src="/static/images/water.svg">
+        <img alt="water" class="icon" src="./static/images/water.svg">
         <div  class="strip-bar-container">
             <div id="stripe-bar2" class="full"></div>
         </div>
         <p class="text-warning">$140</p>
       </div>
       <div class="flex" data-toggle="tooltip" title="Power Fee">
-          <img alt="power" class="icon" src="/static/images/power.svg">
+          <img alt="power" class="icon" src="./static/images/power.svg">
         <div  class="strip-bar-container">
             <div id="stripe-bar3" class="full"></div>
         </div>
@@ -84,68 +84,68 @@
   <div class="right-info ">
     <div class="row box" style="margin:10px 0;" >
       <div class="info-bar icon-list">
-        <img alt="temperature" class="icon" data-toggle="tooltip" title="temperature" src="/static/images/temperature.svg" >
-        <img alt="icon" class="icon cursor-pointer" data-toggle="tooltip" title="icon" src="/static/images/icon-list.svg" >
-        <img alt="full screen" class="icon cursor-pointer" data-toggle="tooltip" title="full screen" src="/static/images/full-screen.svg" >
+        <img alt="temperature" class="icon" data-toggle="tooltip" title="temperature" src="./static/images/temperature.svg" >
+        <img alt="icon" class="icon cursor-pointer" data-toggle="tooltip" title="icon" src="./static/images/icon-list.svg" >
+        <img alt="full screen" class="icon cursor-pointer" data-toggle="tooltip" title="full screen" src="./static/images/full-screen.svg" >
         
       </div>  
       <div class="info-bar icon-list">
-        <img alt="camera" class="icon" data-toggle="tooltip" title="camera" src="/static/images/camera.svg" >
-        <img alt="controller" class="icon" data-toggle="tooltip" title="controller" src="/static/images/button.svg" >
+        <img alt="camera" class="icon" data-toggle="tooltip" title="camera" src="./static/images/camera.svg" >
+        <img alt="controller" class="icon" data-toggle="tooltip" title="controller" src="./static/images/button.svg" >
         <a href="https://github.com/alwxkxk/iot-visualization-examples" target="_blank">
-          <img alt="source code" class="icon" data-toggle="tooltip" title="source code" src="/static/images/github.svg" >
+          <img alt="source code" class="icon" data-toggle="tooltip" title="source code" src="./static/images/github.svg" >
         </a>
       </div>  
   </div>
   <div class="row box" style="margin:10px 0;" >
     <div class="icon-description">
-      <img alt="danger" class="icon" src="/static/images/danger.svg" >
+      <img alt="danger" class="icon" src="./static/images/danger.svg" >
       A dangerous event has been detected. Staff must handle it immediately.
     </div>
     <div class="icon-description">
-      <img alt="warn" class="icon" src="/static/images/warn.svg" >
+      <img alt="warn" class="icon" src="./static/images/warn.svg" >
       A warning event has been detected. Staff should handle it.
     </div>
     <div class="icon-description">
-      <img alt="repair" class="icon" src="/static/images/repair.svg" >
+      <img alt="repair" class="icon" src="./static/images/repair.svg" >
       There is a problem here that needs to be handled by the maintenance staff.
     </div>
     <div class="icon-description">
-      <img alt="power" class="icon" src="/static/images/power.svg" >
+      <img alt="power" class="icon" src="./static/images/power.svg" >
       The power consumption is abnormal, please check the reason.
     </div>
     <div class="icon-description">
-      <img alt="water" class="icon" src="/static/images/water.svg" >
+      <img alt="water" class="icon" src="./static/images/water.svg" >
       The water consumption is abnormal, please check the reason.
     </div>
     <div class="icon-description">
-      <img alt="smoking" class="icon" src="/static/images/smoking.svg" >
+      <img alt="smoking" class="icon" src="./static/images/smoking.svg" >
       Smoke is detected, please check if someone is smoking or burning.
     </div>
     <div class="icon-description">
-      <img alt="temperature" class="icon" src="/static/images/temperature.svg" >
+      <img alt="temperature" class="icon" src="./static/images/temperature.svg" >
       The temperature is abnormal. Please check the related equipment.
     </div>
     <div class="icon-description">
-      <img alt="elevator" class="icon" src="/static/images/elevator.svg" >
+      <img alt="elevator" class="icon" src="./static/images/elevator.svg" >
       The elevator is running abnormally.
     </div>
     <div class="icon-description">
-      <img alt="message" class="icon" src="/static/images/message.svg" >
+      <img alt="message" class="icon" src="./static/images/message.svg" >
       Customer complaints or suggestions.
     </div>
   </div>
   <div class="row box" style="margin:10px 0;" >
     <div class="icon-description">
-      <img alt="phone" class="icon" src="/static/images/phone.svg" >
+      <img alt="phone" class="icon" src="./static/images/phone.svg" >
       119687402745
     </div>
     <div class="icon-description">
-      <img alt="phone" class="icon" src="/static/images/phone.svg" >
+      <img alt="phone" class="icon" src="./static/images/phone.svg" >
       12088884546
     </div>
     <div class="icon-description">
-      <img alt="phone" class="icon" src="/static/images/phone.svg" >
+      <img alt="phone" class="icon" src="./static/images/phone.svg" >
       114767653128
     </div>
   </div>
