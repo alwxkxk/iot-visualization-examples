@@ -6,6 +6,8 @@
 
 git lfs should be installed before git clone:`git lfs install`
 ```bash
+# git lfs install
+
 # install package
 yarn 
 # build
@@ -22,3 +24,11 @@ npm run server
 ## other pages
 - [edifice](https://alwxkxk.github.io/iot-visualization-examples/edifice.html)
 - [global](https://alwxkxk.github.io/iot-visualization-examples/global.html)
+
+## refactor
+You can get the history version by git tag v0.1.
+This project go refactoring since 2021/11/26:
+- use echart replacing antv/g2
+- use tailwindcss
+- refactor code
+- update package version
