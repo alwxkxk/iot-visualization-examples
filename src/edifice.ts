@@ -1,3 +1,4 @@
+import "./common/global_setting";
 import Space from "./common/Space";
 import { Scene, Vector3 } from "three";
 import Curve from "./common/base/Curve";

@@ -1,3 +1,4 @@
+import "./common/global_setting";
 import Curve from "./common/base/Curve";
 import Space from "./common/Space";
 const element = $("#3d-space")[0];

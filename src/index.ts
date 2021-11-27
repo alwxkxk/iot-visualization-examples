@@ -1,9 +1,12 @@
+import "./common/global_setting";
+
 import G2 = require("@antv/g2");
 import Controller from "./common/Controller";
 import Space from "./common/Space";
 import "./index.css";
 import { IObject3d } from "./type";
 
+const THREE = window.THREE
 const openDoorLocation = {
   ry: 120,
 };
@@ -34,7 +37,6 @@ let lockServer: Controller;
 
 // @ts-ignore
 window.debugSpace = space;
-const THREE = window.THREE;
 let capacityFlag = false;
 let temperatureFlag = false;
 let oldRaycasterObjects: IObject3d[];

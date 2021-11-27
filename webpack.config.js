@@ -6,32 +6,30 @@ module.exports = {
   entry: {
     "global_setting":'./src/common/global_setting.ts',
     index:'./src/index.ts',
-    sw:'./src/common/sw/sw.ts',
     global:'./src/global.ts',
     edifice:'./src/edifice.ts'
   },
   devtool: 'inline-source-map',
   plugins: [
-    new CopyPlugin([{
-      from:'./static/**/*'
-    }]),
+    new CopyPlugin({
+      patterns:[
+        {from:'./static/**/*'}
+      ]
+    }),
     new HtmlWebpackPlugin({
       filename:"index.html",
       template:'./src/index.html',
-      inject:false,
-      chunks:["global_setting","sw","index"]
+      chunks:['index']
     }),
     new HtmlWebpackPlugin({
       filename:"edifice.html",
       template:'./src/edifice.html',
-      inject:false,
-      chunks:["global_setting","sw","edifice"]
+      chunks:["edifice"]
     }),
     new HtmlWebpackPlugin({
       filename:"global.html",
       template:'./src/global.html',
-      inject:false,
-      chunks:["global_setting","sw","global"]
+      chunks:["global"]
     }),
   ],
   mode:"development",//production or development
