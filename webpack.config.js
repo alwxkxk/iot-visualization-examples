@@ -10,6 +10,9 @@ module.exports = {
     edifice:'./src/edifice.ts'
   },
   devtool: 'inline-source-map',
+  devServer: {
+    static: './dist'
+  },
   plugins: [
     new CopyPlugin({
       patterns:[
@@ -30,7 +33,7 @@ module.exports = {
       filename:"global.html",
       template:'./src/global.html',
       chunks:["global"]
-    }),
+    })
   ],
   mode:"development",//production or development
   module: {

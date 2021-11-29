@@ -6,8 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "webpack --config webpack.config.js",
-    "build-watch": "webpack --config webpack.config.js --watch",
-    "server": "http-server ./dist -p 8001"
+    "start": "webpack-dev-server --open "
   },
   "repository": {
     "type": "git",
@@ -50,10 +49,10 @@
     "copy-webpack-plugin": "^10.0.0",
     "css-loader": "^6.5.1",
     "html-webpack-plugin": "^5.5.0",
-    "http-server": "^14.0.0",
     "style-loader": "^3.3.1",
     "ts-loader": "^9.2.6",
     "webpack": "^5.64.4",
-    "webpack-cli": "^4.9.1"
+    "webpack-cli": "^4.9.1",
+    "webpack-dev-server": "^4.6.0"
   }
 }
