@@ -195,7 +195,7 @@ class Space {
     this .scene.traverse((object3d: IObject3d) => {
       if (object3d.type !== "Scene") {
         // tslint:disable-next-line: no-unused-expression
-        new Controller(this , object3d);
+        const control = new Controller(this , object3d);
       }
     });
 

@@ -152,9 +152,9 @@ space.load("./static/3d/edifice-0624.glb")
 })
 
 $.when($.ready).then(()=>{
-  new StripeBar($("#stripe-bar1")[0], 30);
-  new StripeBar($("#stripe-bar2")[0], 85,{twinkle:true});
-  new StripeBar($("#stripe-bar3")[0], 100,{twinkle:true});
+  const b1 = new StripeBar($("#stripe-bar1")[0], 30);
+  const b2 = new StripeBar($("#stripe-bar2")[0], 85,{twinkle:true});
+  const b3 = new StripeBar($("#stripe-bar3")[0], 100,{twinkle:true});
 
   $('[data-toggle="tooltip"]').tooltip()
 })
