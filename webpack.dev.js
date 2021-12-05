@@ -37,7 +37,7 @@ module.exports = {
       chunks:["global"]
     })
   ],
-  mode:"production",//production or development
+  mode:"development",//production or development
   module: {
     rules: [
       {
