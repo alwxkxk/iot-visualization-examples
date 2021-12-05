@@ -1,6 +1,10 @@
 import "./common/global_setting";
+import {
+  updateChart1,
+  updateChart2,
+  updateChart3
+} from './index-chart'
 
-import G2 = require("@antv/g2");
 import Controller from "./common/Controller";
 import Space from "./common/Space";
 import "./index.css";
@@ -55,7 +59,7 @@ const updatePopoverContent = (() => {
     }
 
     if (oldName !== name) {
-      updateChart();
+      updateChart1();
       oldName = name;
     }
 
@@ -70,7 +74,7 @@ const updateCollapse = (() => {
       $("#rackCard").removeClass("hide");
       $("#rackName").text(rack.name);
       if (rack !== oldRack) {
-        updateChart2Data();
+        updateChart2();
         oldRack = rack;
       }
     } else {
@@ -82,7 +86,7 @@ const updateCollapse = (() => {
       $("#serverName").text(server.name);
       $("#collapseTwo").collapse("show");
       if (server !== oldServer) {
-        updateChart3Data();
+        updateChart3();
         oldServer = server;
       }
     } else {
@@ -313,190 +317,4 @@ function updateIconListPosition() {
   .css("left", screenPosition.x);
 }
 
-// G2
-const data = [{
-  count: 40,
-  item: "used",
-  percent: 0.64,
-}, {
-  count: 21,
-  item: "free",
-  percent: 0.36,
-}];
-const chart = new G2.Chart({
-  container: "mountNode",
-  forceFit: true,
-  height: 200,
-  padding: [10, 10, 50, 10],
-});
-chart.source(data, {
-  percent: {
-    formatter: function formatter(val: number) {
-      return val * 100 + "%";
-    },
-  },
-});
-chart.coord("theta");
-chart.tooltip({
-  showTitle: false,
-});
-chart.intervalStack().position("percent").color("item", ["#7572f4", "#ff3e6d"]).label("percent", {
-  offset: -40,
-  textStyle: {
-    shadowBlur: 2,
-    shadowColor: "rgba(0, 0, 0, .45)",
-    textAlign: "center",
-  },
-}).tooltip("item*percent", function(item: string, percent: number) {
-  return {
-    name: item,
-    value: percent * 100 + "%",
-  };
-}).style({
-  lineWidth: 1,
-  stroke: "#fff",
-});
-chart.render();
 
-function updateChart() {
-  data[0].percent = Number(Math.random().toFixed(2));
-  data[1].percent =  Number((1 - data[0].percent).toFixed(2));
-  chart.render();
-}
-
-// G2 chart2
-const data2 = [{
-  item: "power",
-  percent: 38,
-}, {
-  item: "capacity",
-  percent: 52,
-}, {
-  item: "cool",
-  percent: 61,
-}, {
-  item: "space",
-  percent: 30,
-}];
-const chart2 = new G2.Chart({
-  container: "chart2",
-  height: 300,
-  padding: [20, 0, 20, 40],
-  width: 300,
-});
-chart2.source(data2);
-chart2.scale("percent", {
-  tickInterval: 20,
-});
-chart2.interval().position("item*percent");
-chart2.axis("item", {
-  label: {
-    textStyle: {
-      fill: "#ffffff",
-    },
-  },
-  line: {
-    stroke: "#ffffff",
-  },
-
-});
-chart2.axis("percent", {
-  label: {
-    textStyle: {
-      fill: "#ffffff",
-    },
-  },
-  line: {
-    stroke: "#ffffff",
-  },
-
-});
-chart2.render();
-
-function updateChart2Data() {
-  data2.forEach((v) => {
-    v.percent = Number((Math.random() * 100).toFixed(2));
-  });
-  chart2.render();
-}
-
-// G2 chart3
-const data3 = [{
-  month: "1",
-  value: 3,
-}, {
-  month: "2",
-  value: 4,
-}, {
-  month: "3",
-  value: 3.5,
-}, {
-  month: "4",
-  value: 5,
-}, {
-  month: "5",
-  value: 4.9,
-}, {
-  month: "6",
-  value: 6,
-}, {
-  month: "7",
-  value: 7,
-}, {
-  month: "8",
-  value: 9,
-}, {
-  month: "9",
-  value: 13,
-}];
-const chart3 = new G2.Chart({
-  container: "chart3",
-  height: 300,
-  padding: [20, 0, 20, 40],
-  width: 300,
-});
-
-chart3.axis("month", {
-  label: {
-    textStyle: {
-      fill: "#ffffff",
-    },
-  },
-  line: {
-    stroke: "#ffffff",
-  },
-
-});
-chart3.axis("value", {
-  label: {
-    textStyle: {
-      fill: "#ffffff",
-    },
-  },
-  line: {
-    stroke: "#ffffff",
-  },
-
-});
-
-chart3.source(data3);
-chart3.scale("value", {
-  min: 0,
-});
-chart3.scale("month", {
-  range: [0, 1],
-});
-chart3.tooltip({
-  crosshairs: {
-    type: "line",
-  },
-});
-chart3.line().position("month*value");
-chart3.render();
-
-function updateChart3Data() {
-  data3.forEach((v) => {
-    v.value = Number((Math.random() * 20).toFixed(2));
-  });
-  chart3.render();
-}

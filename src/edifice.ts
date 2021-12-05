@@ -3,7 +3,7 @@ import Space from "./common/Space";
 import { Scene, Vector3 } from "three";
 import Curve from "./common/base/Curve";
 import * as Selection from "d3-selection";
-import * as G2 from '@antv/g2';
+import * as echarts from 'echarts';
 
 import "./edifice.css"
 import StripeBar from "./common/components/StripeBar";
@@ -164,99 +164,23 @@ $.when($.ready).then(()=>{
 
 
 
-
-
-
-
-// G2 
-var data = [{
-  time: '03-19',
-  type: '+Other',
-  value: 320
-}, {
-  time: '03-19',
-  type: '+Repair',
-  value: 300
-}, {
-  time: '03-19',
-  type: '+Water',
-  value: 270
-}, {
-  time: '03-19',
-  type: 'Power',
-  value: 240
-}, {
-  time: '03-20',
-  type: '+Other',
-  value: 350
-}, {
-  time: '03-20',
-  type: '+Repair',
-  value: 320
-}, {
-  time: '03-20',
-  type: '+Water',
-  value: 300
-}, {
-  time: '03-20',
-  type: 'Power',
-  value: 270
-}, {
-  time: '03-21',
-  type: '+Other',
-  value: 390
-}, {
-  time: '03-21',
-  type: '+Repair',
-  value: 370
-}, {
-  time: '03-21',
-  type: '+Water',
-  value: 340
-}, {
-  time: '03-21',
-  type: 'Power',
-  value: 300
-}, {
-  time: '03-22',
-  type: '+Other',
-  value: 440
-}, {
-  time: '03-22',
-  type: '+Repair',
-  value: 420
-}, {
-  time: '03-22',
-  type: '+Water',
-  value: 380
-}, {
-  time: '03-22',
-  type: 'Power',
-  value: 340
-}];
-
-const chart = new G2.Chart({
-  container: 'c1',
-  forceFit: true,
-  padding:[40,20,80,50]
-});
-
-chart.axis('time', {
-  label: {
-    textStyle: {
-      fill: '#cccccc'
+const option1 = {
+  backgroundColor:'rgba(255,255,255,0)',
+  xAxis: {
+    type: 'category',
+    data: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']
+  },
+  yAxis: {
+    type: 'value'
+  },
+  series: [
+    {
+      data: [120, 200, 150, 80, 70, 110, 130],
+      type: 'bar'
     }
-  }
-});
-chart.axis('value', {
-  label: {
-    textStyle: {
-      fill: '#cccccc'
-    }
-  }
-});
+  ]
+};
+const chart1 = echarts.init(document.getElementById('chart1'),'dark');
+chart1.setOption(option1);
 
-chart.source(data);
-chart.interval().position('time*value').color('type', ['#40a9ff', '#1890ff', '#096dd9', '#0050b3']).opacity(1);
-chart.render();
 
