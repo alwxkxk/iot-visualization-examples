@@ -2,6 +2,7 @@ const path = require('path');
 const CopyPlugin = require('copy-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 
+
 module.exports = {
   entry: {
     index:'./src/index.ts',
@@ -9,12 +10,6 @@ module.exports = {
     edifice:'./src/edifice.ts'
   },
   devtool: 'inline-source-map',
-  devServer: {
-    static: './dist',
-    hot:true,
-    open:true,
-    watchFiles: ['src/**/*']
-  },
   plugins: [
     new CopyPlugin({
       patterns:[
@@ -57,6 +52,11 @@ module.exports = {
   output: {
     filename: '[name].[contenthash].js',
     path: path.resolve(__dirname, 'dist')
+  },
+  optimization: {
+    splitChunks: {
+      chunks: 'all',
+    },
   },
   watchOptions:{
     poll:1000,

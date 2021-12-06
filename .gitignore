@@ -1,5 +1,6 @@
 node_modules
 dist
+yarn.lock
 
 static/3d/*
 

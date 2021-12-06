@@ -1,66 +1,19 @@
 const path = require('path');
-const CopyPlugin = require('copy-webpack-plugin');
-const HtmlWebpackPlugin = require('html-webpack-plugin');
-
-module.exports = {
-  entry: {
-    index:'./src/index.ts',
-    global:'./src/global.ts',
-    edifice:'./src/edifice.ts'
-  },
-  devtool: 'inline-source-map',
+const config = require('./webpack.config.js')
+const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin
+const devConfig = {
+  ...config,
+  plugins:[
+    ...config.plugins,
+    new BundleAnalyzerPlugin()
+  ],
   devServer: {
     static: './dist',
     hot:true,
     open:true,
     watchFiles: ['src/**/*']
   },
-  plugins: [
-    new CopyPlugin({
-      patterns:[
-        {from:'./static/**/*'}
-      ]
-    }),
-    new HtmlWebpackPlugin({
-      filename:"index.html",
-      template:'./src/index.html',
-      chunks:['index']
-    }),
-    new HtmlWebpackPlugin({
-      filename:"edifice.html",
-      template:'./src/edifice.html',
-      chunks:["edifice"]
-    }),
-    new HtmlWebpackPlugin({
-      filename:"global.html",
-      template:'./src/global.html',
-      chunks:["global"]
-    })
-  ],
   mode:"development",//production or development
-  module: {
-    rules: [
-      {
-        test: /\.tsx?$/,
-        use: 'ts-loader',
-        exclude: /node_modules/
-      },
-      {
-        test: /\.css$/,
-        use: ['style-loader', 'css-loader']
-      }
-    ]
-  },
-  resolve: {
-    extensions: [ '.tsx', '.ts', '.js' ]
-  },
-  output: {
-    filename: '[name].[contenthash].js',
-    path: path.resolve(__dirname, 'dist')
-  },
-  watchOptions:{
-    poll:1000,
-    aggregateTimeout:1000,
-    ignored:/node_modules/,
-  }
-};
+}
+
+module.exports =devConfig;
