@@ -1,6 +1,7 @@
 node_modules
 dist
 yarn.lock
+stats.json
 
 static/3d/*
 

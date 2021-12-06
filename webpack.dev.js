@@ -3,6 +3,7 @@ const config = require('./webpack.config.js')
 const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin
 const devConfig = {
   ...config,
+  devtool: 'eval',
   plugins:[
     ...config.plugins,
     new BundleAnalyzerPlugin()

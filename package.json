@@ -6,6 +6,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "webpack --config webpack.config.js",
+    "build:stats": "webpack --config webpack.config.js --profile --json > stats.json",
+    "analyzer":"webpack-bundle-analyzer stats.json",
     "start": "webpack-dev-server --config webpack.dev.js"
   },
   "repository": {

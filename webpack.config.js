@@ -9,7 +9,6 @@ module.exports = {
     global:'./src/global.ts',
     edifice:'./src/edifice.ts'
   },
-  devtool: 'inline-source-map',
   plugins: [
     new CopyPlugin({
       patterns:[
