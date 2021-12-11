@@ -32,6 +32,7 @@ class Inspector {
   }
 
   public showStats() {
+    // @ts-ignore
     this .stats = new Stats();
     this.space.element.appendChild(this.stats.dom);
 

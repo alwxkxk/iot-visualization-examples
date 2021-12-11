@@ -1,11 +1,13 @@
 {
   "compilerOptions": {
       "target": "es6",
-      "module": "commonjs",
+      "module": "es6",
       "noImplicitAny": true,
       "removeComments": false,
       "preserveConstEnums": true,
+      "moduleResolution": "node",
       "outDir": "dist",
+      "allowJs": true,
       "sourceMap": false
   },
   "include": [

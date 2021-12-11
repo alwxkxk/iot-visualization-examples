@@ -1,13 +1,15 @@
 const path = require('path');
 const CopyPlugin = require('copy-webpack-plugin');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
+const tailwindcss = require('tailwindcss')
+const autoprefixer = require('autoprefixer') // help tailwindcss to work
 
 
 module.exports = {
   entry: {
     index:'./src/index.ts',
-    global:'./src/global.ts',
-    edifice:'./src/edifice.ts'
+    // global:'./src/global.ts',
+    // edifice:'./src/edifice.ts'
   },
   plugins: [
     new CopyPlugin({
@@ -20,16 +22,16 @@ module.exports = {
       template:'./src/index.html',
       chunks:['index']
     }),
-    new HtmlWebpackPlugin({
-      filename:"edifice.html",
-      template:'./src/edifice.html',
-      chunks:["edifice"]
-    }),
-    new HtmlWebpackPlugin({
-      filename:"global.html",
-      template:'./src/global.html',
-      chunks:["global"]
-    })
+    // new HtmlWebpackPlugin({
+    //   filename:"edifice.html",
+    //   template:'./src/edifice.html',
+    //   chunks:["edifice"]
+    // }),
+    // new HtmlWebpackPlugin({
+    //   filename:"global.html",
+    //   template:'./src/global.html',
+    //   chunks:["global"]
+    // })
   ],
   mode:"production",//production or development
   module: {
@@ -41,12 +43,24 @@ module.exports = {
       },
       {
         test: /\.css$/,
-        use: ['style-loader', 'css-loader']
+        use: [
+          'style-loader', 
+          'css-loader',
+          {
+            loader: 'postcss-loader', // postcss loader needed for tailwindcss
+            options: {
+              postcssOptions: {
+                ident: 'postcss',
+                plugins: [tailwindcss, autoprefixer],
+              },
+            },
+          },
+        ]
       }
     ]
   },
   resolve: {
-    extensions: [ '.tsx', '.ts', '.js' ]
+    extensions: [ '.tsx', '.ts', '.js']
   },
   output: {
     filename: '[name].[contenthash].js',
@@ -56,10 +70,5 @@ module.exports = {
     splitChunks: {
       chunks: 'all',
     },
-  },
-  watchOptions:{
-    poll:1000,
-    aggregateTimeout:1000,
-    ignored:/node_modules/,
   }
 };
