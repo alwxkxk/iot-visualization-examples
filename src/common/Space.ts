@@ -20,7 +20,7 @@ import "three/examples/js/shaders/LuminosityHighPassShader.js";
 import "./base/UnrealBloomPass.js";
 
 import { interpolateNumber } from "d3-interpolate";
-import { isNumber, throttle } from "lodash";
+import { isNumber, throttle } from "lodash-es";
 // @ts-ignore
 import mitt from "mitt";
 import { IObject3d, ISpaceOptions, Objects } from "../type";

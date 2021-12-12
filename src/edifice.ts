@@ -1,14 +1,47 @@
+import "bootstrap";
+import "bootstrap/dist/css/bootstrap.min.css";
 import "./common/global_setting";
 import Space from "./common/Space";
 import { Scene, Vector3 } from "three";
 import Curve from "./common/base/Curve";
 import * as Selection from "d3-selection";
-import * as echarts from 'echarts';
 
 import "./edifice.css"
 import StripeBar from "./common/components/StripeBar";
 import Controller from "./common/Controller";
-import { throttle } from "lodash";
+import { throttle } from "lodash-es";
+
+// Import the echarts core module, which provides the necessary interfaces for using echarts.
+import * as echarts from 'echarts/core';
+// Import bar charts, all suffixed with Chart
+import { BarChart } from 'echarts/charts';
+// Import the tooltip, title, rectangular coordinate system, dataset and transform components
+// all suffixed with Component
+import {
+  TitleComponent,
+  TooltipComponent,
+  GridComponent,
+  DatasetComponent,
+  TransformComponent
+} from 'echarts/components';
+// Features like Universal Transition and Label Layout
+import { LabelLayout, UniversalTransition } from 'echarts/features';
+// Import the Canvas renderer
+// Note that introducing the CanvasRenderer or SVGRenderer is a required step
+import { CanvasRenderer } from 'echarts/renderers';
+
+// Register the required components
+echarts.use([
+  TitleComponent,
+  TooltipComponent,
+  GridComponent,
+  DatasetComponent,
+  TransformComponent,
+  BarChart,
+  LabelLayout,
+  UniversalTransition,
+  CanvasRenderer
+]);
 
 const element = $("#3d-space")[0];
 const space = new Space(element, {

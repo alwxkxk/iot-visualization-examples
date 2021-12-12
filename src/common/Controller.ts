@@ -1,7 +1,7 @@
 import {easeCubicInOut} from "d3-ease";
 import { interpolateNumber } from "d3-interpolate";
 import * as Selection from "d3-selection";
-import {isNumber} from "lodash";
+import {isNumber} from "lodash-es";
 import { IGroup, ILocation, IMesh, IObject3d, Objects } from "../type";
 import Events from "./base/Events";
 import {
