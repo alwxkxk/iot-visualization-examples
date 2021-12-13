@@ -396,7 +396,7 @@ class Space {
               console.log(gltf);
               progressBar.dispose();
               scope.afterLoaded(gltf);
-              resolve();
+              resolve('');
             },
             (error: any) => {
               reject(error);

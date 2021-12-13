@@ -328,8 +328,8 @@ iconList.addEventListener('click', () => {
   // console.log('click event')
   myModal.toggle()
 })
-Array.from(document.getElementsByClassName('modal-close')).forEach(element => {
-  element.addEventListener('click', () => {
+Array.from(document.getElementsByClassName('modal-close')).forEach(ele => {
+  ele.addEventListener('click', () => {
     myModal.hide()
   })
 });
