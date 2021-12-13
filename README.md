@@ -29,5 +29,6 @@ You can get the history version by git tag v0.1.
 This project go refactoring since 2021/11/26:
 - use echart replacing antv/g2
 - use tailwindcss
+- remove jquery
 - refactor code
 - update package version

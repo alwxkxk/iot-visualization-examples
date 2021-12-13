@@ -3,7 +3,7 @@ import * as Selection from "d3-selection";
 import * as Transition from "d3-transition";
 import * as uuid from "uuid";
 import {colorRGBA} from "./common";
-import "./common.css";
+import "../common.css";
 
 interface IOptions {
   twinkle?: boolean; // true: set the last twinkle

@@ -1,7 +1,5 @@
-import "bootstrap";
-import "bootstrap/dist/css/bootstrap.min.css";
-import * as $ from "jquery";
-import "popper.js";
+import "./common.css";
+import 'bootstrap/dist/css/bootstrap.min.css';
 import * as THREE from "three";
 
 import * as Sentry from "@sentry/browser";
@@ -24,5 +22,5 @@ if(process.env.NODE_ENV === 'production'){
       });
 }
 
-window .$ = window.jquery = $;
+// window .$ = window.jquery = $;
 window.THREE = THREE;

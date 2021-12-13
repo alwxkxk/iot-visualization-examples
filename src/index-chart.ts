@@ -1,4 +1,41 @@
-import * as echarts from 'echarts';
+// Import the echarts core module, which provides the necessary interfaces for using echarts.
+import * as echarts from 'echarts/core';
+// Import bar charts, all suffixed with Chart
+import { BarChart,RadarChart,HeatmapChart } from 'echarts/charts';
+// Import the tooltip, title, rectangular coordinate system, dataset and transform components
+// all suffixed with Component
+import {
+  TitleComponent,
+  TooltipComponent,
+  GridComponent,
+  DatasetComponent,
+  TransformComponent,
+  VisualMapComponent,
+  LegendComponent
+} from 'echarts/components';
+// Features like Universal Transition and Label Layout
+import { LabelLayout, UniversalTransition } from 'echarts/features';
+// Import the Canvas renderer
+// Note that introducing the CanvasRenderer or SVGRenderer is a required step
+import { CanvasRenderer } from 'echarts/renderers';
+
+// Register the required components
+echarts.use([
+  TitleComponent,
+  TooltipComponent,
+  GridComponent,
+  DatasetComponent,
+  TransformComponent,
+  BarChart,
+  RadarChart,
+  HeatmapChart,
+  LabelLayout,
+  UniversalTransition,
+  CanvasRenderer,
+  VisualMapComponent,
+  LegendComponent
+]);
+
 
 // https://echarts.apache.org/examples/en/editor.html?c=radar&lang=ts
 const chart1 = echarts.init(document.getElementById('chart1'),'dark');

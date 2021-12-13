@@ -1,7 +1,7 @@
 import "./common/global_setting";
 import Curve from "./common/base/Curve";
 import Space from "./common/Space";
-const element = $("#3d-space")[0];
+const element = document.getElementById('3d-space')
 const space = new Space(element, {
   orbit: true,
 });

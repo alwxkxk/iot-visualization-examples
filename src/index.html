@@ -1,143 +1,152 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="utf-8" />
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <title>DATACENTER DEMO</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
-<body style="background-image:linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.9)),url('./static/images/sky.jpg');overflow: hidden;">
-  <div class="title" >
-    <h1>DATACENTER DEMO</h1>
+
+<body class="overflow-hidden"
+  style="background-image:linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.9)),url('./static/images/sky.jpg');">
+  <div class="absolute w-screen">
+    <h1 class="text-center text-gray-300 text-4xl font-bold">DATACENTER DEMO</h1>
   </div>
 
-  <div id="3d-space" style="height:100vh;width:100vw;margin:auto;position: relative;overflow: hidden;"></div>
-  <div id="popover-content" class="hide">
-    <p id="popover-text" >text</p>
-    <div id="chart1" style="width:200px;height:200px;"></div>
+  <div id="3d-space" class="relative overflow-hidden w-screen h-screen"></div>
+  <div id="popover-content" class="hidden absolute pointer-events-none bg-blue-700/60">
+    <p id="popover-text" class="text-white text-center border-b-[1px] text-2xl">text</p>
+    <div id="chart1" class="w-64 h-64"></div>
   </div>
 
-  <div class="flex" style="position: absolute;right:20px;top:0;">
-    <img id="left-arrow-button" src="./static/images/left-arrow.svg" class="icon m10 hide" alt="back" data-toggle="tooltip" title="back">
-    <img id="temperature-button" src="./static/images/temperature.svg" class="icon m10" alt="" data-toggle="tooltip" title="show temperature">
-    <img id="capacity-button" src="./static/images/chart.svg" class="icon m10" alt="" data-toggle="tooltip" title="show capacity">
-    <a href="https://github.com/alwxkxk/iot-visualization-examples" target="_blank" class="m10" rel="noreferrer noopener">
-      <img class="icon" data-toggle="tooltip" alt="source code" title="source code" src="./static/images/github.svg" >
+  <div class="flex absolute right-2 top-0">
+    <img id="left-arrow-button" src="./static/images/left-arrow.svg" class="icon hidden" alt="back"
+      data-toggle="tooltip" title="back">
+    <img id="temperature-button" src="./static/images/temperature.svg" class="icon" alt="" data-toggle="tooltip"
+      title="show temperature">
+    <img id="capacity-button" src="./static/images/chart.svg" class="icon" alt="" data-toggle="tooltip"
+      title="show capacity">
+    <a href="https://github.com/alwxkxk/iot-visualization-examples" target="_blank" rel="noreferrer noopener">
+      <img class="icon" data-toggle="tooltip" alt="source code" title="source code" src="./static/images/github.svg">
 
     </a>
   </div>
 
-  <div class="right-info">
-    <div class="accordion" id="accordionContainer">
-      <div id="rackCard" class="card hide">
-        <div class="card-header" id="headingOne">
+  <div class="absolute top-20 right-1 w-80 flex flex-col justify-between">
+    <div>
+      <div id="rackCard" class="bg-blue-700/60 text-white hidden">
+        <div id="headingOne">
           <h2 class="mb-0">
-            <button id="rackName" class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+            <button id="rackName" class="text-center w-full text-2xl" type="button" data-toggle="collapse"
+              data-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
               rack name
             </button>
           </h2>
         </div>
-    
-        <div id="collapseOne" class="collapse show" aria-labelledby="headingOne" data-parent="#accordionContainer">
-          <div class="card-body">
-            <div class="p10">
-              <div class="row">
-                <div class="col-6">
-                    <div class="parameter">
-                      <div class="name">
-                          HEIGHT:
-                      </div> 2000 mm</div>
+
+        <div>
+          <div class="relative p-2">
+            <div>
+              <div>
+                <div class="flex justify-between">
+                  <div class="text-blue-600 text-gl">
+                    HEIGHT:
+                  </div> 2000 mm
                 </div>
-                <div class="col-6">
-                    <div class="parameter">
-                      <div class="name">
-                          WIDTH:
-                      </div> 600 mm</div>
+              </div>
+              <div>
+                <div class="flex justify-between">
+                  <div class="text-blue-600 text-gl">
+                    WIDTH:
+                  </div> 600 mm
                 </div>
-                <div class="col-6">
-                    <div class="parameter">
-                      <div class="name">
-                          DEPTH
-                      </div> 800 mm</div>
+              </div>
+              <div>
+                <div class="flex justify-between">
+                  <div class="text-blue-600 text-gl">
+                    DEPTH
+                  </div> 800 mm
                 </div>
-                <div class="col-6">
-                    <div class="parameter">
-                      <div class="name">
-                          CAPACITY:
-                      </div> 42 U</div>
+              </div>
+              <div>
+                <div class="flex justify-between">
+                  <div class="text-blue-600 text-gl">
+                    CAPACITY:
+                  </div> 42 U
                 </div>
               </div>
             </div>
-
-            <div id="chart2" style="width:100%;height:300px;"></div>
+            <div id="chart2" class="w-full h-64"></div>
           </div>
         </div>
       </div>
-      <div id="serverCard" class="card hide">
-        <div class="card-header" id="headingTwo">
+      <div id="serverCard" class="bg-blue-700/60 text-white hidden">
+        <div class="mt-1" id="headingTwo">
           <h2 class="mb-0">
-            <button id="serverName" class="btn btn-link collapsed" type="button" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="false" aria-controls="collapseTwo">
-             server name
+            <button id="serverName" class="text-center w-full text-2xl">
+              server name
             </button>
           </h2>
         </div>
-        <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionContainer">
-          <div class="card-body">
-            <div class="p10">
-              <div class="row">
-                <div class="col-6">
-                    <div class="parameter">
-                      <div class="name">
-                          SIZE:
-                      </div> 1 U</div>
+        <div id="collapseTwo">
+          <div class="relative p-2">
+            <div>
+              <div>
+                <div class="flex justify-between">
+                  <div class="text-blue-600 text-gl">
+                    SIZE:
+                  </div> 1 U
                 </div>
-                <div class="col-6">
-                    <div class="parameter">
-                      <div class="name">
-                          POWER:
-                      </div> 1500 W</div>
+              </div>
+              <div>
+                <div class="flex justify-between">
+                  <div class="text-blue-600 text-gl">
+                    POWER:
+                  </div> 1500 W
                 </div>
-                <div class="col-6">
-                    <div class="parameter">
-                      <div class="name">
-                          MEMORY:
-                      </div> 24-slots</div>
+              </div>
+              <div>
+                <div class="flex justify-between">
+                  <div class="text-blue-600 text-gl">
+                    MEMORY:
+                  </div> 24-slots
                 </div>
-                <div class="col-6">
-                    <div class="parameter">
-                      <div class="name">
-                          SPACE:
-                      </div> 25-drive</div>
+              </div>
+              <div>
+                <div class="flex justify-between">
+                  <div class="text-blue-600 text-gl">
+                    SPACE:
+                  </div> 25-drive
                 </div>
               </div>
             </div>
-            <div id="chart3" style="width:100%;height:300px;"></div>
+            <div id="chart3" class="w-full h-64"></div>
           </div>
         </div>
       </div>
     </div>
   </div>
 
-    <!-- Modal -->
-<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
+  <!-- Modal -->
+  <div id="exampleModal" class="modal" tabindex="-1">
+    <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="exampleModalLabel">Handle</h5>
-          <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-          </button>
+          <h5 class="modal-title">Info</h5>
+          <button type="button" class="btn-close modal-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
-          this is a demo handle dialog.
+          <p>this is a demo handle dialog.</p>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-          <button type="button" class="btn btn-primary"  data-dismiss="modal">Confirm</button>
+          <button type="button" class="btn btn-secondary modal-close" data-bs-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-primary modal-close">confirm</button>
         </div>
       </div>
     </div>
   </div>
 
 </body>
+
 </html>

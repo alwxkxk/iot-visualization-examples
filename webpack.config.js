@@ -8,8 +8,8 @@ const autoprefixer = require('autoprefixer') // help tailwindcss to work
 module.exports = {
   entry: {
     index:'./src/index.ts',
-    // global:'./src/global.ts',
-    // edifice:'./src/edifice.ts'
+    global:'./src/global.ts',
+    edifice:'./src/edifice.ts'
   },
   plugins: [
     new CopyPlugin({
@@ -22,16 +22,16 @@ module.exports = {
       template:'./src/index.html',
       chunks:['index']
     }),
-    // new HtmlWebpackPlugin({
-    //   filename:"edifice.html",
-    //   template:'./src/edifice.html',
-    //   chunks:["edifice"]
-    // }),
-    // new HtmlWebpackPlugin({
-    //   filename:"global.html",
-    //   template:'./src/global.html',
-    //   chunks:["global"]
-    // })
+    new HtmlWebpackPlugin({
+      filename:"edifice.html",
+      template:'./src/edifice.html',
+      chunks:["edifice"]
+    }),
+    new HtmlWebpackPlugin({
+      filename:"global.html",
+      template:'./src/global.html',
+      chunks:["global"]
+    })
   ],
   mode:"production",//production or development
   module: {

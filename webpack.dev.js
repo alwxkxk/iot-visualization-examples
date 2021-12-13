@@ -7,7 +7,7 @@ const devConfig = {
     type: 'filesystem',
     memoryCacheUnaffected: true,
   },
-  devtool: 'eval',
+  devtool: 'eval-source-map',
   plugins:[
     ...config.plugins,
     new BundleAnalyzerPlugin()

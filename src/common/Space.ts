@@ -299,7 +299,7 @@ class Space {
     this .innerWidth =  e.clientWidth;
     this .innerHeight =  e.clientHeight;
     this .controllerIdList = new Map();
-    this .offset = $(e).offset();
+    this .offset = e.getBoundingClientRect()
 
     renderer.setSize(e.clientWidth, e.clientHeight );
     e.appendChild(renderer.domElement);
@@ -444,7 +444,7 @@ class Space {
   public resize(): Space {
     const camera = this .camera;
     const e = this .element;
-    this .offset = $(e).offset();
+    this .offset = e.getBoundingClientRect()
     if (e.clientWidth === 0 || e.clientHeight === 0) {
       console.error("resize error:element width and height is error.", e.clientWidth, e.clientHeight);
       return this ;

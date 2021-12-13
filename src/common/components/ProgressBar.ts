@@ -52,6 +52,28 @@ class ProgressBar {
       .attr("y2", "0")
       .attr("stroke", colorRGBA.border);
 
+    svgSelection
+      .append("line")
+      .attr("x1", "0")
+      .attr("x2", "100")
+      .attr("y1", "20")
+      .attr("y2", "20")
+      .attr("stroke", colorRGBA.border);
+    svgSelection
+      .append("line")
+      .attr("x1", "0")
+      .attr("x2", "0")
+      .attr("y1", "0")
+      .attr("y2", "20")
+      .attr("stroke", colorRGBA.border);
+    svgSelection
+      .append("line")
+      .attr("x1", "100")
+      .attr("x2", "100")
+      .attr("y1", "0")
+      .attr("y2", "20")
+      .attr("stroke", colorRGBA.border);
+
     this .textSelection = svgSelection
       .append("text")
       .attr("font-size", "80%")

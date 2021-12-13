@@ -1,10 +1,9 @@
-import "bootstrap";
-import "bootstrap/dist/css/bootstrap.min.css";
 import "./common/global_setting";
+import {
+  Modal,
+  Tooltip
+} from 'bootstrap';
 import Space from "./common/Space";
-import { Scene, Vector3 } from "three";
-import Curve from "./common/base/Curve";
-import * as Selection from "d3-selection";
 
 import "./edifice.css"
 import StripeBar from "./common/components/StripeBar";
@@ -43,7 +42,7 @@ echarts.use([
   CanvasRenderer
 ]);
 
-const element = $("#3d-space")[0];
+const element = document.getElementById('3d-space');
 const space = new Space(element, {
   orbit:true,
   outline:true
@@ -53,10 +52,12 @@ const space = new Space(element, {
 window.debugSpace =space;
 const THREE = window.THREE;
 
+const popoverTestEle = document.getElementById('popover-test');
 // mousemove popover
 function mousemoveHandle(intersections:any[]) {
   if(!intersections.length ){
-    $("#popover-test").css("display","none");
+    popoverTestEle.classList.add('hidden')
+    
     return ;
   }
   const object = intersections[0].object;
@@ -64,15 +65,15 @@ function mousemoveHandle(intersections:any[]) {
   const event = space.mouse.mousemoveEvent;
 
   if(!controller.userData.popover){
-    $("#popover-test").css("display","none");
+    popoverTestEle.classList.add('hidden')
     return ;
   }
   // const offset = controller.getViewOffset({x:0});
   space.setOutline([object]);
-  $("#popover-test").css("display","block");
-  $("#popover-test").css("top",event.clientY+10)
-  $("#popover-test").css("left",event.clientX+10)
-  $("#popover-test").text(controller.userData.popover);
+  popoverTestEle.classList.remove('hidden')
+  popoverTestEle.style.top = `${event.clientY+10}px`
+  popoverTestEle.style.left = `${event.clientX+10}px`
+  popoverTestEle.innerText = controller.userData.popover
   console.log("mousemove",intersections)
 }
 space.setRaycasterEventMap({
@@ -81,96 +82,83 @@ space.setRaycasterEventMap({
 
 
 // add icon list 
-const p = $($("#3d-space")[0].parentElement);
-const f4IconList = $('<div></div>')
-.attr("id","f4-icon-list")
-.css("position","absolute")
-.css("display","flex");
+const p = element.parentElement
+const f4IconList = document.createElement('div')
+const f8IconList = document.createElement('div')
+const f12IconList = document.createElement('div')
+p.appendChild(f4IconList)
+p.appendChild(f8IconList)
+p.appendChild(f12IconList)
 
-const f8IconList = $('<div></div>')
-.attr("id","f8-icon-list")
-.css("position","absolute")
-.css("display","flex");
+f4IconList.id = 'f4-icon-list'
+f8IconList.id = 'f8-icon-list'
+f12IconList.id = 'f12-icon-list'
 
-const f12IconList = $('<div></div>')
-.attr("id","f12-icon-list")
-.css("position","absolute")
-.css("display","flex");
+f4IconList.classList.add('absolute','flex')
+f8IconList.classList.add('absolute','flex')
+f12IconList.classList.add('absolute','flex')
 
-f4IconList.appendTo(p);
-f8IconList.appendTo(p);
-f12IconList.appendTo(p);
+const warnIconEle = document.createElement('img')
+warnIconEle.setAttribute('src','./static/images/warn.svg')
+warnIconEle.setAttribute('data-toggle','popover')
+warnIconEle.setAttribute('data-trigger','hover')
+warnIconEle.setAttribute('title','warn')
+warnIconEle.setAttribute('data-content','Device exception.')
+warnIconEle.classList.add('icon-3d','twinkle')
+f4IconList.appendChild(warnIconEle)
 
-// F4 icon : warn 
-$('<img></img>')
-.appendTo(f4IconList)
-.attr("src","./static/images/warn.svg")
-.attr("data-toggle","popover")
-.attr("data-trigger","hover")
-.attr("title","warn")
-.attr("data-content","Device exception.")
-.addClass("icon-3d")
-.addClass("twinkle");
+const dangerIconEle = document.createElement('img')
+dangerIconEle.setAttribute('src','./static/images/danger.svg')
+dangerIconEle.setAttribute('data-toggle','popover')
+dangerIconEle.setAttribute('data-trigger','hover')
+dangerIconEle.setAttribute('title','danger')
+dangerIconEle.setAttribute('data-content','Check for fire immediately!')
+dangerIconEle.classList.add('icon-3d','twinkle')
+f8IconList.appendChild(dangerIconEle)
 
-// F8 icon : danger smoke  
-$('<img></img>')
-.appendTo(f8IconList)
-.attr("src","./static/images/danger.svg")
-.attr("data-toggle","popover")
-.attr("data-trigger","hover")
-.attr("title","danger")
-.attr("data-content","Check for fire immediately!")
-.addClass("icon-3d")
-.addClass("twinkle");
+const smokeIconEle = document.createElement('img')
+smokeIconEle.setAttribute('src','./static/images/smoking.svg')
+smokeIconEle.setAttribute('data-toggle','popover')
+smokeIconEle.setAttribute('data-trigger','hover')
+smokeIconEle.setAttribute('title','danger')
+smokeIconEle.setAttribute('data-content','Check for smoking!')
+smokeIconEle.classList.add('icon-3d','twinkle')
+f8IconList.appendChild(smokeIconEle)
 
-$('<img></img>')
-.appendTo(f8IconList)
-.attr("src","./static/images/smoking.svg")
-.attr("data-toggle","popover")
-.attr("data-trigger","hover")
-.attr("title","smoking")
-.attr("data-content","Check for smoking!")
-.addClass("icon-3d");
+const waterIconEle = document.createElement('img')
+waterIconEle.setAttribute('src','./static/images/water.svg')
+waterIconEle.setAttribute('data-toggle','popover')
+waterIconEle.setAttribute('data-trigger','hover')
+waterIconEle.setAttribute('title','danger')
+waterIconEle.setAttribute('data-content','Excessive water consumption.')
+waterIconEle.classList.add('icon-3d','twinkle')
+f12IconList.appendChild(waterIconEle)
 
-// F12 icon : water power
-$('<img></img>')
-.appendTo(f12IconList)
-.attr("src","./static/images/water.svg")
-.attr("data-toggle","popover")
-.attr("data-trigger","hover")
-.attr("title","water")
-.attr("data-content","Excessive water consumption.")
-.addClass("icon-3d");
+const repairIconEle = document.createElement('img')
+repairIconEle.setAttribute('src','./static/images/repair.svg')
+repairIconEle.setAttribute('data-toggle','popover')
+repairIconEle.setAttribute('data-trigger','hover')
+repairIconEle.setAttribute('title','danger')
+repairIconEle.setAttribute('data-content','Excessive water consumption.')
+repairIconEle.classList.add('icon-3d','twinkle')
+f12IconList.appendChild(repairIconEle)
 
-$('<img></img>')
-.appendTo(f12IconList)
-.attr("src","./static/images/repair.svg")
-.attr("data-toggle","popover")
-.attr("data-trigger","hover")
-.attr("title","repair")
-.attr("data-content","Waiting for repair.")
-.addClass("icon-3d");
 
-$(".icon-3d").on("click",()=>{
-  $('#exampleModal').modal('show');
-})
 
 function updateIconListPosition() {
   const f4Position =  space.getControllerById("F4").getViewOffset({x:0.2});
   const f8Position =  space.getControllerById("F8").getViewOffset({x:0.2});
   const f12Position = space.getControllerById("F12").getViewOffset({x:0.2});
 
-  f4IconList
-  .css("top",f4Position.y)
-  .css("left",f4Position.x);
+  f4IconList.style.top = `${f4Position.y}px`
+  f4IconList.style.left = `${f4Position.x}px`
 
-  f8IconList
-  .css("top",f8Position.y)
-  .css("left",f8Position.x);
+  f8IconList.style.top = `${f8Position.y}px`
+  f8IconList.style.left = `${f8Position.x}px`
 
-  f12IconList
-  .css("top",f12Position.y)
-  .css("left",f12Position.x);
+  f12IconList.style.top = `${f12Position.y}px`
+  f12IconList.style.left = `${f12Position.x}px`
+
 }
 
 // load 3d model.
@@ -178,22 +166,14 @@ space.load("./static/3d/edifice-0624.glb")
 // space.load("./static/3d/change-model-test.glb")
 .then(()=>{
   setInterval(updateIconListPosition,100);
-  $('[data-toggle="popover"]').popover();
 })
 .catch((err)=>{
   console.error(err);
 })
 
-$.when($.ready).then(()=>{
-  new StripeBar($("#stripe-bar1")[0], 30);
-  new StripeBar($("#stripe-bar2")[0], 85,{twinkle:true});
-  new StripeBar($("#stripe-bar3")[0], 100,{twinkle:true});
-
-  $('[data-toggle="tooltip"]').tooltip()
-})
-.catch((err)=>{
-  console.error(err);
-})
+new StripeBar(document.getElementById('stripe-bar1'), 30);
+new StripeBar(document.getElementById('stripe-bar2'), 85,{twinkle:true});
+new StripeBar(document.getElementById('stripe-bar3'), 100,{twinkle:true});
 
 
 
@@ -215,5 +195,26 @@ const option1 = {
 };
 const chart1 = echarts.init(document.getElementById('chart1'),'dark');
 chart1.setOption(option1);
+
+
+// enable modal
+const myModal = new Modal(document.getElementById('exampleModal'))
+Array.from(document.getElementsByClassName('icon-3d')).forEach(ele=>{
+  ele.addEventListener('click',()=>{
+    myModal.toggle()
+  })
+})
+
+Array.from(document.getElementsByClassName('modal-close')).forEach(element => {
+  element.addEventListener('click', () => {
+    myModal.hide()
+  })
+});
+
+// enable tooltips
+const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+const tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl:Element) {
+  return new Tooltip(tooltipTriggerEl)
+})
 
 

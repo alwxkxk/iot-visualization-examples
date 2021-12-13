@@ -1,0 +1,22 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components{
+    .icon{
+        @apply w-10 h-10 cursor-pointer m-2 p-1 hover:bg-blue-500/80;
+    }
+}
+
+
+.twinkle {
+    animation-name: twinkle-key;
+    animation-duration: 1s;
+    animation-iteration-count: infinite;
+}
+
+@keyframes twinkle-key{
+    50%  {
+        opacity: 0.5;
+    }
+}
