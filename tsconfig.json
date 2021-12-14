@@ -7,10 +7,9 @@
         "preserveConstEnums": true,
         "moduleResolution": "node",
         "outDir": "dist",
-        "allowJs": true,
+        "allowJs": false,
         "sourceMap": false,
     },
-
     "include": [
         "src/**/*"
     ],
