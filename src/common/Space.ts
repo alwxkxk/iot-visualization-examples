@@ -1,4 +1,4 @@
-import * as mitt from 'mitt'
+import mitt, { Emitter } from 'mitt'
 import {
   DefaultLoadingManager,
   FileLoader,
@@ -9,10 +9,14 @@ import {
   Raycaster,
   Scene,
   Vector2,
-  WebGLRenderer
+  WebGLRenderer,
+  Intersection
 } from 'three'
 import ObjectWrap from './ObjectWrap'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
+import Events from './Events'
+import { throttle } from 'lodash-es'
 
 interface ISpaceOptions {
   orbit?: boolean
@@ -21,7 +25,6 @@ interface ISpaceOptions {
 export default class Space {
   element: HTMLElement
   options: ISpaceOptions
-  emitter: mitt.Emitter
   renderer: WebGLRenderer
   innerWidth: number
   innerHeight: number
@@ -31,6 +34,12 @@ export default class Space {
   mouse: Vector2
   scene: Scene
   camera: PerspectiveCamera
+  animationId: number
+  emitter: Emitter<any>
+  animateWrap: any
+  orbit: OrbitControls
+  ObjectWrapNameMap: Map<string, ObjectWrap>
+  raycasterObjects: Object3D[]
   constructor (element: HTMLElement, options?: ISpaceOptions) {
     this.element = element
     this.options = { ...options }
@@ -39,9 +48,14 @@ export default class Space {
   }
 
   init (): void {
+    if (process.env.NODE_ENV === 'development') {
+      // @ts-expect-error
+      window.debugSpace = this
+    }
     this.emitter = mitt()
+    this.animateWrap = this.animate.bind(this)
     const ele = this.element
-    this.renderer = new WebGLRenderer({ alpha: true, antialias: true })
+    this.renderer = new WebGLRenderer({ alpha: false, antialias: false })
 
     if (ele.clientHeight === 0 || ele.clientWidth === 0) {
       throw new Error('element should had width and height before init.')
@@ -52,59 +66,150 @@ export default class Space {
     this.offset = ele.getBoundingClientRect()
 
     this.ObjectWrapMap = new Map()
+    this.ObjectWrapNameMap = new Map()
 
     this.renderer.setSize(this.innerWidth, this.innerHeight)
     ele.appendChild(this.renderer.domElement)
 
     this.raycaster = new Raycaster()
     this.mouse = new Vector2()
-
-    // this.controllerMap = '123';
   }
 
-  async load (fileUrl: string): Promise<any> {
+  async load (fileUrl: string): Promise<void> {
     return await new Promise((resolve, reject) => {
       const gltfLoader = new GLTFLoader()
       const loader = new FileLoader(DefaultLoadingManager)
       loader.setResponseType('arraybuffer')
       loader.load(fileUrl,
-        function loaded (data: any) {
+        (data: any) => {
           const resourcePath = LoaderUtils.extractUrlBase(fileUrl)
-          console.time('load gltf')
           gltfLoader.parse(data, resourcePath,
             (gltf: object) => {
-              console.timeEnd('load gltf')
-              console.log(gltf)
+              console.log('load gltf')
               this.afterLoaded(gltf)
-              resolve('')
+              resolve()
             },
             (error: any) => {
               reject(error)
             }
           )
         },
-        function progressing (xhr: any) {
+        (xhr: any) => {
+          // progressing
           console.log(`${(xhr.loaded / xhr.total * 100)}% loaded`)
         },
-        function loadedError (event: ErrorEvent) {
+        (event: ErrorEvent) => {
+          // loadedError
           reject(event)
         })
     })
   }
 
-  afterLoaded (gltf: any): Space {
+  afterLoaded (gltf: any): void {
     const scene = this.scene = gltf.scene
-    this.camera = new PerspectiveCamera(20, this.innerWidth / this.innerHeight, 0.1, 1000)
+    const camera = this.camera = new PerspectiveCamera(20, this.innerWidth / this.innerHeight, 0.1, 1000)
+
     scene.add(this.camera)
     scene.add(new HemisphereLight(0xffffff, 0xffffff, 1))
 
-    scene.traverse((item: Object3D) => {
-      if (item.type !== 'Scene') {
-        const ObjectWrap = new ObjectWrap(item)
-        this.ObjectWrapMap.set(ObjectWrap.uuid, ObjectWrap)
-      }
-    })
+    camera.position.set(16, 14, -1)
+    camera.updateMatrix()
 
-    return this
+    scene.traverse((item: Object3D) => {
+      const objectWrap = new ObjectWrap(item)
+      this.ObjectWrapMap.set(item.uuid, objectWrap)
+      this.ObjectWrapNameMap.set(objectWrap.fullName, objectWrap)
+      // TODO: BUG? three.js r135 need updateMatrixWorld first?
+      // and orbit has problem,too.
+      // three.js r109 is normal
+      // item.updateMatrixWorld()
+    })
+    this.initOrbit()
+
+    this.animate()
+  }
+
+  initOrbit (): void {
+    if (!this.options.orbit) {
+      const orbit = this.orbit = new OrbitControls(this.camera, this.renderer.domElement)
+      orbit.update()
+    }
+  }
+
+  // #region raycaster
+
+  /**
+   * init raycaster and event(get value by emitter).
+   * @param  {ObjectWrap[]} objList
+   * @param  {object} options
+   * @param  {boolean} options.click set false when disable raycaster click event.
+   * @param  {boolean} options.dblclick set false when disable raycaster dblclick event.
+   * @param  {boolean} options.mousemove set false when disable raycaster mousemove event.
+   * @param  {number}  options.throttleTime set raycaster event throttle time
+   * @returns void
+   */
+  initRaycaster (
+    objList: ObjectWrap[],
+    options: {click?: boolean, dblclick?: boolean, mousemove?: boolean, throttleTime?: number} = {}
+  ): void {
+    this.raycaster = new Raycaster()
+    this.setRaycasterObjects(objList)
+
+    const initRaycasterEvent: Function = (eventName: string): void => {
+      const funWrap = throttle(
+        (event: MouseEvent): void => {
+          this.mouse.x = (event.clientX - (this.offset.left)) / this.innerWidth * 2 - 1
+          this.mouse.y = -((event.clientY - (this.offset.top)) / this.innerHeight) * 2 + 1
+          // Element implicitly has an 'any' type because expression of type 'string' can't be used to index type '{ animate: string; dispose: string; click: { raycaster: string; }; dblclick: { raycaster: string; }; mousemove: { raycaster: string; }; }'.
+          // No index signature with a parameter of type 'string' was found on type '{ animate: string; dispose: string; click: { raycaster: string; }; dblclick: { raycaste
+          // @ts-expect-error
+          this.emitter.emit(Events[eventName].raycaster, this.getRaycasterIntersectObjects())
+        },
+        Number.isNaN(options.throttleTime) ? options.throttleTime : 50
+      )
+
+      this.element.addEventListener(eventName, funWrap)
+      this.emitter.on(Events.dispose, () => {
+        this.element.removeEventListener(eventName, funWrap)
+      })
+    }
+    if (!options.click) {
+      initRaycasterEvent('click')
+    }
+    if (!options.dblclick) {
+      initRaycasterEvent('dblclick')
+    }
+    if (!options.mousemove) {
+      initRaycasterEvent('mousemove')
+    }
+  }
+
+  setRaycasterObjects (objList: ObjectWrap[]): void {
+    this.raycasterObjects = objList.map(i => i.object3D)
+  }
+
+  getRaycasterIntersectObjects (): Intersection[] {
+    if (this.raycasterObjects.length === 0) {
+      return []
+    } else {
+      this.raycaster.setFromCamera(this.mouse, this.camera)
+      return this.raycaster.intersectObjects(this.raycasterObjects, true)
+    }
+  }
+
+  // #endregion raycaster
+
+  getObjectWrapList (): ObjectWrap[] {
+    return Array.from(this.ObjectWrapMap.values())
+  }
+
+  animate (): void {
+    this.animationId = requestAnimationFrame(this.animateWrap)
+    this.emitter.emit(Events.animate)
+    this.renderer.render(this.scene, this.camera)
+  }
+
+  dispose (): void {
+    this.emitter.emit(Events.dispose)
   }
 }
