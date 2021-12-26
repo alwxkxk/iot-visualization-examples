@@ -1,6 +1,6 @@
 import { Object3D } from 'three'
 
-export default class ObjectWrap {
+export default class Object3DWrap {
   object3D: Object3D
   uuid: string
   fullName: string

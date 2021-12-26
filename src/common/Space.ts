@@ -12,7 +12,7 @@ import {
   WebGLRenderer,
   Intersection
 } from 'three'
-import ObjectWrap from './ObjectWrap'
+import Object3DWrap from './Object3DWrap'
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
 import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import Events from './Events'
@@ -28,7 +28,7 @@ export default class Space {
   renderer: WebGLRenderer
   innerWidth: number
   innerHeight: number
-  ObjectWrapMap: Map<string, ObjectWrap>
+  object3DWrapMap: Map<string, Object3DWrap>
   offset: DOMRect
   raycaster: Raycaster
   mouse: Vector2
@@ -38,7 +38,7 @@ export default class Space {
   emitter: Emitter<any>
   animateWrap: any
   orbit: OrbitControls
-  ObjectWrapNameMap: Map<string, ObjectWrap>
+  object3DWrapNameMap: Map<string, Object3DWrap>
   raycasterObjects: Object3D[]
   constructor (element: HTMLElement, options?: ISpaceOptions) {
     this.element = element
@@ -65,8 +65,8 @@ export default class Space {
     this.innerHeight = ele.clientHeight
     this.offset = ele.getBoundingClientRect()
 
-    this.ObjectWrapMap = new Map()
-    this.ObjectWrapNameMap = new Map()
+    this.object3DWrapMap = new Map()
+    this.object3DWrapNameMap = new Map()
 
     this.renderer.setSize(this.innerWidth, this.innerHeight)
     ele.appendChild(this.renderer.domElement)
@@ -116,9 +116,9 @@ export default class Space {
     camera.updateMatrix()
 
     scene.traverse((item: Object3D) => {
-      const objectWrap = new ObjectWrap(item)
-      this.ObjectWrapMap.set(item.uuid, objectWrap)
-      this.ObjectWrapNameMap.set(objectWrap.fullName, objectWrap)
+      const objectWrap = new Object3DWrap(item)
+      this.object3DWrapMap.set(item.uuid, objectWrap)
+      this.object3DWrapNameMap.set(objectWrap.fullName, objectWrap)
       // TODO: BUG? three.js r135 need updateMatrixWorld first?
       // and orbit has problem,too.
       // three.js r109 is normal
@@ -140,7 +140,7 @@ export default class Space {
 
   /**
    * init raycaster and event(get value by emitter).
-   * @param  {ObjectWrap[]} objList
+   * @param  {Object3DWrap[]} objList
    * @param  {object} options
    * @param  {boolean} options.click set false when disable raycaster click event.
    * @param  {boolean} options.dblclick set false when disable raycaster dblclick event.
@@ -149,7 +149,7 @@ export default class Space {
    * @returns void
    */
   initRaycaster (
-    objList: ObjectWrap[],
+    objList: Object3DWrap[],
     options: {click?: boolean, dblclick?: boolean, mousemove?: boolean, throttleTime?: number} = {}
   ): void {
     this.raycaster = new Raycaster()
@@ -184,7 +184,7 @@ export default class Space {
     }
   }
 
-  setRaycasterObjects (objList: ObjectWrap[]): void {
+  setRaycasterObjects (objList: Object3DWrap[]): void {
     this.raycasterObjects = objList.map(i => i.object3D)
   }
 
@@ -199,8 +199,8 @@ export default class Space {
 
   // #endregion raycaster
 
-  getObjectWrapList (): ObjectWrap[] {
-    return Array.from(this.ObjectWrapMap.values())
+  getObject3DWrapList (): Object3DWrap[] {
+    return Array.from(this.object3DWrapMap.values())
   }
 
   animate (): void {

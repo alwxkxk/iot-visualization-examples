@@ -2,7 +2,7 @@ import { Object3D } from 'three'
 import BoxHelperWrap from './common/BoxHelperWrap'
 import Events from './common/Events'
 import './common/global_setting'
-import ObjectWrap from './common/ObjectWrap'
+import Object3DWrap from './common/Object3DWrap'
 import Space from './common/Space'
 import { findParent } from './common/utils'
 
@@ -21,8 +21,8 @@ function checkIsRack (obj: Object3D): Boolean {
 space.load('./static/3d/datacenter-0715.glb').then(() => {
   console.log('load')
 
-  const objectWrapList = space.getObjectWrapList()
-  const rackList: ObjectWrap[] = []
+  const objectWrapList = space.getObject3DWrapList()
+  const rackList: Object3DWrap[] = []
   objectWrapList.forEach(item => {
     if (item.object3D.name.includes('rack')) {
       rackList.push(item)
