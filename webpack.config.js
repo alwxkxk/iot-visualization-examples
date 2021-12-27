@@ -1,26 +1,27 @@
-const path = require('path');
-const CopyPlugin = require('copy-webpack-plugin');
-const HtmlWebpackPlugin = require('html-webpack-plugin');
+const path = require('path')
+const CopyPlugin = require('copy-webpack-plugin')
+const HtmlWebpackPlugin = require('html-webpack-plugin')
+const HtmlWebpackTagsPlugin = require('html-webpack-tags-plugin')
 const tailwindcss = require('tailwindcss')
 const autoprefixer = require('autoprefixer') // help tailwindcss to work
 
-
 module.exports = {
   entry: {
-    index:'./src/index.ts',
+    index: './src/index.ts'
     // global:'./src/global.ts',
     // edifice:'./src/edifice.ts'
   },
   plugins: [
     new CopyPlugin({
-      patterns:[
-        {from:'./static/**/*'}
+      patterns: [
+        { from: './static/**/*' }
       ]
     }),
     new HtmlWebpackPlugin({
-      filename:"index.html",
-      template:'./src/index.html',
-      chunks:['index']
+      filename: 'index.html',
+      template: './src/index.html',
+      favicon: './static/favicon.ico',
+      chunks: ['index']
     }),
     // new HtmlWebpackPlugin({
     //   filename:"edifice.html",
@@ -32,8 +33,9 @@ module.exports = {
     //   template:'./src/global.html',
     //   chunks:["global"]
     // })
+    new HtmlWebpackTagsPlugin({ tags: ['/static/bootstrap.min.css'], append: true })
   ],
-  mode:"production",//production or development
+  mode: 'production', // production or development
   module: {
     rules: [
       {
@@ -44,23 +46,23 @@ module.exports = {
       {
         test: /\.css$/,
         use: [
-          'style-loader', 
+          'style-loader',
           'css-loader',
           {
             loader: 'postcss-loader', // postcss loader needed for tailwindcss
             options: {
               postcssOptions: {
                 ident: 'postcss',
-                plugins: [tailwindcss, autoprefixer],
-              },
-            },
-          },
+                plugins: [tailwindcss, autoprefixer]
+              }
+            }
+          }
         ]
       }
     ]
   },
   resolve: {
-    extensions: [ '.tsx', '.ts', '.js']
+    extensions: ['.tsx', '.ts', '.js']
   },
   output: {
     filename: '[name].[contenthash].js',
@@ -68,7 +70,7 @@ module.exports = {
   },
   optimization: {
     splitChunks: {
-      chunks: 'all',
-    },
+      chunks: 'all'
+    }
   }
-};
+}

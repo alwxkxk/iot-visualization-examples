@@ -5,27 +5,27 @@ const devConfig = {
   ...config,
   cache: {
     type: 'filesystem',
-    memoryCacheUnaffected: true,
+    memoryCacheUnaffected: true
   },
   devtool: 'eval-source-map',
-  plugins:[
+  plugins: [
     ...config.plugins,
     new BundleAnalyzerPlugin()
   ],
   devServer: {
     static: './dist',
-    hot:true,
-    open:true,
+    hot: true,
+    open: true,
     watchFiles: {
-      options:{
-        awaitWriteFinish:{
-          stabilityThreshold:2000
+      options: {
+        awaitWriteFinish: {
+          stabilityThreshold: 2000
         }
       },
-      paths:['src/**/*']
+      paths: ['src/**/*']
     }
   },
-  mode:"development",//production or development
+  mode: 'development' // production or development
 }
 
-module.exports =devConfig;
+module.exports = devConfig

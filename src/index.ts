@@ -1,14 +1,13 @@
+import './common/global_setting'
 import { Object3D } from 'three'
 import BoxHelperWrap from './common/BoxHelperWrap'
 import Events from './common/Events'
-import './common/global_setting'
 import Object3DWrap from './common/Object3DWrap'
 import Space from './common/Space'
 import { findParent } from './common/utils'
 
 const element = document.getElementById('3d-space')
 const space = new Space(element)
-
 function checkIsRack (obj: Object3D): Boolean {
   if (obj.name.includes('rack')) {
     return true
@@ -17,9 +16,13 @@ function checkIsRack (obj: Object3D): Boolean {
   }
 }
 
+space.emitter.on(Events.load.processing, (xhr) => {
+  document.getElementById('loading-text').innerText = `Loading 3d model:${(xhr.loaded / 1024).toFixed(0)}KB`
+})
+
 // load 3d model.
 space.load('./static/3d/datacenter-0715.glb').then(() => {
-  console.log('load')
+  document.getElementById('loading-tips').style.display = 'none'
 
   const objectWrapList = space.getObject3DWrapList()
   const rackList: Object3DWrap[] = []

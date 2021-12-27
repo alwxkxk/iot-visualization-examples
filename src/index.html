@@ -10,6 +10,13 @@
 
 <body class="overflow-hidden"
   style="background-image:linear-gradient(rgba(0,0,0,0.4), rgba(0,0,0,0.9)),url('./static/images/sky.jpg');">
+  
+  <!-- loading text -->
+  <div id="loading-tips" style="z-index:99;width:100vw;height:100vh;background-color:beige;display: flex;align-items: center;justify-content: center;">
+    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>
+    <span id="loading-text" class="text-black">Loading HTML,CSS,JS...</span> 
+  </div>
+
   <div class="absolute w-screen">
     <h1 class="text-center text-gray-300 text-4xl font-bold">DATACENTER DEMO</h1>
   </div>

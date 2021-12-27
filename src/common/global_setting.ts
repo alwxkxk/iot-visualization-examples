@@ -1,5 +1,4 @@
 import './common.css'
-import 'bootstrap/dist/css/bootstrap.min.css'
 import * as Sentry from '@sentry/browser'
 import { Integrations } from '@sentry/tracing'
 

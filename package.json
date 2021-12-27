@@ -62,6 +62,7 @@
     "eslint-plugin-node": "11.1.0",
     "eslint-plugin-promise": "5.0.0",
     "html-webpack-plugin": "^5.5.0",
+    "html-webpack-tags-plugin": "^3.0.2",
     "postcss-import": "^14.0.2",
     "postcss-loader": "^6.2.1",
     "style-loader": "^3.3.1",

@@ -80,13 +80,15 @@ export default class Space {
       const gltfLoader = new GLTFLoader()
       const loader = new FileLoader(DefaultLoadingManager)
       loader.setResponseType('arraybuffer')
+      this.emitter.emit(Events.load.start)
       loader.load(fileUrl,
         (data: any) => {
           const resourcePath = LoaderUtils.extractUrlBase(fileUrl)
           gltfLoader.parse(data, resourcePath,
             (gltf: object) => {
-              console.log('load gltf')
+              // console.log('load gltf')
               this.afterLoaded(gltf)
+              this.emitter.emit(Events.load.finish)
               resolve()
             },
             (error: any) => {
@@ -96,7 +98,8 @@ export default class Space {
         },
         (xhr: any) => {
           // progressing
-          console.log(`${(xhr.loaded / xhr.total * 100)}% loaded`)
+          // console.log(`${(xhr.loaded / xhr.total * 100)}% loaded`, xhr)
+          this.emitter.emit(Events.load.processing, xhr)
         },
         (event: ErrorEvent) => {
           // loadedError
@@ -211,5 +214,8 @@ export default class Space {
 
   dispose (): void {
     this.emitter.emit(Events.dispose)
+    setTimeout(() => {
+      this.emitter.off('*')
+    }, 100)
   }
 }

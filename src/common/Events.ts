@@ -1,6 +1,11 @@
 export default {
   animate: 'animate',
   dispose: 'dispose',
+  load: {
+    start: 'load:start',
+    processing: 'load:processing',
+    finish: 'load:finish'
+  },
   click: {
     raycaster: 'click:raycaster'
   },
