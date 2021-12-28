@@ -1,3 +1,4 @@
+
 import { Object3D } from 'three'
 
 export default class Object3DWrap {
@@ -12,7 +13,7 @@ export default class Object3DWrap {
 
   parseName (): void {
     const list = []
-    let obj = this.object3D
+    let obj: Object3D | null = this.object3D
     while (obj !== undefined && obj !== null) {
       list.unshift(obj.name)
       obj = obj.parent

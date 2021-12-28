@@ -133,7 +133,8 @@ export default class Space {
   }
 
   initOrbit (): void {
-    if (!this.options.orbit) {
+    const orbit = this.options.orbit
+    if (orbit !== false) {
       const orbit = this.orbit = new OrbitControls(this.camera, this.renderer.domElement)
       orbit.update()
     }
@@ -176,13 +177,16 @@ export default class Space {
         this.element.removeEventListener(eventName, funWrap)
       })
     }
-    if (!options.click) {
+    const clickFlag = options.click
+    if (clickFlag !== false) {
       initRaycasterEvent('click')
     }
-    if (!options.dblclick) {
+    const dblclickFlag = options.dblclick
+    if (dblclickFlag !== false) {
       initRaycasterEvent('dblclick')
     }
-    if (!options.mousemove) {
+    const mousemoveFlag = options.mousemove
+    if (mousemoveFlag !== false) {
       initRaycasterEvent('mousemove')
     }
   }

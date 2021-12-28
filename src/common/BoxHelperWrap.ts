@@ -27,7 +27,9 @@ export default class BoxHelperWrap {
   }
 
   dispose (): void {
-    this.boxHelper.parent.remove(this.boxHelper)
-    this.boxHelper = null
+    const parent = this.boxHelper.parent
+    if (parent !== null) {
+      parent.remove(this.boxHelper)
+    }
   }
 }

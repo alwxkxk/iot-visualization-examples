@@ -9,6 +9,7 @@
         "outDir": "dist",
         "allowJs": false,
         "sourceMap": false,
+        "strictNullChecks":true
     },
     "allowSyntheticDefaultImports":true,
     "include": [

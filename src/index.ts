@@ -7,6 +7,9 @@ import Space from './common/Space'
 import { findParent } from './common/utils'
 
 const element = document.getElementById('3d-space')
+if (element === null) {
+  throw new Error('#3d-space element dont exist.')
+}
 const space = new Space(element)
 function checkIsRack (obj: Object3D): Boolean {
   if (obj.name.includes('rack')) {
@@ -17,12 +20,18 @@ function checkIsRack (obj: Object3D): Boolean {
 }
 
 space.emitter.on(Events.load.processing, (xhr) => {
-  document.getElementById('loading-text').innerText = `Loading 3d model:${(xhr.loaded / 1024).toFixed(0)}KB`
+  const ele = document.getElementById('loading-text')
+  if (ele !== null) {
+    ele.innerText = `Loading 3d model:${(xhr.loaded / 1024).toFixed(0)}KB`
+  }
 })
 
 // load 3d model.
 space.load('./static/3d/datacenter-0715.glb').then(() => {
-  document.getElementById('loading-tips').style.display = 'none'
+  const ele = document.getElementById('loading-tips')
+  if (ele !== null) {
+    ele.style.display = 'none'
+  }
 
   const objectWrapList = space.getObject3DWrapList()
   const rackList: Object3DWrap[] = []
