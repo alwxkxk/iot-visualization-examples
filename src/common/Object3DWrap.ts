@@ -54,12 +54,9 @@ export default class Object3DWrap {
       this.moveHistoryList = []
       this.beforeMoveLocation = []
     }
-    if (moveInfo.repeatable !== true) {
-      const oldMoveInfo = this.moveHistoryList.find(item => item.name === moveInfo.name)
-      if (oldMoveInfo !== undefined) {
-        console.log(`${this.fullName} move ${moveInfo.name} is non repeatable, so don't move repeatedly.`)
-        return
-      }
+    if (moveInfo.repeatable !== true && this.checkMoveName(moveInfo)) {
+      console.log(`${this.fullName} move ${moveInfo.name} is non repeatable, so don't move repeatedly.`)
+      return
     }
     this.cancelMove()
     const oldPosition = this.object3D.position.clone()
@@ -71,27 +68,64 @@ export default class Object3DWrap {
     this.beforeMoveLocation.push(oldLocation)
     this.moveHistoryList.push(moveInfo)
 
-    const newPositionX: number = moveInfo?.position?.x === undefined ? oldPosition.x : oldPosition.x + moveInfo.position.x
-    const newPositionY: number = moveInfo?.position?.y === undefined ? oldPosition.y : oldPosition.y + moveInfo.position.y
-    const newPositionZ: number = moveInfo?.position?.z === undefined ? oldPosition.z : oldPosition.z + moveInfo.position.z
+    const endPositionX: number = moveInfo?.position?.x === undefined ? oldPosition.x : oldPosition.x + moveInfo.position.x
+    const endPositionY: number = moveInfo?.position?.y === undefined ? oldPosition.y : oldPosition.y + moveInfo.position.y
+    const endPositionZ: number = moveInfo?.position?.z === undefined ? oldPosition.z : oldPosition.z + moveInfo.position.z
 
-    const newRotationX: number = moveInfo?.rotation?.x === undefined ? oldRotation.x : oldRotation.x + degToRad(moveInfo.rotation.x)
-    const newRotationY: number = moveInfo?.rotation?.y === undefined ? oldRotation.y : oldRotation.y + degToRad(moveInfo.rotation.y)
-    const newRotationZ: number = moveInfo?.rotation?.z === undefined ? oldRotation.z : oldRotation.z + degToRad(moveInfo.rotation.z)
+    const endRotationX: number = moveInfo?.rotation?.x === undefined ? oldRotation.x : oldRotation.x + degToRad(moveInfo.rotation.x)
+    const endRotationY: number = moveInfo?.rotation?.y === undefined ? oldRotation.y : oldRotation.y + degToRad(moveInfo.rotation.y)
+    const endRotationZ: number = moveInfo?.rotation?.z === undefined ? oldRotation.z : oldRotation.z + degToRad(moveInfo.rotation.z)
 
-    const newPosition = new Vector3(newPositionX, newPositionY, newPositionZ)
-    const newRotation = new Euler(newRotationX, newRotationY, newRotationZ)
-    const newLocation = {
-      position: newPosition,
-      rotation: newRotation
+    const endPosition = new Vector3(endPositionX, endPositionY, endPositionZ)
+    const endRotation = new Euler(endRotationX, endRotationY, endRotationZ)
+    const endLocation = {
+      position: endPosition,
+      rotation: endRotation
     }
     const startLocation = {
       position: oldLocation.position.clone(),
       rotation: oldLocation.rotation.clone()
     }
+    this.moveAction(startLocation, endLocation, moveInfo?.duration === undefined ? 1000 : moveInfo.duration)
+  }
 
+  cancelMove (): void {
+    if (this.moveTween !== undefined && this.moveTween !== null) {
+      this.moveTween.stop()
+      this.moveTween = null
+    }
+  }
+
+  checkMoveName (moveInfo: IMoveInfo): boolean {
+    const m = this.moveHistoryList.find(i => i.name.includes(moveInfo.name))
+    if (m !== undefined) {
+      return true
+    }
+    return false
+  }
+
+  undoMove (): void {
+    const moveInfo = this.moveHistoryList.pop()
+    const beforeMoveLocation = this.beforeMoveLocation.pop()
+    if (moveInfo === undefined || beforeMoveLocation === undefined) {
+      console.warn('Dont has any move history.', moveInfo, beforeMoveLocation)
+      return
+    }
+
+    const endLocation = {
+      position: beforeMoveLocation.position,
+      rotation: beforeMoveLocation.rotation
+    }
+    const startLocation = {
+      position: this.object3D.position.clone(),
+      rotation: this.object3D.rotation.clone()
+    }
+    this.moveAction(startLocation, endLocation, moveInfo?.duration === undefined ? 1000 : moveInfo.duration)
+  }
+
+  moveAction (startLocation: ILocationInfo, endLocation: ILocationInfo, duration: number): void {
     this.moveTween = new Tween(startLocation)
-      .to(newLocation, moveInfo.duration !== undefined ? moveInfo.duration : 1000)
+      .to(endLocation, duration)
       .easing(Easing.Quadratic.Out)
       .onStart(() => {})
       .onUpdate(() => {
@@ -117,18 +151,12 @@ export default class Object3DWrap {
     }
     animate(0)
   }
-
-  cancelMove (): void {
-    if (this.moveTween !== undefined && this.moveTween !== null) {
-      this.moveTween.stop()
-      this.moveTween = null
-    }
-  }
-
-  checkMove (moveInfo: IMoveInfo): boolean {
-    return false
-  }
-
-  undoMove (): void {}
   // #endregion move
+
+  dispose (): void {
+    Object.keys(this).forEach(key => {
+    // @ts-expect-error
+      this[key] = null
+    })
+  }
 }

@@ -151,6 +151,7 @@ export default class Space {
     const orbit = this.options.orbit
     if (orbit !== false) {
       const orbit = this.orbit = new OrbitControls(this.camera, this.renderer.domElement)
+      orbit.screenSpacePanning = true
       orbit.update()
     }
   }
@@ -179,7 +180,7 @@ export default class Space {
    * @returns void
    */
   initRaycaster (
-    objList: Object3DWrap[],
+    objList: Object3D[],
     options: {click?: boolean, dblclick?: boolean, mousemove?: boolean, throttleTime?: number} = {}
   ): void {
     this.raycaster = new Raycaster()
@@ -218,8 +219,8 @@ export default class Space {
     }
   }
 
-  setRaycasterObjects (objList: Object3DWrap[]): void {
-    this.raycasterObjects = objList.map(i => i.object3D)
+  setRaycasterObjects (objList: Object3D[]): void {
+    this.raycasterObjects = objList
   }
 
   getRaycasterIntersectObjects (): Intersection[] {
@@ -365,7 +366,10 @@ export default class Space {
     this.emitter.emit(Events.dispose)
     setTimeout(() => {
       this.emitter.off('*')
-    }, 100)
-    this.animateWrap = null
+      Object.keys(this).forEach(key => {
+        // @ts-expect-error
+        this[key] = null
+      })
+    }, 1000)
   }
 }

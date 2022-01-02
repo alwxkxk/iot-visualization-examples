@@ -7,16 +7,46 @@ import Space from './common/Space'
 import { findParent, checkNameIncludes, findChildren } from './common/utils'
 import { updateChart1, updateChart2, updateChart3 } from './index-chart'
 
+// TODO: auto rotate button
+// TODO: change back button
+// TODO: default hot map and show temperature
+
 const element = document.getElementById('3d-space')
 if (element === null) {
   throw new Error('#3d-space element dont exist.')
 }
 const space = new Space(element)
+const boxHelperWrap = new BoxHelperWrap()
+const rackList: Object3D[] = []
 let selectRackWrap: Object3DWrap|null = null
+let selectServerWrap: Object3DWrap|null = null
 
 function checkIsRack (obj: Object3D): Boolean {
   return checkNameIncludes(obj, 'rack')
 }
+
+// load 3d model.
+space.load('./static/3d/datacenter-0715.glb').then(() => {
+  const ele = document.getElementById('loading-tips')
+  if (ele !== null) {
+    ele.style.display = 'none'
+  }
+
+  space.setCameraOriginPosition(new Vector3(21, 20, 8))
+
+  const objectWrapList = space.getObject3DWrapList()
+
+  objectWrapList.forEach(item => {
+    if (checkIsRack(item.object3D) === true) {
+      rackList.push(item.object3D)
+    }
+  })
+  space.initRaycaster(rackList)
+
+  boxHelperWrap.addToScene(space.scene)
+}).catch((err) => {
+  console.error(err)
+})
 
 function checkIsRackDoor (obj: Object3D): Boolean {
   return checkNameIncludes(obj, 'door')
@@ -24,6 +54,11 @@ function checkIsRackDoor (obj: Object3D): Boolean {
 
 function checkIsServer (obj: Object3D): Boolean {
   return checkNameIncludes(obj, 'server')
+}
+
+function getServerList (rack: Object3D): Object3D[] {
+  const result = rack.children.filter(checkIsServer)
+  return result
 }
 
 const updateRightInfo = (() => {
@@ -36,7 +71,7 @@ const updateRightInfo = (() => {
   if (rackCardEle === null || rackNameEle === null || serverCardEle === null || serverNameEle === null) {
     throw new Error('#rackCard or #rackName or #serverCard or #serverName dont exist.')
   }
-  return (rackWrap: Object3DWrap, serverWrap?: Object3DWrap) => {
+  return (rackWrap: Object3DWrap|null, serverWrap?: Object3DWrap) => {
     if (rackWrap !== null) {
       rackCardEle.classList.remove('hidden')
       rackNameEle.innerText = rackWrap.object3D.name
@@ -60,48 +95,6 @@ const updateRightInfo = (() => {
     }
   }
 })()
-
-document.getElementById('left-arrow-button')?.addEventListener('click', () => {
-  console.log('left-arrow-button')
-  space.backToCameraOriginPosition()
-  // TODO: reset raycaster list to rack list
-  // TODO: reset rack open door
-})
-
-function clickRack (obj: Object3D): void {
-  const rackWrap = space.getObject3DWrap(obj)
-  if (rackWrap !== null) {
-    updateRightInfo(rackWrap)
-  }
-}
-
-function clickServer (obj: Object3D): void {
-  const serverWrap = space.getObject3DWrap(obj)
-  if (serverWrap !== null && selectRackWrap !== null) {
-    updateRightInfo(selectRackWrap, serverWrap)
-  }
-}
-const openDoorMoveInfo = {
-  name: 'openDoor',
-  rotation: {
-    y: 120
-  }
-}
-function dblclickRack (obj: Object3D): void {
-  const rackWrap = space.getObject3DWrap(obj)
-  if (rackWrap !== null) {
-    selectRackWrap = rackWrap
-    // rack open door
-    const door = findChildren(rackWrap.object3D, checkIsRackDoor)
-    if (door !== null) {
-      const doorWrap = space.getObject3DWrap(door)
-      doorWrap?.move(openDoorMoveInfo)
-    }
-    // focus rack
-    space.focus(obj, { offset: { x: 2, y: 1 } })
-    // TODO:update raycaster list ,only can select server inside this rack.
-  }
-}
 
 // show popover info when mouse hover on rack or server
 const updatePopoverContent = (() => {
@@ -129,6 +122,86 @@ const updatePopoverContent = (() => {
     }
   }
 })()
+
+document.getElementById('left-arrow-button')?.addEventListener('click', () => {
+  console.log('left-arrow-button')
+  space.backToCameraOriginPosition()
+  // reset raycaster list to rack list
+  space.setRaycasterObjects(rackList)
+  updateRightInfo(null)
+  // reset rack open door
+  if (selectRackWrap !== null) {
+    const door = findChildren(selectRackWrap.object3D, checkIsRackDoor)
+    if (door !== null) {
+      const doorWrap = space.getObject3DWrap(door)
+      doorWrap?.undoMove()
+    }
+    selectRackWrap = null
+  }
+
+  if (selectServerWrap !== null) {
+    selectServerWrap.undoMove()
+    selectServerWrap = null
+  }
+})
+
+function clickRack (obj: Object3D): void {
+  const rackWrap = space.getObject3DWrap(obj)
+  if (rackWrap !== null) {
+    updateRightInfo(rackWrap)
+  }
+}
+
+function clickServer (obj: Object3D): void {
+  const serverWrap = space.getObject3DWrap(obj)
+  if (serverWrap !== null && selectRackWrap !== null) {
+    updateRightInfo(selectRackWrap, serverWrap)
+  }
+}
+
+const openDoorMoveInfo = {
+  name: 'openDoor',
+  rotation: {
+    y: 120
+  }
+}
+
+function dblclickRack (obj: Object3D): void {
+  const rackWrap = space.getObject3DWrap(obj)
+  if (rackWrap !== null) {
+    selectRackWrap = rackWrap
+    // rack open door
+    const door = findChildren(rackWrap.object3D, checkIsRackDoor)
+    if (door !== null) {
+      const doorWrap = space.getObject3DWrap(door)
+      doorWrap?.move(openDoorMoveInfo)
+    }
+    // focus rack
+    space.focus(obj, { offset: { x: 2, y: 1 } })
+    // update raycaster list ,only can select server inside this rack.
+    const serverList = getServerList(obj)
+    space.setRaycasterObjects(serverList)
+  }
+}
+
+const popupServerMoveInfo = {
+  name: 'popupServer',
+  position: {
+    x: 0.4
+  }
+}
+function dblclickServer (obj: Object3D): void {
+  // focus server
+  space.focus(obj, { offset: { x: 6, y: 1 } })
+  const serverWrap = space.getObject3DWrap(obj)
+  if (serverWrap !== null) {
+    serverWrap.move(popupServerMoveInfo)
+    if (selectServerWrap !== null) {
+      selectServerWrap.undoMove()
+    }
+    selectServerWrap = serverWrap
+  }
+}
 
 // show loading 3d model progress
 space.emitter.on(Events.load.processing, (xhr) => {
@@ -161,8 +234,9 @@ space.emitter.on(Events.dblclick.raycaster, (list) => {
   if (list.length > 0) {
     if (selectRackWrap !== null) {
       const server = findParent(list[0].object, checkIsServer)
-      // TODO:focus server
-      console.log('server', server)
+      if (server !== null) {
+        dblclickServer(server)
+      }
     } else {
       const rack = findParent(list[0].object, checkIsRack)
       if (rack !== null) {
@@ -172,27 +246,19 @@ space.emitter.on(Events.dblclick.raycaster, (list) => {
   }
 })
 
-// load 3d model.
-space.load('./static/3d/datacenter-0715.glb').then(() => {
-  const ele = document.getElementById('loading-tips')
-  if (ele !== null) {
-    ele.style.display = 'none'
-  }
-
-  space.setCameraOriginPosition(new Vector3(16, 14, -1))
-
-  const objectWrapList = space.getObject3DWrapList()
-  const rackList: Object3DWrap[] = []
-  objectWrapList.forEach(item => {
-    if (item.object3D.name.includes('rack')) {
-      rackList.push(item)
+space.emitter.on(Events.mousemove.raycaster, (list) => {
+  if (selectRackWrap !== null) {
+    if (list.length > 0) {
+      const server = findParent(list[0].object, checkIsServer)
+      if (server !== null) {
+        boxHelperWrap.attach(server)
+        updatePopoverContent(server.name)
+      }
+    } else {
+      boxHelperWrap.setVisible(false)
+      updatePopoverContent(null)
     }
-  })
-  // console.log('rackList', rackList)
-  space.initRaycaster(rackList)
-  const boxHelperWrap = new BoxHelperWrap(space.scene)
-
-  space.emitter.on(Events.mousemove.raycaster, (list) => {
+  } else {
     if (list.length > 0) {
       const rack = findParent(list[0].object, checkIsRack)
       if (rack !== null) {
@@ -203,7 +269,5 @@ space.load('./static/3d/datacenter-0715.glb').then(() => {
       boxHelperWrap.setVisible(false)
       updatePopoverContent(null)
     }
-  })
-}).catch((err) => {
-  console.log(err)
+  }
 })
