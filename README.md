@@ -17,7 +17,7 @@ npm run server
 
 ## simple datacenter
 - [https://alwxkxk.github.io/iot-visualization-examples](https://alwxkxk.github.io/iot-visualization-examples)
-- [Operational Video -- Youtube](https://www.youtube.com/watch?v=q_sh1b_sIEM)
+- [v0.1 demo Video -- Youtube](https://www.youtube.com/watch?v=q_sh1b_sIEM)
 ![iot-visualization-datacenter.jpg](https://i.loli.net/2019/07/03/5d1c78389a78571470.jpg)
 
 ## other pages
@@ -25,10 +25,13 @@ npm run server
 - [global](https://alwxkxk.github.io/iot-visualization-examples/global.html)
 
 ## refactor
-You can get the history version by git tag v0.1.
-This project go refactoring since 2021/11/26:
+This project start refactoring since 2021/11/26 in dev branch:
 - use echart replacing antv/g2
-- use tailwindcss
-- remove jquery
+- use [tailwindcss](https://tailwindcss.com/docs/installation)
+- use [tween.js](https://github.com/tweenjs/tween.js/blob/master/docs/user_guide.md)
+- remove jquery,D3
 - refactor code
 - update package version
+
+You can get the history version by git tag v0.1.
+
