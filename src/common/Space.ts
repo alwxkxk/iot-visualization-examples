@@ -73,7 +73,7 @@ export default class Space {
     }
     this.emitter = mitt()
     const ele = this.element
-    this.renderer = new WebGLRenderer({ alpha: false, antialias: false })
+    this.renderer = new WebGLRenderer({ alpha: true, antialias: false })
 
     if (ele.clientHeight === 0 || ele.clientWidth === 0) {
       throw new Error('element should had width and height before init.')
@@ -360,6 +360,26 @@ export default class Space {
     } else {
       return result
     }
+  }
+
+  resize (): void {
+    const camera = this.camera
+    const ele = this.element
+    if (ele.clientHeight === 0 || ele.clientWidth === 0) {
+      throw new Error('element should had width and height before init.')
+    }
+
+    this.innerWidth = ele.clientWidth
+    this.innerHeight = ele.clientHeight
+    this.offset = ele.getBoundingClientRect()
+
+    if (camera.type === 'PerspectiveCamera') {
+      camera.aspect = this.innerWidth / this.innerHeight
+      camera.updateProjectionMatrix()
+    }
+
+    this.renderer.setSize(this.innerWidth, this.innerHeight)
+    this.emitter.emit(Events.resize)
   }
 
   dispose (): void {

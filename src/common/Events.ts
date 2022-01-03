@@ -14,5 +14,6 @@ export default {
   },
   mousemove: {
     raycaster: 'mousemove:raycaster'
-  }
+  },
+  resize: 'resize'
 }

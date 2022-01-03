@@ -7,7 +7,7 @@
         "preserveConstEnums": true,
         "moduleResolution": "node",
         "outDir": "dist",
-        "allowJs": false,
+        "allowJs": true,
         "sourceMap": false,
         "strictNullChecks":true
     },

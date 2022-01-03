@@ -9,7 +9,6 @@ module.exports = {
   entry: {
     index: './src/index.ts'
     // global:'./src/global.ts',
-    // edifice:'./src/edifice.ts'
   },
   plugins: [
     new CopyPlugin({
@@ -23,11 +22,6 @@ module.exports = {
       favicon: './static/favicon.ico',
       chunks: ['index']
     }),
-    // new HtmlWebpackPlugin({
-    //   filename:"edifice.html",
-    //   template:'./src/edifice.html',
-    //   chunks:["edifice"]
-    // }),
     // new HtmlWebpackPlugin({
     //   filename:"global.html",
     //   template:'./src/global.html',

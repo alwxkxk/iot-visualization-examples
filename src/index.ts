@@ -6,10 +6,10 @@ import Object3DWrap from './common/Object3DWrap'
 import Space from './common/Space'
 import { findParent, checkNameIncludes, findChildren } from './common/utils'
 import { updateChart1, updateChart2, updateChart3 } from './index-chart'
+import Heatmap from './common/Heatmap'
 
-// TODO: auto rotate button
-// TODO: change back button
 // TODO: default hot map and show temperature
+// TODO: warn icon
 
 const element = document.getElementById('3d-space')
 if (element === null) {
@@ -20,10 +20,6 @@ const boxHelperWrap = new BoxHelperWrap()
 const rackList: Object3D[] = []
 let selectRackWrap: Object3DWrap|null = null
 let selectServerWrap: Object3DWrap|null = null
-
-function checkIsRack (obj: Object3D): Boolean {
-  return checkNameIncludes(obj, 'rack')
-}
 
 // load 3d model.
 space.load('./static/3d/datacenter-0715.glb').then(() => {
@@ -44,9 +40,15 @@ space.load('./static/3d/datacenter-0715.glb').then(() => {
   space.initRaycaster(rackList)
 
   boxHelperWrap.addToScene(space.scene)
+  initHeatmap()
+  triggerAutoRotate()
 }).catch((err) => {
   console.error(err)
 })
+
+function checkIsRack (obj: Object3D): Boolean {
+  return checkNameIncludes(obj, 'rack')
+}
 
 function checkIsRackDoor (obj: Object3D): Boolean {
   return checkNameIncludes(obj, 'door')
@@ -59,6 +61,23 @@ function checkIsServer (obj: Object3D): Boolean {
 function getServerList (rack: Object3D): Object3D[] {
   const result = rack.children.filter(checkIsServer)
   return result
+}
+
+const heatMap = new Heatmap()
+function initHeatmap (): void {
+  const dataList: IPoint[] = []
+  rackList.forEach(r => {
+    const position = new Vector3()
+    position.setFromMatrixPosition(r.matrixWorld)
+    dataList.push({
+      value: Math.max(Math.random() * 30 + 2, 15),
+      x: position.x,
+      y: position.z
+    })
+  })
+
+  heatMap.init(space.scene, space.scene)
+  heatMap.setData(dataList)
 }
 
 const updateRightInfo = (() => {
@@ -144,6 +163,25 @@ document.getElementById('left-arrow-button')?.addEventListener('click', () => {
     selectServerWrap = null
   }
 })
+
+function triggerAutoRotate (): void {
+  space.orbit.autoRotate = !space.orbit.autoRotate
+  if (space.orbit.autoRotate) {
+    space.emitter.on(Events.animate, space.orbit.update)
+    document.getElementById('rotate-button')?.classList.add('bg-blue-700/60')
+  } else {
+    space.emitter.off(Events.animate, space.orbit.update)
+    document.getElementById('rotate-button')?.classList.remove('bg-blue-700/60')
+  }
+}
+
+document.getElementById('rotate-button')?.addEventListener('click', triggerAutoRotate)
+
+function triggerTemperature (): void {
+  // TODO:
+}
+
+window.addEventListener('resize', () => space.resize())
 
 function clickRack (obj: Object3D): void {
   const rackWrap = space.getObject3DWrap(obj)
