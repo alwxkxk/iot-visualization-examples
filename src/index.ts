@@ -7,9 +7,7 @@ import Space from './common/Space'
 import { findParent, checkNameIncludes, findChildren, getScreenPosition } from './common/utils'
 import { updateChart1, updateChart2, updateChart3 } from './index-chart'
 import Heatmap from './common/Heatmap'
-
-// TODO: default hot map and show temperature
-// TODO: warn icon
+import { Modal } from 'bootstrap'
 
 const element = document.getElementById('3d-space')
 if (element === null) {
@@ -20,6 +18,7 @@ const boxHelperWrap = new BoxHelperWrap()
 const rackList: Object3D[] = []
 const iconActiveBg = 'bg-blue-700/60'
 let computerScreenObject3DWrap: Object3DWrap|null = null
+let rackTemperatureObject3DWrap: Object3DWrap|null = null
 let selectRackWrap: Object3DWrap|null = null
 let selectServerWrap: Object3DWrap|null = null
 
@@ -44,6 +43,7 @@ space.load('./static/3d/datacenter-0715.glb').then(() => {
   boxHelperWrap.addToScene(space.scene)
   triggerAutoRotate()
   computerScreenObject3DWrap = space.getObject3DWrapByFullName('Scene/datacenterglb/RootNode/room_main/screen')
+  rackTemperatureObject3DWrap = space.getObject3DWrapByFullName('Scene/datacenterglb/RootNode/room_main/rackB_5')
 }).catch((err) => {
   console.error(err)
 })
@@ -258,20 +258,28 @@ function dblclickServer (obj: Object3D): void {
   }
 }
 
-// add icon list
+// add warn icon
 const spaceContainerEle = document.getElementById('3d-space')?.parentElement
 const warnIconContainerEle = document.createElement('div')
 warnIconContainerEle.classList.add('absolute', 'flex')
 spaceContainerEle?.appendChild(warnIconContainerEle)
-
-// icon : warn
 const imgEle = document.createElement('img')
 imgEle.src = './static/images/warn.svg'
 imgEle.classList.add('icon', 'twinkle')
 imgEle.style.backgroundColor = 'rgba(20,50,200,0.4)'
 warnIconContainerEle.appendChild(imgEle)
 
-function updateIconListPosition (): void {
+// enable modal
+const exampleModalEle = document.getElementById('exampleModal')
+if (exampleModalEle !== null) {
+  const myModal = new Modal(exampleModalEle)
+  warnIconContainerEle.addEventListener('click', () => {
+    // console.log('click event')
+    myModal.toggle()
+  })
+}
+
+function updateWarnIconPosition (): void {
   if (computerScreenObject3DWrap?.object3D !== undefined) {
     const screenPosition = getScreenPosition(computerScreenObject3DWrap.object3D, space, { y: 2 })
     warnIconContainerEle.style.top = `${screenPosition.y}px`
@@ -279,8 +287,32 @@ function updateIconListPosition (): void {
   }
 }
 
+const temperatureIconContainerEle = document.createElement('div')
+temperatureIconContainerEle.classList.add('absolute', 'flex', 'flex-col')
+spaceContainerEle?.appendChild(temperatureIconContainerEle)
+const temperatureValueEle = document.createElement('div')
+temperatureValueEle.innerText = '24.3℃ 32%'
+temperatureValueEle.classList.add('text-white', 'relative', 'bg-blue-700/60', 'p-1')
+temperatureValueEle.style.top = '5px'
+temperatureValueEle.style.left = '8px'
+const pointerImgEle = document.createElement('img')
+pointerImgEle.src = './static/images/pointer.png'
+pointerImgEle.style.width = '50px'
+
+temperatureIconContainerEle.appendChild(temperatureValueEle)
+temperatureIconContainerEle.appendChild(pointerImgEle)
+
+function updateTemperaturePosition (): void {
+  if (rackTemperatureObject3DWrap?.object3D !== undefined) {
+    const screenPosition = getScreenPosition(rackTemperatureObject3DWrap.object3D, space, { y: 1.5, x: 0.9 })
+    temperatureIconContainerEle.style.top = `${screenPosition.y}px`
+    temperatureIconContainerEle.style.left = `${screenPosition.x}px`
+  }
+}
+
 space.emitter.on(Events.orbitChange, () => {
-  updateIconListPosition()
+  updateWarnIconPosition()
+  updateTemperaturePosition()
 })
 
 // show loading 3d model progress
