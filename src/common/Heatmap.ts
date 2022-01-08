@@ -66,11 +66,17 @@ export default class Heatmap {
         // console.warn('max value increase to ', v.value)
         this.max = v.value
       }
-      // bug: headmap.js can show x:110,but can show 110.9384904
+      // bug: heatmap.js can show x:110,but can show 110.9384904
+      const x = Number((((v.x / this.len) + 0.5) * width).toFixed(0))
+      const y = Number((((v.y / this.len) + 0.5) * height).toFixed(0))
+      // if position out of range ,there will draw nothing,
+      if (x > this.len || y > this.len) {
+        console.warn('heatmap point out of range.', this.len, x, y)
+      }
       this.points.push({
         value: v.value,
-        x: Number((((v.x / this.len) + 0.5) * width).toFixed(0)),
-        y: Number((((v.y / this.len) + 0.5) * height).toFixed(0))
+        x,
+        y
       })
     })
     this.heatmapInstance.setData({
@@ -85,6 +91,10 @@ export default class Heatmap {
 
   setVisible (flag: boolean): void {
     this.plane.visible = flag
+  }
+
+  getVisible (): boolean {
+    return this.plane.visible
   }
 
   dispose (): void {

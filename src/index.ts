@@ -4,7 +4,7 @@ import BoxHelperWrap from './common/BoxHelperWrap'
 import Events from './common/Events'
 import Object3DWrap from './common/Object3DWrap'
 import Space from './common/Space'
-import { findParent, checkNameIncludes, findChildren } from './common/utils'
+import { findParent, checkNameIncludes, findChildren, getScreenPosition } from './common/utils'
 import { updateChart1, updateChart2, updateChart3 } from './index-chart'
 import Heatmap from './common/Heatmap'
 
@@ -18,6 +18,8 @@ if (element === null) {
 const space = new Space(element)
 const boxHelperWrap = new BoxHelperWrap()
 const rackList: Object3D[] = []
+const iconActiveBg = 'bg-blue-700/60'
+let computerScreenObject3DWrap: Object3DWrap|null = null
 let selectRackWrap: Object3DWrap|null = null
 let selectServerWrap: Object3DWrap|null = null
 
@@ -40,8 +42,8 @@ space.load('./static/3d/datacenter-0715.glb').then(() => {
   space.initRaycaster(rackList)
 
   boxHelperWrap.addToScene(space.scene)
-  initHeatmap()
   triggerAutoRotate()
+  computerScreenObject3DWrap = space.getObject3DWrapByFullName('Scene/datacenterglb/RootNode/room_main/screen')
 }).catch((err) => {
   console.error(err)
 })
@@ -63,8 +65,9 @@ function getServerList (rack: Object3D): Object3D[] {
   return result
 }
 
-const heatMap = new Heatmap()
+let heatMap: Heatmap|null = null
 function initHeatmap (): void {
+  heatMap = new Heatmap()
   const dataList: IPoint[] = []
   rackList.forEach(r => {
     const position = new Vector3()
@@ -143,7 +146,6 @@ const updatePopoverContent = (() => {
 })()
 
 document.getElementById('left-arrow-button')?.addEventListener('click', () => {
-  console.log('left-arrow-button')
   space.backToCameraOriginPosition()
   // reset raycaster list to rack list
   space.setRaycasterObjects(rackList)
@@ -164,22 +166,37 @@ document.getElementById('left-arrow-button')?.addEventListener('click', () => {
   }
 })
 
+const rotateBtnEle = document.getElementById('rotate-button')
 function triggerAutoRotate (): void {
   space.orbit.autoRotate = !space.orbit.autoRotate
   if (space.orbit.autoRotate) {
     space.emitter.on(Events.animate, space.orbit.update)
-    document.getElementById('rotate-button')?.classList.add('bg-blue-700/60')
+    rotateBtnEle?.classList.add(iconActiveBg)
   } else {
     space.emitter.off(Events.animate, space.orbit.update)
-    document.getElementById('rotate-button')?.classList.remove('bg-blue-700/60')
+    rotateBtnEle?.classList.remove(iconActiveBg)
   }
 }
 
-document.getElementById('rotate-button')?.addEventListener('click', triggerAutoRotate)
+rotateBtnEle?.addEventListener('click', triggerAutoRotate)
 
+const temperatureBtnEle = document.getElementById('temperature-button')
 function triggerTemperature (): void {
-  // TODO:
+  if (heatMap === null) {
+    initHeatmap()
+    temperatureBtnEle?.classList.add(iconActiveBg)
+  } else {
+    const flag = !heatMap.getVisible()
+    heatMap.setVisible(flag)
+    if (flag) {
+      temperatureBtnEle?.classList.add(iconActiveBg)
+    } else {
+      temperatureBtnEle?.classList.remove(iconActiveBg)
+    }
+  }
 }
+
+temperatureBtnEle?.addEventListener('click', triggerTemperature)
 
 window.addEventListener('resize', () => space.resize())
 
@@ -240,6 +257,31 @@ function dblclickServer (obj: Object3D): void {
     selectServerWrap = serverWrap
   }
 }
+
+// add icon list
+const spaceContainerEle = document.getElementById('3d-space')?.parentElement
+const warnIconContainerEle = document.createElement('div')
+warnIconContainerEle.classList.add('absolute', 'flex')
+spaceContainerEle?.appendChild(warnIconContainerEle)
+
+// icon : warn
+const imgEle = document.createElement('img')
+imgEle.src = './static/images/warn.svg'
+imgEle.classList.add('icon', 'twinkle')
+imgEle.style.backgroundColor = 'rgba(20,50,200,0.4)'
+warnIconContainerEle.appendChild(imgEle)
+
+function updateIconListPosition (): void {
+  if (computerScreenObject3DWrap?.object3D !== undefined) {
+    const screenPosition = getScreenPosition(computerScreenObject3DWrap.object3D, space, { y: 2 })
+    warnIconContainerEle.style.top = `${screenPosition.y}px`
+    warnIconContainerEle.style.left = `${screenPosition.x}px`
+  }
+}
+
+space.emitter.on(Events.orbitChange, () => {
+  updateIconListPosition()
+})
 
 // show loading 3d model progress
 space.emitter.on(Events.load.processing, (xhr) => {

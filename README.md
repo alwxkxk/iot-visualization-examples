@@ -21,7 +21,6 @@ npm run server
 ![iot-visualization-datacenter.jpg](https://i.loli.net/2019/07/03/5d1c78389a78571470.jpg)
 
 ## other pages
-- [edifice](https://alwxkxk.github.io/iot-visualization-examples/edifice.html)
 - [global](https://alwxkxk.github.io/iot-visualization-examples/global.html)
 
 ## refactor
@@ -29,7 +28,8 @@ This project start refactoring since 2021/11/26 in dev branch:
 - use echart replacing antv/g2
 - use [tailwindcss](https://tailwindcss.com/docs/installation)
 - use [tween.js](https://github.com/tweenjs/tween.js/blob/master/docs/user_guide.md)
-- remove jquery,D3
+- remove jquery
+- remove edifice demo
 - refactor code
 - update package version
 

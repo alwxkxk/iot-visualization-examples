@@ -1,4 +1,9 @@
-import { Object3D } from 'three'
+import { interpolateNumber } from 'd3-interpolate'
+import { Box3, Object3D, Vector3 } from 'three'
+import Space from './Space'
+
+const box3 = new Box3()
+const vector3 = new Vector3()
 
 /**
  * Finding object3D parent(include itself) circularly until callback return true.
@@ -42,4 +47,30 @@ export function checkNameIncludes (obj: Object3D, str: string): Boolean {
   } else {
     return false
   }
+}
+
+export function getScreenPosition (obj: Object3D, space: Space, offset?: IOffset3): {x: number, y: number} {
+  const p = {
+    x: offset?.x !== undefined ? offset?.x : 0.5,
+    y: offset?.y !== undefined ? offset?.y : 0.5,
+    z: offset?.z !== undefined ? offset?.z : 0.5
+  }
+  const result = { x: 0, y: 0 }
+  const widthHalf = space.innerWidth / 2
+  const heightHalf = space.innerHeight / 2
+
+  box3.setFromObject(obj)
+  const ix = interpolateNumber(box3.min.x, box3.max.x)
+  const iy = interpolateNumber(box3.min.y, box3.max.y)
+  const iz = interpolateNumber(box3.min.z, box3.max.z)
+
+  vector3.set(
+    ix(p.x),
+    iy(p.y),
+    iz(p.z)
+  )
+  vector3.project(space.camera)
+  result.x = vector3.x * widthHalf + widthHalf + space.offset.left
+  result.y = -(vector3.y * heightHalf) + heightHalf + space.offset.top
+  return result
 }

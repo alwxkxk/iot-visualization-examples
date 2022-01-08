@@ -1,6 +1,7 @@
 export default {
   animate: 'animate',
   dispose: 'dispose',
+  orbitChange: 'orbitChange',
   load: {
     start: 'load:start',
     processing: 'load:processing',

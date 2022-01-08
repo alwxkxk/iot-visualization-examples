@@ -30,11 +30,7 @@ interface ISpaceOptions {
 interface IFocusOptions{
   type?: 'coordinate' | 'radius' // coordinate or radius(default)
   duration?: number
-  offset: {
-    x?: number
-    y?: number
-    z?: number
-  }
+  offset: IOffset3
 }
 
 export default class Space {
@@ -152,6 +148,9 @@ export default class Space {
     if (orbit !== false) {
       const orbit = this.orbit = new OrbitControls(this.camera, this.renderer.domElement)
       orbit.screenSpacePanning = true
+      orbit.addEventListener('change', () => {
+        this.emitter.emit(Events.orbitChange)
+      })
       orbit.update()
     }
   }
@@ -355,6 +354,15 @@ export default class Space {
 
   getObject3DWrap (obj: Object3D): Object3DWrap|null {
     const result = this.object3DWrapMap.get(obj.uuid)
+    if (result === undefined) {
+      return null
+    } else {
+      return result
+    }
+  }
+
+  getObject3DWrapByFullName (fullName: string): Object3DWrap|null {
+    const result = this.object3DWrapNameMap.get(fullName)
     if (result === undefined) {
       return null
     } else {
