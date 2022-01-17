@@ -1,13 +1,14 @@
 import './common/global_setting'
-import { Object3D, Vector3 } from 'three'
+import { Box3, BoxGeometry, Group, Mesh, MeshBasicMaterial, Object3D, Vector3 } from 'three'
 import BoxHelperWrap from './common/BoxHelperWrap'
 import Events from './common/Events'
 import Object3DWrap from './common/Object3DWrap'
 import Space from './common/Space'
-import { findParent, checkNameIncludes, findChildren, getScreenPosition } from './common/utils'
+import { findParent, checkNameIncludes, findChildren, getScreenPosition, initCapacityMaterial } from './common/utils'
 import { updateChart1, updateChart2, updateChart3 } from './index-chart'
 import Heatmap from './common/Heatmap'
 import { Modal } from 'bootstrap'
+import { IPoint } from './type'
 
 const element = document.getElementById('3d-space')
 if (element === null) {
@@ -198,6 +199,73 @@ function triggerTemperature (): void {
 
 temperatureBtnEle?.addEventListener('click', triggerTemperature)
 
+const capacityBtnEle = document.getElementById('capacity-button')
+
+const colorObj = {
+  safe: 'rgb(139,195,74)',
+  much: 'rgb(255,235,59)',
+  over: 'rgb(255,152,0)',
+  dangerous: 'rgb(244,67,54)'
+}
+let capacityFlag = false
+const rackModelObject3DMap = new Map()
+function initRackCapacityObject3D (obj: Object3D): Group {
+  const group = new Group()
+  group.visible = false
+  const box3 = new Box3()
+  const b = box3.setFromObject(obj)
+  const x = b.max.x - b.min.x
+  const y = b.max.y - b.min.y
+  const z = b.max.z - b.min.z
+
+  const boxGeo = new BoxGeometry(x, y, z)
+  const boxMat = new MeshBasicMaterial({ color: 0xcccccc, opacity: 0.4, transparent: true })
+  const box = new Mesh(boxGeo, boxMat)
+  group.add(box)
+
+  const capacityValue = Math.min(0.95, 0.2 + Math.random())
+  let capacityColor = colorObj.safe
+  if (capacityValue < 0.55) {
+    capacityColor = colorObj.safe
+  } else if (capacityValue < 0.7) {
+    capacityColor = colorObj.much
+  } else if (capacityValue < 0.8) {
+    capacityColor = colorObj.over
+  } else {
+    capacityColor = colorObj.dangerous
+  }
+  const splitValue = b.min.y + y * (capacityValue - 0.5)
+  const subBoxMat = initCapacityMaterial(splitValue, capacityColor)
+  const subBox = new Mesh(boxGeo, subBoxMat)
+  subBox.scale.set(0.9, 0.9, 0.9)
+  group.add(subBox)
+
+  obj.parent?.add(group)
+  group.position.copy(obj.position)
+  group.rotation.copy(obj.rotation)
+  return group
+}
+function triggerCapacity (): void {
+  capacityFlag = !capacityFlag
+  if (capacityFlag) {
+    capacityBtnEle?.classList.add(iconActiveBg)
+  } else {
+    capacityBtnEle?.classList.remove(iconActiveBg)
+  }
+  rackList.forEach(rack => {
+    let modelObj = rackModelObject3DMap.get(rack.uuid)
+    if (modelObj === undefined) {
+      modelObj = {
+        origin: rack,
+        capacity: initRackCapacityObject3D(rack)
+      }
+      rackModelObject3DMap.set(rack.uuid, modelObj)
+    }
+    modelObj.capacity.visible = capacityFlag
+    modelObj.origin.visible = !capacityFlag
+  })
+}
+capacityBtnEle?.addEventListener('click', triggerCapacity)
 window.addEventListener('resize', () => space.resize())
 
 function clickRack (obj: Object3D): void {
@@ -258,20 +326,10 @@ function dblclickServer (obj: Object3D): void {
   }
 }
 
-// add warn icon
-const spaceContainerEle = document.getElementById('3d-space')?.parentElement
-const warnIconContainerEle = document.createElement('div')
-warnIconContainerEle.classList.add('absolute', 'flex')
-spaceContainerEle?.appendChild(warnIconContainerEle)
-const imgEle = document.createElement('img')
-imgEle.src = './static/images/warn.svg'
-imgEle.classList.add('icon', 'twinkle')
-imgEle.style.backgroundColor = 'rgba(20,50,200,0.4)'
-warnIconContainerEle.appendChild(imgEle)
-
+const warnIconContainerEle = document.getElementById('warn-icon')
 // enable modal
 const exampleModalEle = document.getElementById('exampleModal')
-if (exampleModalEle !== null) {
+if (exampleModalEle !== null && warnIconContainerEle !== null) {
   const myModal = new Modal(exampleModalEle)
   warnIconContainerEle.addEventListener('click', () => {
     // console.log('click event')
@@ -280,30 +338,17 @@ if (exampleModalEle !== null) {
 }
 
 function updateWarnIconPosition (): void {
-  if (computerScreenObject3DWrap?.object3D !== undefined) {
+  if (computerScreenObject3DWrap?.object3D !== undefined && warnIconContainerEle !== null) {
     const screenPosition = getScreenPosition(computerScreenObject3DWrap.object3D, space, { y: 2 })
     warnIconContainerEle.style.top = `${screenPosition.y}px`
     warnIconContainerEle.style.left = `${screenPosition.x}px`
   }
 }
 
-const temperatureIconContainerEle = document.createElement('div')
-temperatureIconContainerEle.classList.add('absolute', 'flex', 'flex-col')
-spaceContainerEle?.appendChild(temperatureIconContainerEle)
-const temperatureValueEle = document.createElement('div')
-temperatureValueEle.innerText = '24.3℃ 32%'
-temperatureValueEle.classList.add('text-white', 'relative', 'bg-blue-700/60', 'p-1')
-temperatureValueEle.style.top = '5px'
-temperatureValueEle.style.left = '8px'
-const pointerImgEle = document.createElement('img')
-pointerImgEle.src = './static/images/pointer.png'
-pointerImgEle.style.width = '50px'
-
-temperatureIconContainerEle.appendChild(temperatureValueEle)
-temperatureIconContainerEle.appendChild(pointerImgEle)
+const temperatureIconContainerEle = document.getElementById('temperature-icon')
 
 function updateTemperaturePosition (): void {
-  if (rackTemperatureObject3DWrap?.object3D !== undefined) {
+  if (rackTemperatureObject3DWrap?.object3D !== undefined && temperatureIconContainerEle !== null) {
     const screenPosition = getScreenPosition(rackTemperatureObject3DWrap.object3D, space, { y: 1.5, x: 0.9 })
     temperatureIconContainerEle.style.top = `${screenPosition.y}px`
     temperatureIconContainerEle.style.left = `${screenPosition.x}px`

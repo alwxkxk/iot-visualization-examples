@@ -1,6 +1,6 @@
 
-import { Euler, Object3D, Vector3, Math } from 'three'
-import { Easing, Tween } from '@tweenjs/tween.js'
+import { Euler, Object3D, Vector3, Math, ShaderMaterial } from 'three'
+import { Easing, Group, Tween } from '@tweenjs/tween.js'
 
 const degToRad = Math.degToRad
 interface IMoveInfo{

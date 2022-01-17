@@ -1,5 +1,6 @@
 import { interpolateNumber } from 'd3-interpolate'
-import { Box3, Object3D, Vector3 } from 'three'
+import { Box3, Color, DoubleSide, Object3D, ShaderMaterial, Vector3 } from 'three'
+import { IOffset3 } from '../type'
 import Space from './Space'
 
 const box3 = new Box3()
@@ -48,8 +49,15 @@ export function checkNameIncludes (obj: Object3D, str: string): Boolean {
     return false
   }
 }
-
+/**
+ * get screen position by object3D.
+ * @param  {Object3D} obj three.js object3D
+ * @param  {Space} space Space instance
+ * @param  {IOffset3} offset position offset set by interpolate from object size
+ * @returns {Object}
+ */
 export function getScreenPosition (obj: Object3D, space: Space, offset?: IOffset3): {x: number, y: number} {
+  // default is object3D center
   const p = {
     x: offset?.x !== undefined ? offset?.x : 0.5,
     y: offset?.y !== undefined ? offset?.y : 0.5,
@@ -73,4 +81,42 @@ export function getScreenPosition (obj: Object3D, space: Space, offset?: IOffset
   result.x = vector3.x * widthHalf + widthHalf + space.offset.left
   result.y = -(vector3.y * heightHalf) + heightHalf + space.offset.top
   return result
+}
+
+export function initCapacityMaterial (value: number, color: string): ShaderMaterial {
+  const vertexShader = `
+  varying vec3 vPosition;
+  void main() 
+  {
+    gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
+    vPosition = position;
+  }
+  `
+
+  const fragmentShader = `
+  varying vec3 vPosition;
+  uniform vec3 fillColor;
+  uniform float splitValue;
+  void main() 
+  {
+    // if position.y less than splitValue,don't render color.
+    if(vPosition.y> splitValue ){
+      discard;
+    }else{
+      gl_FragColor = vec4( fillColor, 0.8 );
+    }
+  }
+  `
+
+  const customMaterial = new ShaderMaterial({
+    uniforms:
+    {
+      splitValue: { type: 'f', value: value },
+      fillColor: { type: 'c', value: new Color(color) }
+    },
+    side: DoubleSide,
+    vertexShader: vertexShader,
+    fragmentShader: fragmentShader
+  })
+  return customMaterial
 }

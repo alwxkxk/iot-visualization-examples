@@ -22,6 +22,7 @@ import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls.js'
 import Events from './Events'
 import { throttle } from 'lodash-es'
 import { Easing, Tween } from '@tweenjs/tween.js'
+import { IOffset3 } from '../type'
 
 interface ISpaceOptions {
   orbit?: boolean

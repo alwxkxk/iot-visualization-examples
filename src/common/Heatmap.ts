@@ -1,5 +1,6 @@
 import * as h337 from 'heatmap.js'
 import { Box3, CanvasTexture, Mesh, MeshBasicMaterial, Object3D, PlaneBufferGeometry, Scene } from 'three'
+import { IPoint } from '../type'
 const height = 1024
 const width = 1024
 
