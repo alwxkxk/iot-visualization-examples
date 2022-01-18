@@ -24,7 +24,7 @@ let selectRackWrap: Object3DWrap|null = null
 let selectServerWrap: Object3DWrap|null = null
 
 // load 3d model.
-space.load('./static/3d/datacenter-0715.glb').then(() => {
+space.load('./static/3d/datacenter.glb').then(() => {
   const ele = document.getElementById('loading-tips')
   if (ele !== null) {
     ele.style.display = 'none'

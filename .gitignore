@@ -3,9 +3,4 @@ dist
 yarn.lock
 yarn-error.log
 stats.json
-
-static/3d/*
-
-!static/3d/edifice-0624.glb
-!static/3d/datacenter-0715.glb
 !.vscode/settings.json
