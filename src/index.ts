@@ -35,7 +35,7 @@ space.load('./static/3d/datacenter.glb').then(() => {
   const objectWrapList = space.getObject3DWrapList()
 
   objectWrapList.forEach(item => {
-    if (checkIsRack(item.object3D) === true) {
+    if (checkIsRack(item.object3D)) {
       rackList.push(item.object3D)
     }
   })
@@ -49,21 +49,20 @@ space.load('./static/3d/datacenter.glb').then(() => {
   console.error(err)
 })
 
-function checkIsRack (obj: Object3D): Boolean {
+function checkIsRack (obj: Object3D): boolean {
   return checkNameIncludes(obj, 'rack')
 }
 
-function checkIsRackDoor (obj: Object3D): Boolean {
+function checkIsRackDoor (obj: Object3D): boolean {
   return checkNameIncludes(obj, 'door')
 }
 
-function checkIsServer (obj: Object3D): Boolean {
+function checkIsServer (obj: Object3D): boolean {
   return checkNameIncludes(obj, 'server')
 }
 
 function getServerList (rack: Object3D): Object3D[] {
-  const result = rack.children.filter(checkIsServer)
-  return result
+  return rack.children.filter(checkIsServer)
 }
 
 let heatMap: Heatmap|null = null
@@ -224,7 +223,7 @@ function initRackCapacityObject3D (obj: Object3D): Group {
   group.add(box)
 
   const capacityValue = Math.min(0.95, 0.2 + Math.random())
-  let capacityColor = colorObj.safe
+  let capacityColor
   if (capacityValue < 0.55) {
     capacityColor = colorObj.safe
   } else if (capacityValue < 0.7) {

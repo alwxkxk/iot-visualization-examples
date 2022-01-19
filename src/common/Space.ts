@@ -90,8 +90,8 @@ export default class Space {
     this.mouse = new Vector2()
   }
 
-  async load (fileUrl: string): Promise<void> {
-    return await new Promise((resolve, reject) => {
+  async load (fileUrl: string): Promise<any> {
+    const p = await new Promise((resolve, reject) => {
       const gltfLoader = new GLTFLoader()
       const loader = new FileLoader(DefaultLoadingManager)
       loader.setResponseType('arraybuffer')
@@ -104,7 +104,7 @@ export default class Space {
               // console.log('load gltf')
               this.afterLoaded(gltf)
               this.emitter.emit(Events.load.finish)
-              resolve()
+              resolve('')
             },
             (error: any) => {
               reject(error)
@@ -120,6 +120,8 @@ export default class Space {
           reject(event)
         })
     })
+
+    return p
   }
 
   afterLoaded (gltf: any): void {
@@ -145,8 +147,8 @@ export default class Space {
   }
 
   initOrbit (): void {
-    const orbit = this.options.orbit
-    if (orbit !== false) {
+    const orbitDisable = this.options.orbit
+    if (orbitDisable !== false) {
       const orbit = this.orbit = new OrbitControls(this.camera, this.renderer.domElement)
       orbit.screenSpacePanning = true
       orbit.addEventListener('change', () => {
@@ -269,13 +271,9 @@ export default class Space {
     this.focusTween = new Tween(startObj)
       .to(endObj, options.duration === undefined ? 1000 : options.duration)
       .easing(Easing.Quadratic.Out)
-      .onStart(() => {})
+      // .onStart(() => {})
       .onUpdate(() => {
-        const orbitTarget = startObj.orbitTarget
-        const cameraPosition = startObj.cameraPosition
-        this.camera.position.set(cameraPosition.x, cameraPosition.y, cameraPosition.z)
-        this.orbit.target.set(orbitTarget.x, orbitTarget.y, orbitTarget.z)
-        this.orbit.update()
+        this.updateCameraPositionAndOrbitTarget(startObj.orbitTarget, startObj.cameraPosition)
       })
       .onStop(() => {
         this.focusTween = null
@@ -309,6 +307,12 @@ export default class Space {
     this.orbit.update()
   }
 
+  updateCameraPositionAndOrbitTarget (orbitTarget: Vector3, cameraPosition: Vector3): void {
+    this.camera.position.set(cameraPosition.x, cameraPosition.y, cameraPosition.z)
+    this.orbit.target.set(orbitTarget.x, orbitTarget.y, orbitTarget.z)
+    this.orbit.update()
+  }
+
   backToCameraOriginPosition (): void {
     if (this.cameraOriginPosition === undefined) {
       console.warn('Need setCameraOriginPosition before backToCameraOriginPosition.')
@@ -323,13 +327,9 @@ export default class Space {
     let backTween: Tween<any>|null = new Tween(startObj)
       .to(endObj, 1000)
       .easing(Easing.Quadratic.Out)
-      .onStart(() => {})
+      // .onStart(() => {})
       .onUpdate(() => {
-        const orbitTarget = startObj.orbitTarget
-        const cameraPosition = startObj.cameraPosition
-        this.camera.position.set(cameraPosition.x, cameraPosition.y, cameraPosition.z)
-        this.orbit.target.set(orbitTarget.x, orbitTarget.y, orbitTarget.z)
-        this.orbit.update()
+        this.updateCameraPositionAndOrbitTarget(startObj.orbitTarget, startObj.cameraPosition)
       })
       .onStop(() => {
         backTween = null

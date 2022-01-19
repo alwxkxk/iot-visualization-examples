@@ -10,12 +10,12 @@ const vector3 = new Vector3()
  * Finding object3D parent(include itself) circularly until callback return true.
  * If don't find the parent match the callback,it will return null.
  * @param  {Object3D} object3d
- * @param  {(obj:Object3D)=>Boolean} callback
+ * @param  {(obj:Object3D)=>boolean} callback
  * @returns {Object3D|null}
  */
-export function findParent (object3d: Object3D, callback: (obj: Object3D) => Boolean): Object3D |null {
+export function findParent (object3d: Object3D, callback: (obj: Object3D) => boolean): Object3D |null {
   let parent: Object3D|null = object3d
-  while (callback(parent) === false) {
+  while (!callback(parent)) {
     parent = parent.parent
     if (parent === null) {
       return null
@@ -28,10 +28,10 @@ export function findParent (object3d: Object3D, callback: (obj: Object3D) => Boo
  * Finding object3D children(include itself) circularly until callback return true.
  * If don't find the child match the callback,it will return null.
  * @param  {Object3D} object3d
- * @param  {(obj:Object3D)=>Boolean} callback
+ * @param  {(obj:Object3D)=>boolean} callback
  * @returns {Object3D|null}
  */
-export function findChildren (object3D: Object3D, callback: (obj: Object3D) => Boolean): Object3D |null {
+export function findChildren (object3D: Object3D, callback: (obj: Object3D) => boolean): Object3D |null {
   const children: Object3D[] = []
   object3D.traverse(obj => children.push(obj))
   const result = children.find(callback)
@@ -42,7 +42,7 @@ export function findChildren (object3D: Object3D, callback: (obj: Object3D) => B
   }
 }
 
-export function checkNameIncludes (obj: Object3D, str: string): Boolean {
+export function checkNameIncludes (obj: Object3D, str: string): boolean {
   if (obj.name.includes(str)) {
     return true
   } else {
