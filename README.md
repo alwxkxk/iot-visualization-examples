@@ -15,4 +15,5 @@ npm run server
 ## example
 - [datacenter](https://alwxkxk.github.io/iot-visualization-examples)
 
-
+## 大陆访问
+大陆用户无法访问访问github page时，可访问[3diot.scaugreen.cn](http://3diot.scaugreen.cn)

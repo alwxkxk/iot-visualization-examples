@@ -373,6 +373,11 @@ export default class Space {
 
   resize (): void {
     const camera = this.camera
+
+    if (camera === undefined) {
+      return
+    }
+
     const ele = this.element
     if (ele.clientHeight === 0 || ele.clientWidth === 0) {
       throw new Error('element should had width and height before init.')

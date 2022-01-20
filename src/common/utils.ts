@@ -120,3 +120,19 @@ export function initCapacityMaterial (value: number, color: string): ShaderMater
   })
   return customMaterial
 }
+
+export function detectWebGLContext (): boolean {
+  // Create canvas element. The canvas is not added to the
+  // document itself, so it is never displayed in the
+  // browser window.
+  const canvas = document.createElement('canvas')
+  // Get WebGLRenderingContext from canvas element.
+
+  const gl = canvas?.getContext('webgl')
+  // Report the result.
+  if (gl !== undefined && gl !== null && gl instanceof WebGLRenderingContext) {
+    return true
+  } else {
+    return false
+  }
+}

@@ -4,11 +4,15 @@ import BoxHelperWrap from './common/BoxHelperWrap'
 import Events from './common/Events'
 import Object3DWrap from './common/Object3DWrap'
 import Space from './common/Space'
-import { findParent, checkNameIncludes, findChildren, getScreenPosition, initCapacityMaterial } from './common/utils'
+import { findParent, checkNameIncludes, findChildren, getScreenPosition, initCapacityMaterial, detectWebGLContext } from './common/utils'
 import { updateChart1, updateChart2, updateChart3 } from './index-chart'
 import Heatmap from './common/Heatmap'
 import { Modal } from 'bootstrap'
 import { IPoint } from './type'
+
+if (detectWebGLContext() === false) {
+  alert('Your browser or device may not support WebGL.')
+}
 
 const element = document.getElementById('3d-space')
 if (element === null) {
