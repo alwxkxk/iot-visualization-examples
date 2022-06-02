@@ -9,7 +9,7 @@ yarn
 # build
 npm run build
 # run server
-npm run server
+npm run dev
 ```
 
 ## example
