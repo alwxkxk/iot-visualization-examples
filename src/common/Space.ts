@@ -2,7 +2,7 @@ import mitt, { Emitter } from 'mitt'
 import {
   DefaultLoadingManager,
   FileLoader,
-  HemisphereLight,
+
   LoaderUtils,
   Object3D,
   PerspectiveCamera,
@@ -23,6 +23,11 @@ import Events from './Events'
 import { throttle } from 'lodash-es'
 import { Easing, Tween } from '@tweenjs/tween.js'
 import { IOffset3 } from '../type'
+
+// bloom
+import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js'
+import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js'
+import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js'
 
 interface ISpaceOptions {
   orbit?: boolean
@@ -51,9 +56,12 @@ export default class Space {
   orbit: OrbitControls
   object3DWrapNameMap: Map<string, Object3DWrap>
   raycasterObjects: Object3D[]
-  mouseEvent: MouseEvent
+  mouseEvent: any
   focusTween: Tween<any>|null
   cameraOriginPosition: Vector3
+  bloomFlag: boolean
+  bloomComposer: EffectComposer
+
   constructor (element: HTMLElement, options?: ISpaceOptions) {
     this.element = element
     this.options = { ...options }
@@ -88,6 +96,19 @@ export default class Space {
 
     this.raycaster = new Raycaster()
     this.mouse = new Vector2()
+  }
+
+  initBloom (threshold = 0.3, strength = 2, radius = 0.3): void {
+    const renderScene = new RenderPass(this.scene, this.camera)
+    const bloomPass = new UnrealBloomPass(new Vector2(this.innerWidth, this.innerHeight), 1.5, 0.4, 0.85)
+    bloomPass.threshold = threshold
+    bloomPass.strength = strength
+    bloomPass.radius = radius
+    const bloomComposer = new EffectComposer(this.renderer)
+    this.bloomComposer = bloomComposer
+    this.bloomFlag = true
+    bloomComposer.addPass(renderScene)
+    bloomComposer.addPass(bloomPass)
   }
 
   async load (fileUrl: string): Promise<any> {
@@ -126,10 +147,9 @@ export default class Space {
 
   afterLoaded (gltf: any): void {
     const scene = this.scene = gltf.scene
-    this.camera = new PerspectiveCamera(20, this.innerWidth / this.innerHeight, 0.1, 1000)
+    this.camera = new PerspectiveCamera(20, this.innerWidth / this.innerHeight, 0.1, 100000)
 
     scene.add(this.camera)
-    scene.add(new HemisphereLight(0xffffff, 0xffffff, 1))
 
     scene.traverse((item: Object3D) => {
       const objectWrap = new Object3DWrap(item)
@@ -144,6 +164,13 @@ export default class Space {
 
     this.animateWrap = this.animate.bind(this)
     this.animate()
+  }
+
+  createEmptyScene (): void {
+    const gltf = {
+      scene: new Scene()
+    }
+    this.afterLoaded(gltf)
   }
 
   initOrbit (): void {
@@ -164,7 +191,11 @@ export default class Space {
     }
     requestAnimationFrame(this.animateWrap)
     this.emitter.emit(Events.animate)
-    this.renderer.render(this.scene, this.camera)
+    if (this.bloomFlag) {
+      this.bloomComposer.render()
+    } else {
+      this.renderer.render(this.scene, this.camera)
+    }
   }
 
   // #endregion init and load
@@ -207,6 +238,7 @@ export default class Space {
         this.element.removeEventListener(eventName, funWrap)
       })
     }
+
     const clickFlag = options.click
     if (clickFlag !== false) {
       initRaycasterEvent('click')
@@ -219,6 +251,39 @@ export default class Space {
     if (mousemoveFlag !== false) {
       initRaycasterEvent('mousemove')
     }
+
+    // 支持触屏
+    let clickTimer: any = null
+    const touchStart: EventListenerOrEventListenerObject = (event: TouchEvent) => {
+      // 多点操作时，不触发点击双击事件
+      if (event.touches.length > 1) {
+        return
+      }
+      // 通过时间间隔来判断 是单击还是双击
+      if (clickTimer === null) {
+        clickTimer = setTimeout(() => {
+          clickTimer = null
+          // console.log('single touch', event)
+          this.mouseEvent = event
+          this.mouse.x = (event.changedTouches[0].pageX - (this.offset.left)) / this.innerWidth * 2 - 1
+          this.mouse.y = -((event.changedTouches[0].pageY - (this.offset.top)) / this.innerHeight) * 2 + 1
+          this.emitter.emit(Events.click.raycaster, this.getRaycasterIntersectObjects())
+        }, 300)
+      } else {
+        clearTimeout(clickTimer)
+        clickTimer = null
+        // console.log('double touch', event)
+
+        this.mouseEvent = event
+        this.mouse.x = (event.changedTouches[0].pageX - (this.offset.left)) / this.innerWidth * 2 - 1
+        this.mouse.y = -((event.changedTouches[0].pageY - (this.offset.top)) / this.innerHeight) * 2 + 1
+        this.emitter.emit(Events.dblclick.raycaster, this.getRaycasterIntersectObjects())
+      }
+    }
+    this.element.addEventListener('touchstart', touchStart)
+    this.emitter.on(Events.dispose, () => {
+      this.element.removeEventListener('touchstart', touchStart)
+    })
   }
 
   setRaycasterObjects (objList: Object3D[]): void {
